@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "28966762484",
+    "project_id": "cop-app-747ca",
+    "storage_bucket": "cop-app-747ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28966762484:android:766a894510e3511bc5eba1",
+        "android_client_info": {
+          "package_name": "com.copbelgium.copbelgium"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChUoTecFYVOm4mEcxOa198yWar40vt1wY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
