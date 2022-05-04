@@ -1,4 +1,5 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/info_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/profile_image_picker_view.dart';
@@ -50,8 +51,9 @@ class _SignUpPageViewState extends State<SignUpPageView> {
             children: const [
               AddInfoView(),
               GenderView(),
+              DatePickerView(),
+              _ChurchSelectionView(),
               ProfileImagePickerView(),
-              _ChurchSelectionView()
             ],
           ),
         ),
@@ -77,22 +79,28 @@ class _ChurchSelectionViewState extends State<_ChurchSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        await _previousPage();
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: CustomBackButton(onPressed: _previousPage),
-          title: const Text('Church', style: kFontH6),
-        ),
-        body: ChurchSelectionView(
-          onTap: (church) {
-            if (church != null) {}
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return WillPopScope(
+          onWillPop: () async {
+            await _previousPage();
+            return false;
           },
-        ),
-      ),
+          child: Scaffold(
+            appBar: AppBar(
+              leading: CustomBackButton(onPressed: _previousPage),
+              title: const Text('Church', style: kFontH6),
+            ),
+            body: ChurchSelectionView(
+              onTap: (church) {
+                if (church != null) {
+                  signUpNotifier.setSelectedChurch(value: church);
+                }
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

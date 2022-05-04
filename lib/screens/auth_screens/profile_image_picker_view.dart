@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -179,15 +180,19 @@ class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
     );
   }
 
-  CustomElevatedButton _continueButton() {
-    return CustomElevatedButton(
-      width: double.infinity,
-      backgroundColor: kBlue,
-      child: Text(
-        'Continue',
-        style: kFontBody.copyWith(color: kWhite),
-      ),
-      onPressed: submit,
+  Widget _continueButton() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return CustomElevatedButton(
+          width: double.infinity,
+          backgroundColor: kBlue,
+          child: Text(
+            'Continue',
+            style: kFontBody.copyWith(color: kWhite),
+          ),
+          onPressed: submit,
+        );
+      },
     );
   }
 }

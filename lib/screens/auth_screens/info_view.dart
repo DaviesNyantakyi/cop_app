@@ -192,7 +192,8 @@ class _AddInfoViewState extends State<AddInfoView> {
           onChanged: (value) {
             signUpNotifier.validatePassword();
           },
-          onSubmitted: signUpNotifier.validForm ? (value) => submit() : null,
+          onSubmitted:
+              signUpNotifier.infoFormIsValid ? (value) => submit() : null,
         ),
       );
     });
@@ -202,16 +203,16 @@ class _AddInfoViewState extends State<AddInfoView> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
-          backgroundColor: signUpNotifier.validForm ? kBlue : kGreyLight,
+          backgroundColor: signUpNotifier.infoFormIsValid ? kBlue : kGreyLight,
           width: double.infinity,
           child: Text(
             'Continue',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.validForm ? kWhite : kGrey,
+              color: signUpNotifier.infoFormIsValid ? kWhite : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.validForm ? submit : null,
+          onPressed: signUpNotifier.infoFormIsValid ? submit : null,
         );
       },
     );

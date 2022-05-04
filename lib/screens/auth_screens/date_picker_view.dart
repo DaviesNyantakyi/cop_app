@@ -1,12 +1,15 @@
+import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/date_picker.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DatePickerView extends StatefulWidget {
   const DatePickerView({Key? key}) : super(key: key);
@@ -16,20 +19,15 @@ class DatePickerView extends StatefulWidget {
 }
 
 class _DatePickerViewState extends State<DatePickerView> {
-  // The selected date of birth.
-  DateTime selectedDate = DateTime.now();
-
-  // The text shown when no date is selected.
-  String? errorText;
-
-  // If the chosen date is valid or not.
-  bool validForm = false;
-
   Future<void> submit() async {
+    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     bool hasConnection = await ConnectionChecker().checkConnection();
 
     if (hasConnection) {
-      errorText = Validators.birthdayValidator(date: selectedDate);
+      signUpNotifier.validateDate();
+      if (signUpNotifier.dateOfBirthIsValid) {
+        _nextPage();
+      }
     } else {
       kShowSnackbar(
         context: context,
@@ -37,45 +35,49 @@ class _DatePickerViewState extends State<DatePickerView> {
         message: ConnectionChecker.connectionException.message ?? '',
       );
     }
-    setState(() {});
   }
 
-  void validateDate() {
-    DateTime today = DateTime.now();
-
-    errorText = Validators.birthdayValidator(
-      date: selectedDate,
+  Future<void> _previousPage() async {
+    await Provider.of<PageController>(context, listen: false).previousPage(
+      duration: kPagViewDuration,
+      curve: kPagViewCurve,
     );
+  }
 
-    // The form is valid if there is no error text and
-    // if the selectedDate's year is smaller then current year.
-    if (errorText == null && selectedDate.year < today.year) {
-      validForm = true;
-    } else {
-      validForm = false;
-    }
-    setState(() {});
+  Future<void> _nextPage() async {
+    await Provider.of<PageController>(context, listen: false).nextPage(
+      duration: kPagViewDuration,
+      curve: kPagViewCurve,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kContentSpacing16,
-            vertical: kContentSpacing24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _headerText(),
-              const SizedBox(height: kContentSpacing24),
-              _datePicker(),
-              const SizedBox(height: kContentSpacing32),
-              _continueButton()
-            ],
+    return WillPopScope(
+      onWillPop: () async {
+        await _previousPage();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: CustomBackButton(onPressed: () => _previousPage()),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kContentSpacing16,
+              vertical: kContentSpacing24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _headerText(),
+                const SizedBox(height: kContentSpacing24),
+                _datePicker(),
+                const SizedBox(height: kContentSpacing32),
+                _continueButton()
+              ],
+            ),
           ),
         ),
       ),
@@ -100,62 +102,75 @@ class _DatePickerViewState extends State<DatePickerView> {
     );
   }
 
-  Column _datePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CustomElevatedButton(
-          side: BorderSide(color: validForm ? kBlue : kGrey),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kContentSpacing8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+  Consumer _datePicker() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomElevatedButton(
+              side: BorderSide(
+                color: signUpNotifier.dateOfBirthIsValid ? kBlue : kGrey,
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: kContentSpacing8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      color: kBlack,
-                      size: kIconSize,
-                    ),
-                    const SizedBox(width: kContentSpacing8),
-                    Text(
-                      FormalDates.formatDmyyyy(date: selectedDate),
-                      style: kFontBody,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          color: kBlack,
+                          size: kIconSize,
+                        ),
+                        const SizedBox(width: kContentSpacing8),
+                        Text(
+                          FormalDates.formatDmyyyy(
+                            date: signUpNotifier.dateOfBirth,
+                          ),
+                          style: kFontBody,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          onPressed: () async {
-            await showCustomDatePicker(
-              initialDateTime: selectedDate,
-              maxDate: DateTime.now(),
-              mode: CupertinoDatePickerMode.date,
-              context: context,
-              onChanged: (date) {
-                selectedDate = date;
-                validateDate();
-                setState(() {});
+              ),
+              onPressed: () async {
+                await showCustomDatePicker(
+                  initialDateTime: signUpNotifier.dateOfBirth,
+                  maxDate: DateTime.now(),
+                  mode: CupertinoDatePickerMode.date,
+                  context: context,
+                  onChanged: (date) {
+                    signUpNotifier.setDateOfBirth(value: date);
+                    signUpNotifier.validateDate();
+                  },
+                );
               },
-            );
-          },
-        ),
-        Validators().showValidationWidget(errorText: errorText)
-      ],
+            ),
+            Validators().showValidationWidget(
+              errorText: signUpNotifier.errorText,
+            )
+          ],
+        );
+      },
     );
   }
 
-  CustomElevatedButton _continueButton() {
-    return CustomElevatedButton(
-      width: double.infinity,
-      backgroundColor: validForm ? kBlue : kGreyLight,
-      child: Text(
-        'Continue',
-        style: kFontBody.copyWith(color: validForm ? kWhite : kGrey),
-      ),
-      onPressed: validForm ? submit : null,
-    );
+  Widget _continueButton() {
+    return Consumer<SignUpNotifier>(builder: (context, signUpNotifier, _) {
+      final dateOfBirthIsValid = signUpNotifier.dateOfBirthIsValid;
+      return CustomElevatedButton(
+        width: double.infinity,
+        backgroundColor: dateOfBirthIsValid ? kBlue : kGreyLight,
+        child: Text(
+          'Continue',
+          style: kFontBody.copyWith(color: dateOfBirthIsValid ? kWhite : kGrey),
+        ),
+        onPressed: dateOfBirthIsValid ? submit : null,
+      );
+    });
   }
 }
