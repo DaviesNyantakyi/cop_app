@@ -16,10 +16,7 @@ class CloudFire {
   // User
   Future<void> createUserDoc({required UserModel user}) async {
     try {
-      if (user.id != null &&
-          user.lastName != null &&
-          user.firstName != null &&
-          user.email != null) {
+      if (user.id != null && user.email != null) {
         await _firebaseFirestore
             .collection('users')
             .doc(user.id)
