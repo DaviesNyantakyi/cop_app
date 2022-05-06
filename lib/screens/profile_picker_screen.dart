@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/image_picker.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
@@ -12,14 +11,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 
-class ProfileImagePickerView extends StatefulWidget {
-  const ProfileImagePickerView({Key? key}) : super(key: key);
+class ProfilePickerScreen extends StatefulWidget {
+  final Future<bool> Function()? onWillpop;
+  final VoidCallback? backButton;
+  final VoidCallback? submitButton;
+  const ProfilePickerScreen({
+    Key? key,
+    required this.onWillpop,
+    required this.backButton,
+    required this.submitButton,
+  }) : super(key: key);
 
   @override
-  State<ProfileImagePickerView> createState() => _ProfileImagePickerViewState();
+  State<ProfilePickerScreen> createState() => _ProfilePickerScreenState();
 }
 
-class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
+class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
   final _firebaseAuth = FirebaseAuth.instance;
   final MyImagePicker myImagePicker = MyImagePicker();
 
@@ -29,7 +36,6 @@ class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
 
       await FireStorage().uploadProfileImage(
         image: myImagePicker.image,
-        // delete: false,
       );
       await _firebaseAuth.currentUser?.reload();
     } on FirebaseException catch (e) {
@@ -77,41 +83,13 @@ class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
     }
   }
 
-  Future<void> _previousPage() async {
-    await Provider.of<PageController>(context, listen: false).previousPage(
-      duration: kPagViewDuration,
-      curve: kPagViewCurve,
-    );
-  }
-
-  Future<void> submit() async {
-    bool hasConnection = await ConnectionChecker().checkConnection();
-
-    if (hasConnection) {
-      await Provider.of<PageController>(context, listen: false).nextPage(
-        duration: kPagViewDuration,
-        curve: kPagViewCurve,
-      );
-    } else {
-      kShowSnackbar(
-        context: context,
-        type: SnackBarType.error,
-        message: ConnectionChecker.connectionException.message ?? '',
-      );
-    }
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        await _previousPage();
-        return false;
-      },
+      onWillPop: widget.onWillpop,
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(onPressed: _previousPage),
+          leading: CustomBackButton(onPressed: widget.backButton),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -126,7 +104,7 @@ class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
                 const SizedBox(height: kContentSpacing32),
                 _buildAvatar(),
                 const SizedBox(height: kContentSpacing32),
-                _continueButton()
+                _submitButton()
               ],
             ),
           ),
@@ -180,17 +158,17 @@ class _ProfileImagePickerViewState extends State<ProfileImagePickerView> {
     );
   }
 
-  Widget _continueButton() {
+  Widget _submitButton() {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
           width: double.infinity,
           backgroundColor: kBlue,
           child: Text(
-            'Continue',
+            'Done',
             style: kFontBody.copyWith(color: kWhite),
           ),
-          onPressed: submit,
+          onPressed: widget.submitButton,
         );
       },
     );

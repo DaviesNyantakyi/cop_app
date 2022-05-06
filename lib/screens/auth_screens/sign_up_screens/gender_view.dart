@@ -19,7 +19,7 @@ class GenderView extends StatefulWidget {
 
 class _GenderViewState extends State<GenderView> {
   Future<void> submit() async {
-    bool hasConnection = await ConnectionChecker().checkConnection();
+    bool hasConnection = await ConnectionNotifier().checkConnection();
 
     if (hasConnection) {
       await Provider.of<PageController>(context, listen: false).nextPage(
@@ -30,7 +30,7 @@ class _GenderViewState extends State<GenderView> {
       kShowSnackbar(
         context: context,
         type: SnackBarType.error,
-        message: ConnectionChecker.connectionException.message ?? '',
+        message: ConnectionNotifier.connectionException.message ?? '',
       );
     }
   }
@@ -75,26 +75,30 @@ class _GenderViewState extends State<GenderView> {
     );
   }
 
-  Column _headerText() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'What\'s your gender,',
-          style: kFontH5,
-        ),
-        Text(
-          'Eva Smith?',
-          style: kFontH5,
-        ),
-      ],
+  Widget _headerText() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'What\'s your gender,',
+              style: kFontH5,
+            ),
+            Text(
+              '${signUpNotifier.displayName ?? signUpNotifier.firstNameCntlr.text.trim()}?',
+              style: kFontH5,
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _genderButtons() {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
-        final gender = signUpNotifier.gender;
+        final gender = signUpNotifier.selectedGender;
         return Row(
           children: [
             Expanded(
@@ -129,7 +133,7 @@ class _GenderViewState extends State<GenderView> {
   Widget _continueButton() {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
-        final gender = signUpNotifier.gender;
+        final gender = signUpNotifier.selectedGender;
         return CustomElevatedButton(
           width: double.infinity,
           backgroundColor: kBlue,

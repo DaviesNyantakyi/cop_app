@@ -1,9 +1,14 @@
 import 'package:cop_belgium_app/models/church_model.dart';
-import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_screens/gender_view.dart';
+import 'package:cop_belgium_app/services/fire_auth.dart';
+import 'package:cop_belgium_app/utilities/enum_to_string.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignUpNotifier extends ChangeNotifier {
+  final FireAuth _auth = FireAuth();
   final TextEditingController firstNameCntlr = TextEditingController();
   final TextEditingController lastNameCntlr = TextEditingController();
   final TextEditingController emailCntlr = TextEditingController();
@@ -14,9 +19,10 @@ class SignUpNotifier extends ChangeNotifier {
   final emailKey = GlobalKey<FormState>();
   final passwordKey = GlobalKey<FormState>();
 
-  DateTime _dateOfBirth = DateTime.now();
-  Gender? _gender;
+  DateTime? _dateOfBirth;
+  Gender? _selectedGender;
   String? _dateOfBirthErrorText;
+  String? _displayName;
 
   bool obscureText = true;
 
@@ -31,11 +37,12 @@ class SignUpNotifier extends ChangeNotifier {
 
   ChurchModel? _churchModel;
 
-  Gender? get gender => _gender;
-  DateTime get dateOfBirth => _dateOfBirth;
+  Gender? get selectedGender => _selectedGender;
+  DateTime? get dateOfBirth => _dateOfBirth;
   String? get errorText => _dateOfBirthErrorText;
+  String? get displayName => _displayName;
   bool get dateOfBirthIsValid => _dateOfBirthIsValid;
-  ChurchModel? get churchModel => _churchModel;
+  ChurchModel? get _selectedChurch => _churchModel;
 
   // Checks if the all the form fields are valid.
   void validateForm() {
@@ -57,7 +64,13 @@ class SignUpNotifier extends ChangeNotifier {
 
   // Set the selected gender
   void setGender({required dynamic value}) {
-    _gender = value;
+    _selectedGender = value;
+    notifyListeners();
+  }
+
+  // Set the selected gender
+  void setDisplayName() {
+    _displayName = '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
     notifyListeners();
   }
 
@@ -113,17 +126,50 @@ class SignUpNotifier extends ChangeNotifier {
       date: _dateOfBirth,
     );
 
-    // The form is valid if there is no error text and
-    // if the selectedDate's year is smaller then current year.
-    if (errorText == null && _dateOfBirth.year < today.year) {
-      _dateOfBirthIsValid = true;
+    if (_dateOfBirth != null) {
+      // The form is valid if there is no error text and
+      // if the selectedDate year is smaller then current year.
+      if (errorText == null && _dateOfBirth!.year < today.year) {
+        _dateOfBirthIsValid = true;
+      } else {
+        _dateOfBirthIsValid = false;
+      }
     } else {
       _dateOfBirthIsValid = false;
     }
     notifyListeners();
   }
 
-  Future<void> signUp() async {}
+  Future<User?> signUp() async {
+    try {
+      if (firstNameCntlr.text.isNotEmpty &&
+          lastNameCntlr.text.isNotEmpty &&
+          _selectedChurch != null &&
+          _dateOfBirth != null) {
+        final user = UserModel(
+          firstName: firstNameCntlr.text.trim(),
+          lastName: lastNameCntlr.text.trim(),
+          displayName: _displayName ??
+              '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}',
+          dateOfBirth: _dateOfBirth!,
+          email: emailCntlr.text.trim(),
+          gender: enumToString(object: _selectedGender),
+          church: {
+            'id': _selectedChurch!.id,
+            'churchName': _selectedChurch!.churchName
+          },
+        );
+
+        return await _auth.createUserEmailPassword(
+          user: user,
+          password: passwordCntlr.text,
+        );
+      }
+      return null;
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   // Resets the sign up process.
   void close() {
@@ -131,7 +177,9 @@ class SignUpNotifier extends ChangeNotifier {
     firstNameCntlr.text = '';
     lastNameCntlr.text = '';
     passwordCntlr.text = '';
-    _gender = null;
+    _displayName = '';
+
+    _selectedGender = null;
     infoFormIsValid = false;
     firstNameFormIsValid = false;
     lastNameFormIsValid = false;
@@ -139,8 +187,8 @@ class SignUpNotifier extends ChangeNotifier {
     passwordFormIsValid = false;
     _dateOfBirthErrorText = null;
     obscureText = true;
-    _dateOfBirth = DateTime.now();
 
+    _dateOfBirth = DateTime.now();
     firstNameKey.currentState?.reset();
     lastNameKey.currentState?.reset();
     emailKey.currentState?.reset();

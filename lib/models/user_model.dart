@@ -1,63 +1,84 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
   String? id;
-  String? photoUrl;
-  String firstName;
-  String displayName;
-  String lastName;
-  String email;
-  String gender;
-  String? church;
-  DateTime birthDate;
-  bool isAdmin;
+  String? photoURL;
+  String? firstName;
+  String? displayName;
+  String? lastName;
+  String? email;
+  String? gender;
+  Map<String, dynamic>? church;
+  DateTime? dateOfBirth;
 
   UserModel({
     this.id,
-    this.photoUrl,
-    required this.isAdmin,
+    this.photoURL,
     required this.firstName,
     required this.lastName,
     required this.displayName,
-    required this.birthDate,
+    this.dateOfBirth,
     required this.email,
     this.church,
-    required this.gender,
+    this.gender,
   });
 
   static UserModel fromMap({required Map<String, dynamic> map}) {
-    final birthDate = (map['birthDate'] as Timestamp).millisecondsSinceEpoch;
+    final birthDate = (map['dateOfBirth'] as Timestamp).millisecondsSinceEpoch;
     return UserModel(
       id: map['id'],
-      photoUrl: map['photoUrl'],
-      birthDate: DateTime.fromMillisecondsSinceEpoch(birthDate),
+      photoURL: map['photoURL'],
+      dateOfBirth: DateTime.fromMillisecondsSinceEpoch(birthDate),
       firstName: map['firstName'],
       lastName: map['lastName'],
       displayName: map['displayName'],
       email: map['email'],
       church: map['church'],
       gender: map['gender'],
-      isAdmin: map['isAdmin'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'photoUrl': photoUrl,
+      'photoURL': photoURL,
       'firstName': firstName,
       'lastName': lastName,
       'displayName': displayName,
-      'isAdmin': isAdmin,
-      'birthDate': birthDate,
+      'dateOfBirth': dateOfBirth,
       'email': email,
       'gender': gender,
       'church': church
     };
   }
 
+  UserModel copyWith({
+    String? id,
+    String? photoURL,
+    String? firstName,
+    String? displayName,
+    String? lastName,
+    String? email,
+    String? gender,
+    Map<String, dynamic>? church,
+    DateTime? dateOfBirth,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      photoURL: photoURL ?? this.photoURL,
+      firstName: firstName ?? this.firstName,
+      displayName: displayName ?? this.displayName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      gender: gender ?? this.gender,
+      church: church ?? this.church,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+    );
+  }
+
   @override
   String toString() {
-    return 'Church(id: $id, photoUrl:$photoUrl, churchName: $firstName, phoneNumber: $lastName, displayName: $displayName email: $email, isAdmin: $isAdmin, birthDate: $birthDate, gender: $gender, church: $church)';
+    return 'UserModel(id: $id, photoURL: $photoURL, firstName: $firstName, displayName: $displayName, lastName: $lastName, email: $email, gender: $gender, church: $church, dateOfBirth: $dateOfBirth)';
   }
 }

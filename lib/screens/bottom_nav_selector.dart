@@ -1,4 +1,6 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/widgets/buttons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavScreen extends StatefulWidget {
@@ -10,7 +12,7 @@ class BottomNavScreen extends StatefulWidget {
 }
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
-  int _selectedIndex = 3;
+  int _selectedIndex = 0;
 
   final List<Widget> _screens = [
     // PodcastScreen(),
@@ -18,7 +20,16 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     // TestimoniesScreen(),
     // MoreScreen()
 
-    Container(),
+    Scaffold(
+      body: Center(
+        child: CustomElevatedButton(
+          child: const Text('Logout'),
+          onPressed: () {
+            FirebaseAuth.instance.signOut();
+          },
+        ),
+      ),
+    ),
     Container(),
     Container(),
     Container(),
@@ -64,12 +75,12 @@ Widget _buildBottomNavBar({Function(int)? onTap, required int index}) {
         icon: Icons.podcasts_outlined,
       ),
       _buildBottomNavItem(
-        label: 'Events',
-        icon: Icons.calendar_today_outlined,
+        label: 'Videos',
+        icon: Icons.video_library_outlined,
       ),
       _buildBottomNavItem(
-        label: 'Testimonies',
-        icon: Icons.format_quote_outlined,
+        label: 'Q&A',
+        icon: Icons.question_answer_outlined,
       ),
       _buildBottomNavItem(
         label: 'More',
@@ -83,14 +94,12 @@ BottomNavigationBarItem _buildBottomNavItem({
   required String label,
   required IconData icon,
 }) {
-  final Color _bottomNavColor = Colors.blueGrey.shade300;
-
   return BottomNavigationBarItem(
     label: label,
     tooltip: label,
     icon: Icon(
       icon,
-      color: _bottomNavColor,
+      color: kGrey,
     ),
     activeIcon: Icon(
       icon,

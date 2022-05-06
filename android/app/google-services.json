@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:28966762484:android:766a894510e3511bc5eba1",
+        "mobilesdk_app_id": "1:28966762484:android:de1960a8632b407ec5eba1",
         "android_client_info": {
-          "package_name": "com.copbelgium.copbelgium"
+          "package_name": "com.copbelgium.copbelgiumapp"
         }
       },
       "oauth_client": [

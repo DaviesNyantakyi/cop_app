@@ -94,7 +94,7 @@ class _ChurchSelectionViewState extends State<ChurchSelectionView> {
                       );
                     },
                     separatorBuilder: (context, index) => const SizedBox(
-                      height: kContentSpacing12,
+                      height: kContentSpacing8,
                     ),
                     itemCount: churches.length,
                   );

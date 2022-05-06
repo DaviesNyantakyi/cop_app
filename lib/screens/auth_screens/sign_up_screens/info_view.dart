@@ -22,25 +22,31 @@ class _AddInfoViewState extends State<AddInfoView> {
     FocusScope.of(context).unfocus();
 
     // Check for network connection
-    bool hasConnection = await ConnectionChecker().checkConnection();
+    bool hasConnection = await ConnectionNotifier().checkConnection();
 
     if (hasConnection) {
       final signUpNotifier = Provider.of<SignUpNotifier>(
         context,
         listen: false,
       );
+
+      final pageController = Provider.of<PageController>(
+        context,
+        listen: false,
+      );
+
       // Validate the text field before continuing.
       final validFirstName = signUpNotifier.validateFirstNameForm();
       final validLastName = signUpNotifier.validateLastNameForm();
       final validEmail = signUpNotifier.validateEmailForm();
       final validPassword = signUpNotifier.validatePassword();
-      setState(() {});
 
       if (validFirstName == true &&
           validLastName == true &&
           validEmail == true &&
           validPassword == true) {
-        await Provider.of<PageController>(context, listen: false).nextPage(
+        signUpNotifier.setDisplayName();
+        await pageController.nextPage(
           duration: kPagViewDuration,
           curve: kPagViewCurve,
         );
@@ -49,7 +55,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       kShowSnackbar(
         context: context,
         type: SnackBarType.error,
-        message: ConnectionChecker.connectionException.message ?? '',
+        message: ConnectionNotifier.connectionException.message ?? '',
       );
     }
   }

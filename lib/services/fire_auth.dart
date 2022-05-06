@@ -15,32 +15,39 @@ class FireAuth {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<User?> createUserEmailPassword(
-      {required UserModel user, String? password}) async {
+      {required UserModel user, required String password}) async {
     try {
-      if (user.firstName.isNotEmpty &&
-          user.lastName.isNotEmpty &&
-          user.gender.isNotEmpty &&
-          user.email.isNotEmpty &&
-          password != null) {
-        String displayName = '${user.firstName} ${user.lastName}';
+      final hasConnection = await ConnectionNotifier().checkConnection();
+      if (hasConnection == true) {
+        if (user.firstName != null &&
+            user.lastName != null &&
+            user.gender != null &&
+            user.email != null &&
+            password.isNotEmpty &&
+            user.church != null) {
+          // Delete anon user if he desides to signup.
+          if (_firebaseAuth.currentUser?.isAnonymous == true) {
+            await _firebaseAuth.currentUser?.delete();
+          }
 
-        // Delete anon user if he desides to signup.
-        if (_firebaseAuth.currentUser?.isAnonymous == true) {
-          await _firebaseAuth.currentUser?.delete();
+          await _firebaseAuth.createUserWithEmailAndPassword(
+            email: user.email!,
+            password: password,
+          );
+          await _firebaseAuth.currentUser?.updateDisplayName(user.displayName);
+
+          final updatedUser = user.copyWith(id: _firebaseAuth.currentUser?.uid);
+
+          await _cloudFire.createUserDoc(user: updatedUser);
+          user.id = _firebaseAuth.currentUser?.uid;
+
+          await _firebaseAuth.currentUser?.reload();
+          return _firebaseAuth.currentUser;
+        } else {
+          return null;
         }
-
-        await _firebaseAuth.createUserWithEmailAndPassword(
-          email: user.email,
-          password: password,
-        );
-        await _firebaseAuth.currentUser?.updateDisplayName(displayName);
-        user.id = _firebaseAuth.currentUser?.uid;
-        await _cloudFire.createUserDoc(user: user);
-
-        await _firebaseAuth.currentUser?.reload();
-        return _firebaseAuth.currentUser;
       } else {
-        return null;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseAuthException catch (e) {
       debugPrint(e.toString());
@@ -54,9 +61,9 @@ class FireAuth {
     required String password,
   }) async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (result) {
+      if (hasConnection) {
         if (email.isNotEmpty && password.isNotEmpty) {
           // Delete anon user if he desides to signup.
           if (_firebaseAuth.currentUser?.isAnonymous == true) {
@@ -72,7 +79,7 @@ class FireAuth {
         // return null if authentication fails.
         return null;
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -82,13 +89,13 @@ class FireAuth {
 
   Future<User?> loginAnonymous() async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (result) {
+      if (hasConnection) {
         await _firebaseAuth.signInAnonymously();
         return _firebaseAuth.currentUser;
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -136,39 +143,42 @@ class FireAuth {
 
   Future<UserCredential?> loginGoogle() async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (result) {
+      if (hasConnection) {
         // Show the authentication flow (dialog).
         final googleUser = await _googleSignIn.signIn();
 
         if (googleUser != null) {
-          final user = await googleUser.authentication;
+          final googelUser = await googleUser.authentication;
           final cred = GoogleAuthProvider.credential(
-            idToken: user.idToken,
-            accessToken: user.accessToken,
+            idToken: googelUser.idToken,
+            accessToken: googelUser.accessToken,
           );
           final userCred = await _firebaseAuth.signInWithCredential(cred);
 
           // Create create user document if it does not exist.
           // Try to get the user
-          // final userDoc =
-          //     await _cloudFire.getUser(id: _firebaseAuth.currentUser!.uid);
+          final userDoc =
+              await _cloudFire.getUser(id: _firebaseAuth.currentUser!.uid);
 
           // Create a user if in firestore if it does not exists.
-          // if (userDoc == null) {
-          //   final user = UserModel(
-          //     id: _firebaseAuth.currentUser?.uid,
-          //     firstName: _firebaseAuth.currentUser!.displayName!,
-          //     email: _firebaseAuth.currentUser!.email!,
-          //     lastName: _firebaseAuth.currentUser?.photoURL,
-          //   );
-          //   await _cloudFire.createUser(user: user);
-          // }
+          if (userDoc == null) {
+            final user = UserModel(
+              id: _firebaseAuth.currentUser?.uid,
+              photoURL: _firebaseAuth.currentUser?.photoURL,
+              firstName: null,
+              dateOfBirth: null,
+              lastName: null,
+              displayName: _firebaseAuth.currentUser?.displayName,
+              email: _firebaseAuth.currentUser?.email,
+            );
+            await _cloudFire.createUserDoc(user: user);
+          }
           return userCred;
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
 
       // Return null if the authentication flow fails.
@@ -182,13 +192,13 @@ class FireAuth {
 
   Future<User?> loginApple() async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (result) {
+      if (hasConnection) {
         // TODO: Implement login with Apple:
         // https://firebase.flutter.dev/docs/auth/social/#:~:text=see%20this%20issue.-,apple
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
 
       // Return null if the authentication flow fails.
@@ -203,9 +213,9 @@ class FireAuth {
   // Send email verifaction.
   Future<void> sendEmailVerfication() async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await InternetConnectionChecker().hasConnection;
 
-      if (result) {
+      if (hasConnection) {
         // Reload the current user info.
         await _firebaseAuth.currentUser?.reload();
 
@@ -217,7 +227,7 @@ class FireAuth {
           await _firebaseAuth.currentUser?.sendEmailVerification();
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -230,13 +240,19 @@ class FireAuth {
   Future<void> updateDisplayName(
       {required String firstName, required String lastName}) async {
     try {
-      final displayName = '$firstName $lastName';
-      if (firstName.isNotEmpty) {
-        await _firebaseAuth.currentUser?.updateDisplayName(displayName);
-        await _cloudFire.updateUsername(
-          firstName: displayName,
-          lastName: lastName,
-        );
+      final hasConnection = await InternetConnectionChecker().hasConnection;
+
+      if (hasConnection) {
+        final displayName = '$firstName $lastName';
+        if (firstName.isNotEmpty) {
+          await _firebaseAuth.currentUser?.updateDisplayName(displayName);
+          await _cloudFire.updateUsername(
+            firstName: displayName,
+            lastName: lastName,
+          );
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -250,8 +266,8 @@ class FireAuth {
     required String password,
   }) async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
-      if (result) {
+      final hasConnection = await InternetConnectionChecker().hasConnection;
+      if (hasConnection) {
         if (_firebaseAuth.currentUser?.email != null &&
             email.isNotEmpty &&
             password.isNotEmpty) {
@@ -274,7 +290,7 @@ class FireAuth {
           return true;
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
       return false;
     } catch (e) {
@@ -285,15 +301,15 @@ class FireAuth {
 
   Future<bool> sendPasswordReset() async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
-      if (result) {
+      final hasConnection = await InternetConnectionChecker().hasConnection;
+      if (hasConnection) {
         final email = _firebaseAuth.currentUser?.email;
         if (email != null) {
           await _firebaseAuth.sendPasswordResetEmail(email: email);
           return true;
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
       return false;
     } catch (e) {

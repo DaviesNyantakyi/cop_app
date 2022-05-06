@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
-class ConnectionChecker extends ChangeNotifier {
+class ConnectionNotifier extends ChangeNotifier {
   bool hasConnection = false;
 
   Future<void> intializeConnectionChecker() async {

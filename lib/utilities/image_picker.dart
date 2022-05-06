@@ -127,7 +127,7 @@ class MyImagePicker {
     required BuildContext context,
   }) async {
     bool? deleteImage = await showCustomBottomSheet(
-      showHeader: false,
+      showHeader: true,
       context: context,
       child: Material(
         child: SizedBox(

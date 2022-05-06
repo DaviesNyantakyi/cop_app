@@ -21,7 +21,7 @@ class DatePickerView extends StatefulWidget {
 class _DatePickerViewState extends State<DatePickerView> {
   Future<void> submit() async {
     final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
-    bool hasConnection = await ConnectionChecker().checkConnection();
+    bool hasConnection = await ConnectionNotifier().checkConnection();
 
     if (hasConnection) {
       signUpNotifier.validateDate();
@@ -32,7 +32,7 @@ class _DatePickerViewState extends State<DatePickerView> {
       kShowSnackbar(
         context: context,
         type: SnackBarType.error,
-        message: ConnectionChecker.connectionException.message ?? '',
+        message: ConnectionNotifier.connectionException.message ?? '',
       );
     }
   }
@@ -84,21 +84,25 @@ class _DatePickerViewState extends State<DatePickerView> {
     );
   }
 
-  Column _headerText() {
+  Widget _headerText() {
     final headerStyle = kFontH5.copyWith(fontWeight: FontWeight.normal);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'What\'s your date of birth,',
-          style: headerStyle,
-        ),
-        Text(
-          'Eva Smith?',
-          style: headerStyle,
-        ),
-      ],
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What\'s your date of birth,',
+              style: headerStyle,
+            ),
+            Text(
+              '${signUpNotifier.displayName ?? signUpNotifier.firstNameCntlr.text.trim()}?',
+              style: kFontH5,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -139,7 +143,7 @@ class _DatePickerViewState extends State<DatePickerView> {
               ),
               onPressed: () async {
                 await showCustomDatePicker(
-                  initialDateTime: signUpNotifier.dateOfBirth,
+                  initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
                   maxDate: DateTime.now(),
                   mode: CupertinoDatePickerMode.date,
                   context: context,

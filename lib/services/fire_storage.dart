@@ -41,10 +41,10 @@ class FireStorage {
               .putFile(image);
           final url = await getPhotoUrl(fileRef: ref.ref.fullPath);
           await _firebaseAuth.currentUser?.updatePhotoURL(url);
-          await _cloudFire.updatePhotoURL(photoUrl: url);
+          await _cloudFire.updatePhotoURL(photoURL: url);
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseStorage catch (e) {
       debugPrint(e.toString());
@@ -61,7 +61,7 @@ class FireStorage {
       final userId = _firebaseAuth.currentUser?.uid;
       if (userId != null) {
         await _fireStore.ref('users/$userId/images/$userId').delete();
-        await _cloudFire.updatePhotoURL(photoUrl: null);
+        await _cloudFire.updatePhotoURL(photoURL: null);
         await _firebaseAuth.currentUser?.updatePhotoURL(null);
       }
     } catch (e) {

@@ -13,8 +13,6 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-  FirebaseAuth auth = FirebaseAuth.instance;
-
   final authChanges = FirebaseAuth.instance.authStateChanges();
 
   @override

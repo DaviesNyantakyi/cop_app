@@ -13,13 +13,13 @@ Future<void> main() async {
 
   EasyLoading.instance
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-    ..loadingStyle = EasyLoadingStyle.dark
+    ..loadingStyle = EasyLoadingStyle.light
     ..indicatorSize = 45.0
-    ..radius = 10.0
-    ..backgroundColor = Colors.black
+    ..radius = 5
+    ..indicatorWidget = kCircularProgressIndicator
     ..maskType = EasyLoadingMaskType.black
-    ..userInteractions = true
     ..dismissOnTap = false;
+
   runApp(const MyApp());
 }
 

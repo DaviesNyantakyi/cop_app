@@ -11,15 +11,15 @@ class CloudFire {
   final _firebaseFirestore = FirebaseFirestore.instance;
   final _firebaseAuth = FirebaseAuth.instance;
 
-  final _connectionChecker = ConnectionChecker();
+  final _connectionChecker = ConnectionNotifier();
 
   // User
   Future<void> createUserDoc({required UserModel user}) async {
     try {
       if (user.id != null &&
-          user.lastName.isNotEmpty &&
-          user.firstName.isNotEmpty &&
-          user.email.isNotEmpty) {
+          user.lastName != null &&
+          user.firstName != null &&
+          user.email != null) {
         await _firebaseFirestore
             .collection('users')
             .doc(user.id)
@@ -31,15 +31,15 @@ class CloudFire {
     }
   }
 
-  Future<void> updatePhotoURL({required String? photoUrl}) async {
+  Future<void> updatePhotoURL({required String? photoURL}) async {
     try {
       await _firebaseFirestore
           .collection('users')
           .doc(_firebaseAuth.currentUser?.uid)
           .update({
-        'photoURL': photoUrl,
+        'photoURL': photoURL,
       });
-      await _firebaseAuth.currentUser?.updatePhotoURL(photoUrl);
+      await _firebaseAuth.currentUser?.updatePhotoURL(photoURL);
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
       rethrow;
@@ -110,7 +110,7 @@ class CloudFire {
     required String gender,
   }) async {
     try {
-      bool hasConnection = await ConnectionChecker().checkConnection();
+      bool hasConnection = await ConnectionNotifier().checkConnection();
       if (hasConnection) {
         String? displayName = '$firstName $lastName';
 
@@ -120,7 +120,7 @@ class CloudFire {
         await updateUserEmail(email: email);
         await updateUserGender(gender: gender);
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
@@ -133,15 +133,15 @@ class CloudFire {
 
   Future<UserModel?> getUser({required String? id}) async {
     try {
-      final result = await InternetConnectionChecker().hasConnection;
-      if (result) {
+      final hasConnection = await InternetConnectionChecker().hasConnection;
+      if (hasConnection) {
         final doc = await _firebaseFirestore.collection('users').doc(id).get();
         if (doc.exists) {
           return UserModel.fromMap(map: doc.data()!);
         }
         return null;
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -151,18 +151,23 @@ class CloudFire {
 
   Future<void> deleteUserInfo() async {
     try {
-      final uid = _firebaseAuth.currentUser?.uid;
-      if (uid != null) {
-        var collection = FirebaseFirestore.instance
-            .collection('users')
-            .doc(uid)
-            .collection('savedPodcasts');
-        var snapshots = await collection.get();
-        for (var doc in snapshots.docs) {
-          await doc.reference.delete();
+      final hasConnection = await ConnectionNotifier().checkConnection();
+      if (hasConnection) {
+        final uid = _firebaseAuth.currentUser?.uid;
+        if (uid != null) {
+          var collection = FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .collection('savedPodcasts');
+          var snapshots = await collection.get();
+          for (var doc in snapshots.docs) {
+            await doc.reference.delete();
+          }
+          await _firebaseFirestore.collection('users').doc(uid).delete();
+          await FireStorage().deleteUser();
         }
-        await _firebaseFirestore.collection('users').doc(uid).delete();
-        await FireStorage().deleteUser();
+      } else {
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
@@ -184,7 +189,7 @@ class CloudFire {
             .add(TestimonyModel.toMap(map: testimony));
         docRef.update({'id': docRef.id});
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -201,7 +206,7 @@ class CloudFire {
               TestimonyModel.toMap(map: tInfo),
             );
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
@@ -230,7 +235,7 @@ class CloudFire {
             .doc(testimony.id)
             .delete();
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
@@ -268,7 +273,7 @@ class CloudFire {
           deleteTestimonyLikeDoc(tInfo: tInfo, docRef: docRef);
         }
       } else {
-        throw ConnectionChecker.connectionException;
+        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       debugPrint(e.toString());

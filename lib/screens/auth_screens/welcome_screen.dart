@@ -1,15 +1,42 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/screens/auth_screens/signup_page_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_screens/signup_page_screen.dart';
+import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/cop_logo.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  Future<void> loginGoogle() async {
+    FireAuth fireAuth = FireAuth();
+    try {
+      EasyLoading.show();
+      await fireAuth.loginGoogle();
+    } on FirebaseException catch (e) {
+      kShowSnackbar(
+        context: context,
+        type: SnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +104,7 @@ class WelcomeScreen extends StatelessWidget {
           color: kWhite,
         ),
       ),
-      onPressed: () {},
+      onPressed: loginGoogle,
     );
   }
 
@@ -124,7 +151,7 @@ class WelcomeScreen extends StatelessWidget {
                       value: signUpNotifier,
                     ),
                   ],
-                  child: const SignUpPageView(),
+                  child: const SignUpPageScreen(),
                 ),
               ),
             );
