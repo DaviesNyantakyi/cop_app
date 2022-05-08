@@ -1,58 +1,34 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/gender_button.dart';
-import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 enum Gender { male, female }
 
 class GenderView extends StatefulWidget {
-  const GenderView({Key? key}) : super(key: key);
+  final PreferredSizeWidget? appBar;
+  final VoidCallback? onSubmit;
+  final Future<bool> Function()? onWillPop;
+
+  const GenderView({
+    Key? key,
+    this.onSubmit,
+    this.onWillPop,
+    this.appBar,
+  }) : super(key: key);
 
   @override
   State<GenderView> createState() => _GenderViewState();
 }
 
 class _GenderViewState extends State<GenderView> {
-  Future<void> submit() async {
-    bool hasConnection = await ConnectionNotifier().checkConnection();
-
-    if (hasConnection) {
-      await Provider.of<PageController>(context, listen: false).nextPage(
-        duration: kPagViewDuration,
-        curve: kPagViewCurve,
-      );
-    } else {
-      kShowSnackbar(
-        context: context,
-        type: SnackBarType.error,
-        message: ConnectionNotifier.connectionException.message ?? '',
-      );
-    }
-  }
-
-  Future<void> _previousPage() async {
-    await Provider.of<PageController>(context, listen: false).previousPage(
-      duration: kPagViewDuration,
-      curve: kPagViewCurve,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        await _previousPage();
-        return false;
-      },
+      onWillPop: widget.onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          leading: CustomBackButton(onPressed: () => _previousPage()),
-        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -141,7 +117,7 @@ class _GenderViewState extends State<GenderView> {
             'Continue',
             style: kFontBody.copyWith(color: gender != null ? kWhite : kGrey),
           ),
-          onPressed: gender != null ? submit : null,
+          onPressed: gender != null ? () => widget.onSubmit : null,
         );
       },
     );

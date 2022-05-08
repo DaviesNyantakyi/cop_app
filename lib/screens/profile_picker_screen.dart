@@ -3,7 +3,6 @@ import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/image_picker.dart';
-import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,14 +11,16 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePickerScreen extends StatefulWidget {
-  final Future<bool> Function()? onWillpop;
-  final VoidCallback? backButton;
-  final VoidCallback? submitButton;
+  final VoidCallback? onSubmit;
+  final PreferredSizeWidget? appBar;
+
+  final Future<bool> Function()? onWillPop;
+
   const ProfilePickerScreen({
     Key? key,
-    required this.onWillpop,
-    required this.backButton,
-    required this.submitButton,
+    required this.onSubmit,
+    this.appBar,
+    this.onWillPop,
   }) : super(key: key);
 
   @override
@@ -85,28 +86,22 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: widget.onWillpop,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: CustomBackButton(onPressed: widget.backButton),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kContentSpacing16,
-              vertical: kContentSpacing24,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _headerText(),
-                const SizedBox(height: kContentSpacing32),
-                _buildAvatar(),
-                const SizedBox(height: kContentSpacing32),
-                _submitButton()
-              ],
-            ),
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kContentSpacing16,
+            vertical: kContentSpacing24,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _headerText(),
+              const SizedBox(height: kContentSpacing32),
+              _buildAvatar(),
+              const SizedBox(height: kContentSpacing32),
+              _submitButton()
+            ],
           ),
         ),
       ),
@@ -168,7 +163,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
             'Done',
             style: kFontBody.copyWith(color: kWhite),
           ),
-          onPressed: widget.submitButton,
+          onPressed: widget.onSubmit,
         );
       },
     );

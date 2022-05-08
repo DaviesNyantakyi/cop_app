@@ -11,7 +11,7 @@ class CustomBackButton extends StatelessWidget {
     return CustomElevatedButton(
       radius: 0,
       child: const Icon(
-        Icons.chevron_left,
+        Icons.chevron_left_rounded,
         color: kBlack,
         size: 42,
       ),

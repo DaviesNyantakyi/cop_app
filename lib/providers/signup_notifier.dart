@@ -1,6 +1,6 @@
 import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_screens/gender_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/gender_view.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/enum_to_string.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';

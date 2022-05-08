@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
   String? id;
@@ -25,11 +24,10 @@ class UserModel {
   });
 
   static UserModel fromMap({required Map<String, dynamic> map}) {
-    final birthDate = (map['dateOfBirth'] as Timestamp).millisecondsSinceEpoch;
     return UserModel(
       id: map['id'],
       photoURL: map['photoURL'],
-      dateOfBirth: DateTime.fromMillisecondsSinceEpoch(birthDate),
+      dateOfBirth: map['dateOfBirth'],
       firstName: map['firstName'],
       lastName: map['lastName'],
       displayName: map['displayName'],

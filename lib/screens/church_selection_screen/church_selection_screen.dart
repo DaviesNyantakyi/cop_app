@@ -6,15 +6,24 @@ import 'package:cop_belgium_app/widgets/church_tile.dart';
 import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 
-class ChurchSelectionView extends StatefulWidget {
+class ChurchSelectionScreen extends StatefulWidget {
   final Function(ChurchModel?)? onTap;
-  const ChurchSelectionView({Key? key, this.onTap}) : super(key: key);
+
+  final PreferredSizeWidget? appBar;
+
+  final Future<bool> Function()? onWillPop;
+  const ChurchSelectionScreen({
+    Key? key,
+    this.onTap,
+    this.appBar,
+    this.onWillPop,
+  }) : super(key: key);
 
   @override
-  _ChurchSelectionViewState createState() => _ChurchSelectionViewState();
+  _ChurchSelectionScreenState createState() => _ChurchSelectionScreenState();
 }
 
-class _ChurchSelectionViewState extends State<ChurchSelectionView> {
+class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
   ChurchModel? selectedChurch;
 
   TextEditingController searchContlr = TextEditingController();

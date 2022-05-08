@@ -1,7 +1,15 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_screens/signup_page_screen.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/date_picker_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/gender_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/info_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/signup_flow.dart';
+
+import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
+import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/cop_logo.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -20,7 +28,9 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  Future<void> loginGoogle() async {
+  Future<void> continueWithApple() async {}
+
+  Future<void> continueWithGoogle() async {
     FireAuth fireAuth = FireAuth();
     try {
       EasyLoading.show();
@@ -36,6 +46,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     } finally {
       EasyLoading.dismiss();
     }
+  }
+
+  Future<void> continueWithEmail() async {
+    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SignUpNotifier>.value(
+              value: signUpNotifier,
+            ),
+          ],
+          child: const _SignUpFlow(),
+        ),
+      ),
+    );
   }
 
   @override
@@ -104,7 +131,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           color: kWhite,
         ),
       ),
-      onPressed: loginGoogle,
+      onPressed: continueWithGoogle,
     );
   }
 
@@ -124,8 +151,51 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           color: kWhite,
         ),
       ),
-      onPressed: () {},
+      onPressed: continueWithApple,
     );
+  }
+
+  Future<void> submit() async {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+
+    // Check for network connection
+    bool hasConnection = await ConnectionNotifier().checkConnection();
+
+    if (hasConnection) {
+      final signUpNotifier = Provider.of<SignUpNotifier>(
+        context,
+        listen: false,
+      );
+
+      final pageController = Provider.of<PageController>(
+        context,
+        listen: false,
+      );
+
+      // Validate the text field before continuing.
+      final validFirstName = signUpNotifier.validateFirstNameForm();
+      final validLastName = signUpNotifier.validateLastNameForm();
+      final validEmail = signUpNotifier.validateEmailForm();
+      final validPassword = signUpNotifier.validatePassword();
+
+      if (validFirstName == true &&
+          validLastName == true &&
+          validEmail == true &&
+          validPassword == true) {
+        signUpNotifier.setDisplayName();
+        await pageController.nextPage(
+          duration: kPagViewDuration,
+          curve: kPagViewCurve,
+        );
+      }
+    } else {
+      kShowSnackbar(
+        context: context,
+        type: SnackBarType.error,
+        message: ConnectionNotifier.connectionException.message ?? '',
+      );
+    }
   }
 
   Widget _buildEmailButton({required BuildContext context}) {
@@ -141,21 +211,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               color: kBlack,
             ),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (context) => MultiProvider(
-                  providers: [
-                    ChangeNotifierProvider<SignUpNotifier>.value(
-                      value: signUpNotifier,
-                    ),
-                  ],
-                  child: const SignUpPageScreen(),
-                ),
-              ),
-            );
-          },
+          onPressed: continueWithEmail,
         );
       },
     );
@@ -193,6 +249,94 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         style: kFontBody.copyWith(color: kGrey),
       ),
       onPressed: () {},
+    );
+  }
+}
+
+class _SignUpFlow extends StatefulWidget {
+  const _SignUpFlow({Key? key}) : super(key: key);
+
+  @override
+  State<_SignUpFlow> createState() => __SignUpFlowState();
+}
+
+class __SignUpFlowState extends State<_SignUpFlow> {
+  PageController controller = PageController();
+  Future<bool> onWillPop() async {
+    return false;
+  }
+
+  Future<void> nextPage() async {
+    controller.nextPage(
+      duration: kPagViewDuration,
+      curve: kPagViewCurve,
+    );
+  }
+
+  Future<void> previousPage() async {
+    controller.previousPage(
+      duration: kPagViewDuration,
+      curve: kPagViewCurve,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SignUpPageFlow(
+      controller: controller,
+      children: [
+        AddInfoView(
+          appBar: AppBar(
+            leading: CustomBackButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          onWillPop: onWillPop,
+          onSubmit: () {
+            print('object');
+          },
+        ),
+        DatePickerView(
+          appBar: AppBar(
+            leading: CustomBackButton(
+              onPressed: previousPage,
+            ),
+          ),
+          onWillPop: onWillPop,
+          onSubmit: nextPage,
+        ),
+        GenderView(
+          appBar: AppBar(
+            leading: CustomBackButton(
+              onPressed: previousPage,
+            ),
+          ),
+          onWillPop: onWillPop,
+          onSubmit: nextPage,
+        ),
+        ChurchSelectionScreen(
+          appBar: AppBar(
+            leading: CustomBackButton(
+              onPressed: previousPage,
+            ),
+          ),
+          onWillPop: onWillPop,
+          onTap: (church) {
+            nextPage();
+          },
+        ),
+        ProfilePickerScreen(
+          appBar: AppBar(
+            leading: CustomBackButton(
+              onPressed: previousPage,
+            ),
+          ),
+          onWillPop: onWillPop,
+          onSubmit: nextPage,
+        ),
+      ],
     );
   }
 }
