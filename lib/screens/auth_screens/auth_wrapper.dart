@@ -1,4 +1,4 @@
-import 'package:cop_belgium_app/screens/auth_screens/missing_info_screens/info_wrapper.dart';
+import 'package:cop_belgium_app/screens/auth_screens/missing_info_wrapper.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
@@ -18,8 +18,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance.signOut();
-
     return StreamBuilder<User?>(
       stream: authChanges,
       builder: (context, snaphot) {
@@ -29,11 +27,12 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
 
         if (snaphot.connectionState == ConnectionState.active) {
-          // return the Infowrapper if the date is not null or loading.
+          // return the Infowrapper if the date is not null or loading
+
           if (snaphot.hasData &&
               snaphot.data?.uid != null &&
               snaphot.data != null) {
-            return const InfoWrapper();
+            return const MissignInfoWrapper();
           }
 
           //return the welcomeScreen if the user is logged out or the user object is null.

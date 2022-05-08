@@ -29,6 +29,7 @@ class _GenderViewState extends State<GenderView> {
     return WillPopScope(
       onWillPop: widget.onWillPop,
       child: Scaffold(
+        appBar: widget.appBar,
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -117,7 +118,7 @@ class _GenderViewState extends State<GenderView> {
             'Continue',
             style: kFontBody.copyWith(color: gender != null ? kWhite : kGrey),
           ),
-          onPressed: gender != null ? () => widget.onSubmit : null,
+          onPressed: gender != null ? widget.onSubmit : null,
         );
       },
     );

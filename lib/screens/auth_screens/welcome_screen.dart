@@ -1,3 +1,4 @@
+import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/gender_view.dart';
@@ -261,9 +262,19 @@ class _SignUpFlow extends StatefulWidget {
 }
 
 class __SignUpFlowState extends State<_SignUpFlow> {
+  late SignUpNotifier signUpNotifier;
   PageController controller = PageController();
-  Future<bool> onWillPop() async {
-    return false;
+
+  @override
+  void initState() {
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    signUpNotifier.close();
+    super.dispose();
   }
 
   Future<void> nextPage() async {
@@ -280,63 +291,138 @@ class __SignUpFlowState extends State<_SignUpFlow> {
     );
   }
 
+  Future<bool> onWillPop() async {
+    previousPage();
+    return false;
+  }
+
+  void addInfoOnSubmit() {
+    //Set the displayName before going to the nextScreen
+    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+
+    signUpNotifier.setDisplayName();
+    nextPage();
+  }
+
+  Future<void> signUp({required ChurchModel church}) async {
+    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    try {
+      EasyLoading.show();
+      signUpNotifier.setSelectedChurch(value: church);
+      final user = await signUpNotifier.signUp();
+
+      if (user != null) {
+        nextPage();
+      }
+    } on FirebaseException catch (e) {
+      kShowSnackbar(
+        context: context,
+        type: SnackBarType.error,
+        message: e.message ?? '',
+      );
+      await EasyLoading.dismiss();
+
+      if (e.code.contains('email-already-in-use') ||
+          e.code.contains('invalid-email')) {
+        await controller.animateToPage(
+          0,
+          duration: kPagViewDuration,
+          curve: kPagViewCurve,
+        );
+      }
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SignUpPageFlow(
       controller: controller,
       children: [
-        AddInfoView(
-          appBar: AppBar(
-            leading: CustomBackButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          onWillPop: onWillPop,
-          onSubmit: () {
-            print('object');
-          },
-        ),
-        DatePickerView(
-          appBar: AppBar(
-            leading: CustomBackButton(
-              onPressed: previousPage,
-            ),
-          ),
-          onWillPop: onWillPop,
-          onSubmit: nextPage,
-        ),
-        GenderView(
-          appBar: AppBar(
-            leading: CustomBackButton(
-              onPressed: previousPage,
-            ),
-          ),
-          onWillPop: onWillPop,
-          onSubmit: nextPage,
-        ),
-        ChurchSelectionScreen(
-          appBar: AppBar(
-            leading: CustomBackButton(
-              onPressed: previousPage,
-            ),
-          ),
-          onWillPop: onWillPop,
-          onTap: (church) {
-            nextPage();
-          },
-        ),
-        ProfilePickerScreen(
-          appBar: AppBar(
-            leading: CustomBackButton(
-              onPressed: previousPage,
-            ),
-          ),
-          onWillPop: onWillPop,
-          onSubmit: nextPage,
-        ),
+        _addInfoView(),
+        _datePickerView(),
+        _genderView(),
+        _churchSelectionView(),
+        _profilePickerView()
       ],
+    );
+  }
+
+  Widget _addInfoView() {
+    return AddInfoView(
+      appBar: AppBar(
+        leading: CustomBackButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      onWillPop: () async {
+        // if set to true, you are able to leave the  current screen.
+        return true;
+      },
+      onSubmit: addInfoOnSubmit,
+    );
+  }
+
+  Widget _datePickerView() {
+    return DatePickerView(
+      appBar: AppBar(
+        leading: CustomBackButton(
+          onPressed: previousPage,
+        ),
+      ),
+      onWillPop: onWillPop,
+      onSubmit: nextPage,
+    );
+  }
+
+  Widget _genderView() {
+    return GenderView(
+      appBar: AppBar(
+        leading: CustomBackButton(
+          onPressed: previousPage,
+        ),
+      ),
+      onWillPop: onWillPop,
+      onSubmit: nextPage,
+    );
+  }
+
+  Widget _churchSelectionView() {
+    return ChurchSelectionScreen(
+      appBar: AppBar(
+        leading: CustomBackButton(
+          onPressed: previousPage,
+        ),
+      ),
+      onWillPop: onWillPop,
+      onTap: (church) {
+        if (church != null) {
+          signUp(church: church);
+        }
+      },
+    );
+  }
+
+  Widget _profilePickerView() {
+    return ProfilePickerScreen(
+      appBar: AppBar(
+        leading: CustomBackButton(onPressed: () {
+          Navigator.pop(context);
+        }),
+      ),
+      onWillPop: () async {
+        Navigator.pop(context);
+        return true;
+      },
+      onSubmit: () async {
+        Navigator.pop(context);
+      },
     );
   }
 }

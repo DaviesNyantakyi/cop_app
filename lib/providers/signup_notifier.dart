@@ -180,12 +180,13 @@ class SignUpNotifier extends ChangeNotifier {
     _displayName = '';
 
     _selectedGender = null;
+    _dateOfBirthErrorText = null;
+    _dateOfBirthIsValid = false;
     infoFormIsValid = false;
     firstNameFormIsValid = false;
     lastNameFormIsValid = false;
     emailFormIsValid = false;
     passwordFormIsValid = false;
-    _dateOfBirthErrorText = null;
     obscureText = true;
 
     _dateOfBirth = DateTime.now();

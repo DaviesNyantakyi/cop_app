@@ -3,8 +3,10 @@ import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 
 class CustomErrorWidget extends StatelessWidget {
+  final VoidCallback? onPressed;
   const CustomErrorWidget({
     Key? key,
+    this.onPressed,
   }) : super(key: key);
 
   @override
@@ -32,7 +34,7 @@ class CustomErrorWidget extends StatelessWidget {
                   'Try again',
                   style: kFontBody.copyWith(color: kWhite),
                 ),
-                onPressed: () {},
+                onPressed: onPressed,
               )
             ],
           ),

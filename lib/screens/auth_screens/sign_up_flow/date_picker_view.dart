@@ -27,22 +27,26 @@ class DatePickerView extends StatefulWidget {
 class _DatePickerViewState extends State<DatePickerView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kContentSpacing16,
-            vertical: kContentSpacing24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _headerText(),
-              const SizedBox(height: kContentSpacing24),
-              _datePicker(),
-              const SizedBox(height: kContentSpacing32),
-              _continueButton()
-            ],
+    return WillPopScope(
+      onWillPop: widget.onWillPop,
+      child: Scaffold(
+        appBar: widget.appBar,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kContentSpacing16,
+              vertical: kContentSpacing24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _headerText(),
+                const SizedBox(height: kContentSpacing24),
+                _datePicker(),
+                const SizedBox(height: kContentSpacing32),
+                _continueButton()
+              ],
+            ),
           ),
         ),
       ),
@@ -138,7 +142,7 @@ class _DatePickerViewState extends State<DatePickerView> {
           'Continue',
           style: kFontBody.copyWith(color: dateOfBirthIsValid ? kWhite : kGrey),
         ),
-        onPressed: dateOfBirthIsValid ? () => widget.onSubmit : null,
+        onPressed: dateOfBirthIsValid ? widget.onSubmit : null,
       );
     });
   }

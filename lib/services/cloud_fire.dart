@@ -64,6 +64,7 @@ class CloudFire {
         if (doc.data() != null) {
           return UserModel.fromMap(map: doc.data()!);
         }
+
         return null;
       });
     }

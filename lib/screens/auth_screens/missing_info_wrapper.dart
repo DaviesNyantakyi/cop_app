@@ -7,20 +7,21 @@ import 'package:cop_belgium_app/screens/bottom_nav_selector.dart';
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
+import 'package:cop_belgium_app/utilities/constant.dart';
 
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 
 import 'package:flutter/material.dart';
 
 // This widget checks if any user inforamtion is missing.
-class InfoWrapper extends StatefulWidget {
-  const InfoWrapper({Key? key}) : super(key: key);
+class MissignInfoWrapper extends StatefulWidget {
+  const MissignInfoWrapper({Key? key}) : super(key: key);
 
   @override
-  State<InfoWrapper> createState() => _InfoWrapperState();
+  State<MissignInfoWrapper> createState() => _MissignInfoWrapperState();
 }
 
-class _InfoWrapperState extends State<InfoWrapper> {
+class _MissignInfoWrapperState extends State<MissignInfoWrapper> {
   final autStream = CloudFire().userStream();
 
   @override
@@ -29,7 +30,7 @@ class _InfoWrapperState extends State<InfoWrapper> {
       stream: autStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const CustomErrorWidget();
+          print('ok');
         }
         // return the BottomeNavScreen if no user inforamtion is missing.
         if (snapshot.hasData &&
@@ -45,7 +46,7 @@ class _InfoWrapperState extends State<InfoWrapper> {
         if (snapshot.hasData) {
           return const _SignUpFlow();
         }
-        return const CircularProgressIndicator();
+        return const Center(child: kCircularProgressIndicator);
       },
     );
   }

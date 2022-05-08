@@ -86,22 +86,26 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kContentSpacing16,
-            vertical: kContentSpacing24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _headerText(),
-              const SizedBox(height: kContentSpacing32),
-              _buildAvatar(),
-              const SizedBox(height: kContentSpacing32),
-              _submitButton()
-            ],
+    return WillPopScope(
+      onWillPop: widget.onWillPop,
+      child: Scaffold(
+        appBar: widget.appBar,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kContentSpacing16,
+              vertical: kContentSpacing24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _headerText(),
+                const SizedBox(height: kContentSpacing32),
+                _buildAvatar(),
+                const SizedBox(height: kContentSpacing32),
+                _submitButton()
+              ],
+            ),
           ),
         ),
       ),

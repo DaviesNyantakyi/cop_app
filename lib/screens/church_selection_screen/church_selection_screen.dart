@@ -49,6 +49,7 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: widget.appBar,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(kContentSpacing16),

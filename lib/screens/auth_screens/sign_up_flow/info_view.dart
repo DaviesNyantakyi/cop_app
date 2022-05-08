@@ -169,8 +169,7 @@ class _AddInfoViewState extends State<AddInfoView> {
               color: signUpNotifier.infoFormIsValid ? kWhite : kGrey,
             ),
           ),
-          onPressed:
-              signUpNotifier.infoFormIsValid ? () => widget.onSubmit : null,
+          onPressed: signUpNotifier.infoFormIsValid ? widget.onSubmit : null,
         );
       },
     );
