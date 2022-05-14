@@ -299,11 +299,10 @@ class FireAuth {
     }
   }
 
-  Future<bool> sendPasswordReset() async {
+  Future<bool> sendPasswordResetEmail({required String? email}) async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
       if (hasConnection) {
-        final email = _firebaseAuth.currentUser?.email;
         if (email != null) {
           await _firebaseAuth.sendPasswordResetEmail(email: email);
           return true;

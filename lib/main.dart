@@ -65,6 +65,7 @@ ThemeData _theme = ThemeData(
     backgroundColor: Colors.white,
     titleTextStyle: kFontH6,
   ),
+  snackBarTheme: const SnackBarThemeData(elevation: kElevation),
   cardTheme: const CardTheme(
     elevation: 3,
     shadowColor: kGreyWhite,
@@ -85,7 +86,7 @@ ThemeData _theme = ThemeData(
   sliderTheme: SliderThemeData(
     activeTrackColor: kBlue,
     thumbColor: kBlue,
-    inactiveTrackColor: Colors.grey.shade300,
+    inactiveTrackColor: kGrey,
     trackShape: CustomTrackShape(),
   ),
 );

@@ -1,7 +1,9 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
+import 'package:cop_belgium_app/utilities/methods.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/date_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,15 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DatePickerView extends StatefulWidget {
-  final PreferredSizeWidget? appBar;
-  final VoidCallback? onSubmit;
-  final Future<bool> Function()? onWillPop;
+  final PageController pageController;
 
   const DatePickerView({
     Key? key,
-    this.onSubmit,
-    this.onWillPop,
-    this.appBar,
+    required this.pageController,
   }) : super(key: key);
 
   @override
@@ -25,12 +23,26 @@ class DatePickerView extends StatefulWidget {
 }
 
 class _DatePickerViewState extends State<DatePickerView> {
+  void onSubmit() {
+    nextPage(controller: widget.pageController);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: widget.onWillPop,
+      onWillPop: () async {
+        previousPage(pageContoller: widget.pageController);
+
+        return false;
+      },
       child: Scaffold(
-        appBar: widget.appBar,
+        appBar: AppBar(
+          leading: CustomBackButton(
+            onPressed: () {
+              previousPage(pageContoller: widget.pageController);
+            },
+          ),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -142,7 +154,7 @@ class _DatePickerViewState extends State<DatePickerView> {
           'Continue',
           style: kFontBody.copyWith(color: dateOfBirthIsValid ? kWhite : kGrey),
         ),
-        onPressed: dateOfBirthIsValid ? widget.onSubmit : null,
+        onPressed: dateOfBirthIsValid ? onSubmit : null,
       );
     });
   }

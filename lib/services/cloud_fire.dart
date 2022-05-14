@@ -53,22 +53,18 @@ class CloudFire {
     }
   }
 
-  Stream<UserModel?>? userStream() {
-    if (_firebaseUser?.uid != null) {
-      final docSnap = _firebaseFirestore
-          .collection('users')
-          .doc(_firebaseUser?.uid)
-          .snapshots();
+  Stream<UserModel?> userStream() {
+    final docSnap = _firebaseFirestore
+        .collection('users')
+        .doc(_firebaseUser?.uid)
+        .snapshots();
 
-      return docSnap.map((doc) {
-        if (doc.data() != null) {
-          return UserModel.fromMap(map: doc.data()!);
-        }
-
-        return null;
-      });
-    }
-    return null;
+    return docSnap.map((doc) {
+      if (doc.data() != null) {
+        return UserModel.fromMap(map: doc.data()!);
+      }
+      return null;
+    });
   }
 
   Future<void> updatePhotoURL({required String? photoURL}) async {
@@ -104,12 +100,14 @@ class CloudFire {
 
       if (hasConnection) {
         if (_firebaseUser?.uid != null) {
+          final displayName = '${firstName.trim()} ${lastName.trim()}';
           await _firebaseFirestore
               .collection('users')
               .doc(_firebaseUser?.uid)
               .update({
-            'firstName': firstName,
-            'lastName': lastName,
+            'firstName': firstName.trim(),
+            'lastName': lastName.trim(),
+            'displayName': displayName
           });
         }
       } else {
@@ -149,6 +147,35 @@ class CloudFire {
     }
   }
 
+  Future<void> updateUserChurch({
+    required String id,
+    required String churchName,
+  }) async {
+    try {
+      final hasConnection = await _connectionChecker.checkConnection();
+
+      if (hasConnection) {
+        if (_firebaseUser?.uid != null) {
+          await _firebaseFirestore
+              .collection('users')
+              .doc(_firebaseUser?.uid)
+              .update({
+            'id': id,
+            'churchName': churchName,
+          });
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
   Future<void> updateUserGender({required String gender}) async {
     try {
       final hasConnection = await _connectionChecker.checkConnection();
@@ -160,6 +187,31 @@ class CloudFire {
               .doc(_firebaseUser?.uid)
               .update({
             'gender': gender,
+          });
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserDateOfBirth({required DateTime? dateOfBirth}) async {
+    try {
+      final hasConnection = await _connectionChecker.checkConnection();
+
+      if (hasConnection) {
+        if (_firebaseUser?.uid != null && dateOfBirth != null) {
+          await _firebaseFirestore
+              .collection('users')
+              .doc(_firebaseUser?.uid)
+              .update({
+            'dateOfBirth': dateOfBirth,
           });
         }
       } else {

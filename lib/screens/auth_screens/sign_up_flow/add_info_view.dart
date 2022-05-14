@@ -1,22 +1,22 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/methods.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/textfield.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AddInfoView extends StatefulWidget {
-  final PreferredSizeWidget? appBar;
-  final VoidCallback? onSubmit;
-  final Future<bool> Function()? onWillPop;
-
+  final PageController pageController;
   const AddInfoView({
     Key? key,
-    this.appBar,
-    this.onSubmit,
-    this.onWillPop,
+    required this.pageController,
   }) : super(key: key);
 
   @override
@@ -24,12 +24,57 @@ class AddInfoView extends StatefulWidget {
 }
 
 class _AddInfoViewState extends State<AddInfoView> {
+  final user = FirebaseAuth.instance.currentUser;
+
+  Future<void> onSubmit() async {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+
+    // Check for network connection
+    bool hasConnection = await ConnectionNotifier().checkConnection();
+
+    if (hasConnection) {
+      final signUpNotifier = Provider.of<SignUpNotifier>(
+        context,
+        listen: false,
+      );
+
+      // Validate the text field before continuing.
+      final validFirstName = signUpNotifier.validateFirstNameForm();
+      final validLastName = signUpNotifier.validateLastNameForm();
+      final validEmail = signUpNotifier.validateEmailForm();
+      final validPassword = signUpNotifier.validatePasswordForm();
+
+      if (validFirstName == true &&
+          validLastName == true &&
+          validEmail == true &&
+          validPassword == true) {
+        signUpNotifier.setDisplayName();
+        await nextPage(controller: widget.pageController);
+      }
+    } else {
+      kShowSnackbar(
+        context: context,
+        type: SnackBarType.error,
+        message: ConnectionNotifier.connectionException.message ?? '',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: widget.onWillPop,
+      onWillPop: () async {
+        return true;
+      },
       child: Scaffold(
-        appBar: widget.appBar,
+        appBar: AppBar(
+          leading: CustomBackButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -146,11 +191,9 @@ class _AddInfoViewState extends State<AddInfoView> {
             onTap: signUpNotifier.togglePasswordView,
           ),
           onChanged: (value) {
-            signUpNotifier.validatePassword();
+            signUpNotifier.validatePasswordForm();
           },
-          onSubmitted: signUpNotifier.infoFormIsValid
-              ? (value) => widget.onSubmit
-              : null,
+          onSubmitted: signUpNotifier.validForm ? (value) => onSubmit : null,
         ),
       );
     });
@@ -160,16 +203,16 @@ class _AddInfoViewState extends State<AddInfoView> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
-          backgroundColor: signUpNotifier.infoFormIsValid ? kBlue : kGreyLight,
+          backgroundColor: signUpNotifier.validForm ? kBlue : kGreyLight,
           width: double.infinity,
           child: Text(
             'Continue',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.infoFormIsValid ? kWhite : kGrey,
+              color: signUpNotifier.validForm ? kWhite : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.infoFormIsValid ? widget.onSubmit : null,
+          onPressed: signUpNotifier.validForm ? onSubmit : null,
         );
       },
     );

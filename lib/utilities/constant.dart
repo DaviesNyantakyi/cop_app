@@ -5,6 +5,7 @@ const double kRadius = 10.0;
 const double kBoderWidth = 1.5;
 const double kButtonHeight = 60.0;
 const double kIconSize = 24;
+const double kElevation = 8.0;
 
 const kCircularProgressIndicator = CircularProgressIndicator(
   strokeWidth: 5,

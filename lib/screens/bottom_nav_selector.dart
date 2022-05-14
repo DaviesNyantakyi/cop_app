@@ -1,38 +1,31 @@
+import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class BottomNavScreen extends StatefulWidget {
+class BottomNavigationScreen extends StatefulWidget {
   static String bottomNavScreen = 'BottomNavScreen';
-  const BottomNavScreen({Key? key}) : super(key: key);
+  const BottomNavigationScreen({Key? key}) : super(key: key);
 
   @override
-  _BottomNavScreenState createState() => _BottomNavScreenState();
+  _BottomNavigationScreenState createState() => _BottomNavigationScreenState();
 }
 
-class _BottomNavScreenState extends State<BottomNavScreen> {
+class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    // PodcastScreen(),
-    // EventsScreen(),
-    // TestimoniesScreen(),
-    // MoreScreen()
-
-    Scaffold(
-      body: Center(
-        child: CustomElevatedButton(
-          child: const Text('Logout'),
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-          },
-        ),
-      ),
+    const PodcastScreen(),
+    const Center(
+      child: Text('Videos'),
     ),
-    Container(),
-    Container(),
-    Container(),
+    const Center(
+      child: Text('Q&A'),
+    ),
+    const Center(
+      child: Text('More'),
+    ),
   ];
 
   @override

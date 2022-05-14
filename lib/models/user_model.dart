@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   String? id;
   String? photoURL;
@@ -7,9 +9,10 @@ class UserModel {
   String? displayName;
   String? lastName;
   String? email;
+  String? bio;
   String? gender;
   Map<String, dynamic>? church;
-  DateTime? dateOfBirth;
+  Timestamp? dateOfBirth;
 
   UserModel({
     this.id,
@@ -20,6 +23,7 @@ class UserModel {
     this.dateOfBirth,
     required this.email,
     this.church,
+    this.bio,
     this.gender,
   });
 
@@ -33,6 +37,7 @@ class UserModel {
       displayName: map['displayName'],
       email: map['email'],
       church: map['church'],
+      bio: map['bio'],
       gender: map['gender'],
     );
   }
@@ -47,7 +52,8 @@ class UserModel {
       'dateOfBirth': dateOfBirth,
       'email': email,
       'gender': gender,
-      'church': church
+      'church': church,
+      'bio': bio
     };
   }
 
@@ -58,9 +64,10 @@ class UserModel {
     String? displayName,
     String? lastName,
     String? email,
+    String? bio,
     String? gender,
     Map<String, dynamic>? church,
-    DateTime? dateOfBirth,
+    Timestamp? dateOfBirth,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -69,6 +76,7 @@ class UserModel {
       displayName: displayName ?? this.displayName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
+      bio: bio ?? this.bio,
       gender: gender ?? this.gender,
       church: church ?? this.church,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
@@ -77,6 +85,6 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, photoURL: $photoURL, firstName: $firstName, displayName: $displayName, lastName: $lastName, email: $email, gender: $gender, church: $church, dateOfBirth: $dateOfBirth)';
+    return 'UserModel(id: $id, photoURL: $photoURL, firstName: $firstName, displayName: $displayName, lastName: $lastName, email: $email, bio: $bio, gender: $gender, church: $church, dateOfBirth: $dateOfBirth)';
   }
 }

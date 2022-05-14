@@ -29,7 +29,6 @@ dynamic kShowSnackbar({
     SnackBar(
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.all(kContentSpacing16),
-      elevation: 7,
       backgroundColor: backgroundColor,
       duration: const Duration(seconds: 5),
       content: Text(

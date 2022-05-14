@@ -1,5 +1,7 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/methods.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/gender_button.dart';
 import 'package:flutter/material.dart';
@@ -8,15 +10,11 @@ import 'package:provider/provider.dart';
 enum Gender { male, female }
 
 class GenderView extends StatefulWidget {
-  final PreferredSizeWidget? appBar;
-  final VoidCallback? onSubmit;
-  final Future<bool> Function()? onWillPop;
+  final PageController pageController;
 
   const GenderView({
     Key? key,
-    this.onSubmit,
-    this.onWillPop,
-    this.appBar,
+    required this.pageController,
   }) : super(key: key);
 
   @override
@@ -24,12 +22,26 @@ class GenderView extends StatefulWidget {
 }
 
 class _GenderViewState extends State<GenderView> {
+  void onSubmit() {
+    nextPage(controller: widget.pageController);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: widget.onWillPop,
+      onWillPop: () async {
+        previousPage(pageContoller: widget.pageController);
+
+        return false;
+      },
       child: Scaffold(
-        appBar: widget.appBar,
+        appBar: AppBar(
+          leading: CustomBackButton(
+            onPressed: () {
+              previousPage(pageContoller: widget.pageController);
+            },
+          ),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -118,7 +130,7 @@ class _GenderViewState extends State<GenderView> {
             'Continue',
             style: kFontBody.copyWith(color: gender != null ? kWhite : kGrey),
           ),
-          onPressed: gender != null ? widget.onSubmit : null,
+          onPressed: gender != null ? onSubmit : null,
         );
       },
     );
