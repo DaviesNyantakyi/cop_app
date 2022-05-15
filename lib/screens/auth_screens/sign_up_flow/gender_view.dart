@@ -1,6 +1,6 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/methods.dart';
+import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/gender_button.dart';

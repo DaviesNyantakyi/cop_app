@@ -1,7 +1,7 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/methods.dart';
+import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';

@@ -7,6 +7,8 @@ const double kButtonHeight = 60.0;
 const double kIconSize = 24;
 const double kElevation = 8.0;
 
+const kBottomsheetHeight = 0.67; // 67% precentage of the screen
+
 const kCircularProgressIndicator = CircularProgressIndicator(
   strokeWidth: 5,
   color: kBlack,
@@ -29,6 +31,7 @@ const kBlue = Color(0xFF292FE9);
 const kGreen = Color(0xFF00B86B);
 const kYellow = Color(0xFFFFC145);
 const kRed = Color(0xFFFF3B3B);
+const kShadowCOlor = kGreyWhite;
 
 // Content Spacing
 const double kContentSpacing4 = 4;

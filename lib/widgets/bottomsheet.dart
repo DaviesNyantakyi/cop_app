@@ -10,12 +10,16 @@ Future<dynamic> showCustomBottomSheet({
   bool showHeader = true,
   bool isDismissable = true,
   Color backgroundColor = kWhite,
+  double? initialSnap,
+  EdgeInsets? padding,
+  List<double> snappings = const [0.4, 1.0],
   required Widget child,
 }) async {
   return showSlidingBottomSheet(
     context,
     builder: (context) {
       return SlidingSheetDialog(
+        padding: padding,
         elevation: 8,
         cornerRadius: kRadius,
         avoidStatusBar: true,
@@ -37,9 +41,10 @@ Future<dynamic> showCustomBottomSheet({
                 );
               }
             : null,
-        snapSpec: const SnapSpec(
+        snapSpec: SnapSpec(
           snap: true,
-          snappings: [0.5, 1.0],
+          initialSnap: initialSnap,
+          snappings: snappings,
           positioning: SnapPositioning.relativeToAvailableSpace,
         ),
         builder: (context, state) {

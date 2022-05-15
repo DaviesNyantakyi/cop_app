@@ -6,7 +6,7 @@ import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/add_info_view.
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/methods.dart';
+import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';

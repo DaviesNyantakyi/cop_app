@@ -1,15 +1,27 @@
+import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/auth_wrapper.dart';
+import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_track_shape.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  ResponsiveSizingConfig.instance.setCustomBreakpoints(
+    const ScreenBreakpoints(
+      desktop: 860,
+      tablet: 480,
+      watch: 320,
+    ),
+  );
 
   EasyLoading.instance
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
@@ -37,7 +49,13 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider<SignUpNotifier>(
             create: (conext) => SignUpNotifier(),
-          )
+          ),
+          StreamProvider<UserModel?>(
+            create: (context) {
+              return CloudFire().userStream();
+            },
+            initialData: null,
+          ),
         ],
         child: const AuthWrapper(),
       ),
@@ -57,7 +75,7 @@ ThemeData _theme = ThemeData(
   ),
   appBarTheme: const AppBarTheme(
     elevation: 2,
-    shadowColor: kGreyWhite,
+    shadowColor: kShadowCOlor,
     iconTheme: IconThemeData(
       size: kIconSize,
       color: kBlack,
@@ -68,7 +86,7 @@ ThemeData _theme = ThemeData(
   snackBarTheme: const SnackBarThemeData(elevation: kElevation),
   cardTheme: const CardTheme(
     elevation: 3,
-    shadowColor: kGreyWhite,
+    shadowColor: kShadowCOlor,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
         Radius.circular(kRadius),
@@ -86,7 +104,9 @@ ThemeData _theme = ThemeData(
   sliderTheme: SliderThemeData(
     activeTrackColor: kBlue,
     thumbColor: kBlue,
-    inactiveTrackColor: kGrey,
+    inactiveTrackColor: kGreyLight,
+    trackHeight: 4,
+    overlayColor: kBlue.withOpacity(0.1),
     trackShape: CustomTrackShape(),
   ),
 );

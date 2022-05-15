@@ -14,7 +14,7 @@ class CustomElevatedButton extends StatelessWidget {
   const CustomElevatedButton({
     Key? key,
     required this.child,
-    required this.onPressed,
+    this.onPressed,
     this.height,
     this.width,
     this.side,
@@ -26,7 +26,7 @@ class CustomElevatedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height ?? kButtonHeight,
+      height: height,
       width: width,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
