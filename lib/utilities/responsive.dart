@@ -1,9 +1,9 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-const kScreen480 = 480;
-const kScreen400 = 400;
-const kScreenHeight640 = 640;
+const kScreenSizeMobile = 320;
+const kScreenSizeTablet = 480;
+const kScreenSizeDesktop = 860;
 int crossAxisCount(SizingInformation screenInfo) {
   if (screenInfo.isDesktop) {
     return 4;

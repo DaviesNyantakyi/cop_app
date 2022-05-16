@@ -1,3 +1,4 @@
+import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
@@ -23,9 +24,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     const Center(
       child: Text('Q&A'),
     ),
-    const Center(
-      child: Text('More'),
-    ),
+    const MoreScreen(),
   ];
 
   @override

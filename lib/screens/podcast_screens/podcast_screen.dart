@@ -59,7 +59,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
                     itemCount: 5,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount(screenInfo),
-                      mainAxisExtent: 280,
+                      mainAxisExtent: 250,
                       crossAxisSpacing: gradSpacing(screenInfo),
                     ),
                     itemBuilder: (context, index) {

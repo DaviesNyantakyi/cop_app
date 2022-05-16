@@ -9,8 +9,8 @@ class PodcastImage extends StatelessWidget {
   const PodcastImage({
     Key? key,
     required this.imageUrl,
-    this.width = 160,
-    this.height = 240,
+    this.width,
+    this.height,
   }) : super(key: key);
 
   @override

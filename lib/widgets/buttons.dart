@@ -10,17 +10,19 @@ class CustomElevatedButton extends StatelessWidget {
   final BorderSide? side;
   final double? radius;
   final Color? backgroundColor;
+  final Color? splashColor;
 
   const CustomElevatedButton({
     Key? key,
     required this.child,
     this.onPressed,
-    this.height,
+    this.height = kButtonHeight,
     this.width,
     this.side,
     this.padding,
     this.radius,
     this.backgroundColor,
+    this.splashColor,
   }) : super(key: key);
 
   @override
@@ -29,19 +31,26 @@ class CustomElevatedButton extends StatelessWidget {
       height: height,
       width: width,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: padding ?? const EdgeInsets.all(kContentSpacing8),
-          primary: backgroundColor ?? kWhite,
-          textStyle: kFontBody,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(radius ?? kRadius),
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(padding),
+          textStyle: MaterialStateProperty.all<TextStyle?>(kFontBody),
+          shape: MaterialStateProperty.all<OutlinedBorder?>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(radius ?? kRadius),
+              ),
             ),
           ),
-          side: side,
-          shadowColor: Colors.transparent,
+          backgroundColor:
+              MaterialStateProperty.all<Color?>(backgroundColor ?? kWhite),
+          side: MaterialStateProperty.all<BorderSide?>(side),
+          shadowColor: MaterialStateProperty.all<Color?>(Colors.transparent),
+          elevation: MaterialStateProperty.all<double?>(0.0),
 
-          onPrimary: Colors.grey.shade500, // Splash color
+          //Splash color
+          overlayColor: MaterialStateProperty.all<Color?>(
+            splashColor ?? kGrey.withOpacity(0.2),
+          ),
         ),
         child: child,
         onPressed: onPressed,

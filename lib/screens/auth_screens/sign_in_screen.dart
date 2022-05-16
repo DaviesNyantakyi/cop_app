@@ -2,6 +2,7 @@ import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/forgot_password_screen.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -21,6 +23,9 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  bool? validEmailForm;
+  bool? validPasswordForm;
+
   final user = FirebaseAuth.instance.currentUser;
   late SignUpNotifier signUpNotifier;
 
@@ -33,12 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
       bool hasConnection = await ConnectionNotifier().checkConnection();
 
       if (hasConnection) {
-        final signUpNotifier = Provider.of<SignUpNotifier>(
-          context,
-          listen: false,
-        );
-
-        if (signUpNotifier.validForm) {
+        if (validEmailForm == true && validPasswordForm == true) {
           EasyLoading.show();
           final user = await signUpNotifier.signIn();
           if (user != null) {
@@ -66,13 +66,6 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> forgotPassword() async {
     //Unfocus any the textfield before going to the next screen
     FocusScope.of(context).unfocus();
-    signUpNotifier.forgotEmailCntlr.clear();
-    signUpNotifier.forgotEmailKey.currentState?.reset();
-    signUpNotifier.validateForgotEmailForm();
-
-    signUpNotifier.emailCntlr = TextEditingController();
-    signUpNotifier.passwordCntlr = TextEditingController();
-
     await Navigator.push(
       context,
       CupertinoPageRoute(
@@ -82,11 +75,6 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
-    signUpNotifier.setFormType(formType: FormType.signIn);
-    signUpNotifier.validateEmailForm();
-    signUpNotifier.validatePasswordForm();
-    signUpNotifier.emailKey.currentState?.reset();
-    signUpNotifier.passwordKey.currentState?.reset();
   }
 
   @override
@@ -94,7 +82,7 @@ class _SignInScreenState extends State<SignInScreen> {
     signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      signUpNotifier.setFormType(formType: FormType.signIn);
+      signUpNotifier.setFormType(formType: FormType.signInForm);
     });
     super.initState();
   }
@@ -111,47 +99,60 @@ class _SignInScreenState extends State<SignInScreen> {
       onWillPop: () async {
         return true;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: CustomBackButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kContentSpacing16,
-              vertical: kContentSpacing24,
+      child: ResponsiveBuilder(
+        builder: (context, screenInfo) {
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenInfo.screenSize.width >= kScreenSizeTablet
+                      ? kContentSpacing24
+                      : kContentSpacing16,
+                  vertical: kContentSpacing24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildHeaderText(),
+                    const SizedBox(height: kContentSpacing32),
+                    _buildEmailField(),
+                    const SizedBox(height: kContentSpacing8),
+                    _buildPasswordField(),
+                    const SizedBox(height: kContentSpacing32),
+                    _buildSignInButton(),
+                    const SizedBox(height: kContentSpacing20),
+                    _buildForgotPasswordButton()
+                  ],
+                ),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeaderText(),
-                const SizedBox(height: kContentSpacing32),
-                _buildEmailField(),
-                const SizedBox(height: kContentSpacing8),
-                _buildPasswordField(),
-                const SizedBox(height: kContentSpacing32),
-                _buildSignInButton(),
-                const SizedBox(height: kContentSpacing32),
-                _buildForgotPasswordButton()
-              ],
-            ),
-          ),
-        ),
+          );
+        },
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      leading: CustomBackButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }
 
   Widget _buildHeaderText() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text('Sign in with email and password', style: kFontH5),
-      ],
+    return ResponsiveBuilder(
+      builder: (context, screenInfo) {
+        String text = 'Sign in with email and password';
+        if (screenInfo.screenSize.width < kScreenSizeMobile) {
+          text = 'Sign in';
+        }
+        return Text(text, style: kFontH5);
+      },
     );
   }
 
@@ -165,10 +166,14 @@ class _SignInScreenState extends State<SignInScreen> {
             controller: signUpNotifier.emailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,
+            keyboardType: TextInputType.emailAddress,
             maxLines: 1,
             validator: Validators.emailValidator,
             onChanged: (value) {
-              signUpNotifier.validateEmailForm();
+              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
+              if (mounted) {
+                setState(() {});
+              }
             },
           ),
         );
@@ -198,9 +203,13 @@ class _SignInScreenState extends State<SignInScreen> {
             onTap: signUpNotifier.togglePasswordView,
           ),
           onChanged: (value) {
-            signUpNotifier.validatePasswordForm();
+            validPasswordForm =
+                signUpNotifier.passwordKey.currentState?.validate();
+            if (mounted) {
+              setState(() {});
+            }
           },
-          onSubmitted: signUpNotifier.validForm ? (value) => onSubmit : null,
+          onSubmitted: validPasswordForm == true ? (value) => onSubmit() : null,
         ),
       );
     });
@@ -210,16 +219,22 @@ class _SignInScreenState extends State<SignInScreen> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
-          backgroundColor: signUpNotifier.validForm ? kBlue : kGreyLight,
+          backgroundColor: validEmailForm == true && validPasswordForm == true
+              ? kBlue
+              : kGreyLight,
           width: double.infinity,
           child: Text(
             'Sign in',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.validForm ? kWhite : kGrey,
+              color: validEmailForm == true && validPasswordForm == true
+                  ? kWhite
+                  : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.validForm ? onSubmit : null,
+          onPressed: validEmailForm == true && validPasswordForm == true
+              ? onSubmit
+              : null,
         );
       },
     );
@@ -228,6 +243,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget _buildForgotPasswordButton() {
     return Center(
       child: CustomElevatedButton(
+        height: null,
         child: const Text(
           'Forgot password?',
           style: kFontBody,

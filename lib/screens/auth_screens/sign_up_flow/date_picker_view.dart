@@ -113,8 +113,9 @@ class _DatePickerViewState extends State<DatePickerView> {
                         const SizedBox(width: kContentSpacing8),
                         Text(
                           FormalDates.formatDmyyyy(
-                            date: signUpNotifier.dateOfBirth,
-                          ),
+                                date: signUpNotifier.dateOfBirth,
+                              ) ??
+                              '',
                           style: kFontBody,
                         ),
                       ],

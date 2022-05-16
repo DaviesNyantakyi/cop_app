@@ -31,7 +31,6 @@ class _SignUpFlowState extends State<SignUpFlow> {
   @override
   void initState() {
     signUpProvider = Provider.of<SignUpNotifier>(context, listen: false);
-    Provider.of<SignUpNotifier>(context, listen: false).resetForm();
     super.initState();
   }
 

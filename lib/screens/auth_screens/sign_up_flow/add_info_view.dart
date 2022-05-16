@@ -26,6 +26,14 @@ class AddInfoView extends StatefulWidget {
 class _AddInfoViewState extends State<AddInfoView> {
   final user = FirebaseAuth.instance.currentUser;
 
+  late final SignUpNotifier signUpNotifier;
+
+  // Validate the text field before continuing.
+  bool? validFirstNameForm;
+  bool? validLastNameForm;
+  bool? validEmailForm;
+  bool? validPassword;
+
   Future<void> onSubmit() async {
     // Hide keyboard
     FocusScope.of(context).unfocus();
@@ -39,15 +47,9 @@ class _AddInfoViewState extends State<AddInfoView> {
         listen: false,
       );
 
-      // Validate the text field before continuing.
-      final validFirstName = signUpNotifier.validateFirstNameForm();
-      final validLastName = signUpNotifier.validateLastNameForm();
-      final validEmail = signUpNotifier.validateEmailForm();
-      final validPassword = signUpNotifier.validatePasswordForm();
-
-      if (validFirstName == true &&
-          validLastName == true &&
-          validEmail == true &&
+      if (validFirstNameForm == true &&
+          validLastNameForm == true &&
+          validEmailForm == true &&
           validPassword == true) {
         signUpNotifier.setDisplayName();
         await nextPage(controller: widget.pageController);
@@ -59,6 +61,13 @@ class _AddInfoViewState extends State<AddInfoView> {
         message: ConnectionNotifier.connectionException.message ?? '',
       );
     }
+  }
+
+  @override
+  void initState() {
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+
+    super.initState();
   }
 
   @override
@@ -122,7 +131,9 @@ class _AddInfoViewState extends State<AddInfoView> {
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
-              signUpNotifier.validateFirstNameForm();
+              validFirstNameForm =
+                  signUpNotifier.firstNameKey.currentState?.validate();
+              setState(() {});
             },
           ),
         );
@@ -142,7 +153,9 @@ class _AddInfoViewState extends State<AddInfoView> {
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
-              signUpNotifier.validateLastNameForm();
+              validLastNameForm =
+                  signUpNotifier.lastNameKey.currentState?.validate();
+              setState(() {});
             },
           ),
         );
@@ -160,9 +173,11 @@ class _AddInfoViewState extends State<AddInfoView> {
             hintText: 'Email',
             textInputAction: TextInputAction.next,
             maxLines: 1,
+            keyboardType: TextInputType.emailAddress,
             validator: Validators.emailValidator,
             onChanged: (value) {
-              signUpNotifier.validateEmailForm();
+              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
+              setState(() {});
             },
           ),
         );
@@ -191,9 +206,15 @@ class _AddInfoViewState extends State<AddInfoView> {
             onTap: signUpNotifier.togglePasswordView,
           ),
           onChanged: (value) {
-            signUpNotifier.validatePasswordForm();
+            validPassword = signUpNotifier.passwordKey.currentState?.validate();
+            setState(() {});
           },
-          onSubmitted: signUpNotifier.validForm ? (value) => onSubmit : null,
+          onSubmitted: validFirstNameForm == true &&
+                  validLastNameForm == true &&
+                  validEmailForm == true &&
+                  validPassword == true
+              ? (value) => onSubmit()
+              : null,
         ),
       );
     });
@@ -203,16 +224,31 @@ class _AddInfoViewState extends State<AddInfoView> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
-          backgroundColor: signUpNotifier.validForm ? kBlue : kGreyLight,
+          backgroundColor: validFirstNameForm == true &&
+                  validLastNameForm == true &&
+                  validEmailForm == true &&
+                  validPassword == true
+              ? kBlue
+              : kGreyLight,
           width: double.infinity,
           child: Text(
             'Continue',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.validForm ? kWhite : kGrey,
+              color: validFirstNameForm == true &&
+                      validLastNameForm == true &&
+                      validEmailForm == true &&
+                      validPassword == true
+                  ? kWhite
+                  : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.validForm ? onSubmit : null,
+          onPressed: validFirstNameForm == true &&
+                  validLastNameForm == true &&
+                  validEmailForm == true &&
+                  validPassword == true
+              ? onSubmit
+              : null,
         );
       },
     );

@@ -47,6 +47,8 @@ dependencies:
   responsive_builder: ^0.4.2
   auto_size_text: ^3.0.0
   expandable_text: ^2.3.0
+  google_fonts: ^2.3.2
+
 
 
 

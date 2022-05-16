@@ -22,6 +22,8 @@ class PodcastCard extends StatelessWidget {
         children: [
           PodcastImage(
             imageUrl: imageUrl,
+            height: 210,
+            width: 200,
           ),
           const SizedBox(height: kContentSpacing8),
           Text(

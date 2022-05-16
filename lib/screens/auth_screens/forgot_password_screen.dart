@@ -19,9 +19,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final user = FirebaseAuth.instance.currentUser;
-
   late SignUpNotifier signUpNotifier;
+  bool? validEmailForm;
 
   Future<void> onSubmit() async {
     try {
@@ -30,13 +29,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       // Check for network connection
       bool hasConnection = await ConnectionNotifier().checkConnection();
-      if (hasConnection) {
-        final signUpNotifier = Provider.of<SignUpNotifier>(
-          context,
-          listen: false,
-        );
 
-        if (signUpNotifier.validForm) {
+      if (hasConnection) {
+        if (validEmailForm == true) {
           final result = await signUpNotifier.sendPasswordResetEmail();
           if (result) {
             kShowSnackbar(
@@ -69,9 +64,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      signUpNotifier.setFormType(formType: FormType.forgotEmail);
+      signUpNotifier.setFormType(formType: FormType.forgotEmailForm);
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    signUpNotifier.resetForm();
+    super.dispose();
   }
 
   @override
@@ -130,9 +131,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             hintText: 'Email',
             textInputAction: TextInputAction.next,
             maxLines: 1,
+            keyboardType: TextInputType.emailAddress,
             validator: Validators.emailValidator,
             onChanged: (value) {
-              signUpNotifier.validateForgotEmailForm();
+              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
             },
           ),
         );

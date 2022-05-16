@@ -49,22 +49,20 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
         builder: (context, screenInfo) {
           return Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              const _Header(),
+            children: const [
+              _Header(),
               Flexible(
                 child: SizedBox(
-                  height: screenInfo.screenSize.height <= kScreen400
-                      ? null
-                      : kContentSpacing32,
+                  height: kContentSpacing32,
                 ),
               ),
-              const _Image(),
-              const SizedBox(height: kContentSpacing16),
-              const _EpisodeTitle(),
-              const Flexible(child: SizedBox(height: kContentSpacing16)),
-              const _Slider(),
-              const SizedBox(height: kContentSpacing16),
-              const _PlaybackControls()
+              _Image(),
+              SizedBox(height: kContentSpacing16),
+              _EpisodeTitle(),
+              Flexible(child: SizedBox(height: kContentSpacing16)),
+              _Slider(),
+              SizedBox(height: kContentSpacing16),
+              _PlaybackControls()
             ],
           );
         },
@@ -146,10 +144,10 @@ class _Image extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenInfo = MediaQuery.of(context);
 
-    if (screenInfo.size.height <= kScreen480) {
+    if (screenInfo.size.height <= kScreenSizeTablet) {
       return Container();
     }
-    if (MediaQuery.of(context).size.height <= kScreenHeight640) {
+    if (MediaQuery.of(context).size.height <= kScreenSizeDesktop) {
       return const PodcastImage(
         imageUrl: unsplash,
         width: 160,

@@ -2,25 +2,37 @@ import 'package:dart_date/dart_date.dart';
 
 // •
 class FormalDates {
-  static String formatEDmyyyyHm({required DateTime? date}) {
+  static String? formatEDmyyyyHm({required DateTime? date}) {
     // Wed, 1 Jan, 2023 • 14:00
-    return date!.format('E, dd MMM, yyyy • hh:mm');
+    if (date != null) {
+      return date.format('E, dd MMM, yyyy • hh:mm');
+    }
+    return null;
   }
 
-  static String formatEDmyyyy({required DateTime? date}) {
+  static String? formatEDmyyyy({required DateTime? date}) {
     // Wed, 1 Jan, 2023
-    return date!.format('E, dd MMM, yyyy');
+    if (date != null) {
+      return date.format('E, dd MMM, yyyy');
+    }
+    return null;
   }
 
   // Date of birth text.
-  static String formatDmyyyy({required DateTime? date}) {
+  static String? formatDmyyyy({required DateTime? date}) {
     // 11 Jan 2023
-    return date!.format('dd MMM yyyy');
+    if (date != null) {
+      return date.format('dd MMM yyyy');
+    }
+    return null;
   }
 
-  static String formatHm({required DateTime? date}) {
+  static String? formatHm({required DateTime? date}) {
     // 14:00
-    return date!.format('HH:mm');
+    if (date != null) {
+      return date.format('HH:mm');
+    }
+    return null;
   }
 
   // Podcast episode

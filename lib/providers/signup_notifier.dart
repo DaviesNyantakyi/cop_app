@@ -9,7 +9,13 @@ import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-enum FormType { signIn, signup, missingInfo, forgotEmail }
+enum FormType {
+  signInForm,
+  signupForm,
+  missingInfoForm,
+  forgotEmailForm,
+  updateInfoForm
+}
 
 class SignUpNotifier extends ChangeNotifier {
   TextEditingController firstNameCntlr = TextEditingController();
@@ -23,9 +29,11 @@ class SignUpNotifier extends ChangeNotifier {
   final emailKey = GlobalKey<FormState>();
   final forgotEmailKey = GlobalKey<FormState>();
   final passwordKey = GlobalKey<FormState>();
+
   final FireAuth _fireAuth = FireAuth();
   final CloudFire _cloudFire = CloudFire();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   DateTime? _dateOfBirth;
   Gender? _selectedGender;
   String? _dateOfBirthErrorText;
@@ -60,14 +68,14 @@ class SignUpNotifier extends ChangeNotifier {
 
   // Checks if the all the form fields are valid.
   void validateForm() {
-    if (_formeState == FormType.signIn) {
+    if (_formeState == FormType.signInForm) {
       if (emailFormIsValid == true && passwordFormIsValid == true) {
         validForm = true;
       } else {
         validForm = false;
       }
     }
-    if (_formeState == FormType.forgotEmail) {
+    if (_formeState == FormType.forgotEmailForm) {
       if (forgotEmailFormIsValid == true) {
         validForm = true;
       } else {
@@ -75,7 +83,7 @@ class SignUpNotifier extends ChangeNotifier {
       }
     }
 
-    if (_formeState == FormType.signup) {
+    if (_formeState == FormType.signupForm) {
       if (firstNameFormIsValid == true &&
           lastNameFormIsValid == true &&
           emailFormIsValid == true &&
@@ -121,47 +129,6 @@ class SignUpNotifier extends ChangeNotifier {
   void setDateOfBirth({required DateTime value}) {
     _dateOfBirth = value;
     notifyListeners();
-  }
-
-  // Validation of specific textfields
-  bool? validateFirstNameForm() {
-    final isValid = firstNameKey.currentState?.validate();
-    firstNameFormIsValid = isValid;
-    validateForm();
-    notifyListeners();
-    return isValid;
-  }
-
-  bool? validateLastNameForm() {
-    final isValid = lastNameKey.currentState?.validate();
-    lastNameFormIsValid = isValid;
-    validateForm();
-    notifyListeners();
-    return isValid;
-  }
-
-  bool? validateEmailForm() {
-    final isValid = emailKey.currentState?.validate();
-    emailFormIsValid = isValid;
-    validateForm();
-    notifyListeners();
-    return isValid;
-  }
-
-  bool? validateForgotEmailForm() {
-    final isValid = forgotEmailKey.currentState?.validate();
-    forgotEmailFormIsValid = isValid;
-    validateForm();
-    notifyListeners();
-    return isValid;
-  }
-
-  bool? validatePasswordForm() {
-    final isValid = passwordKey.currentState?.validate();
-    passwordFormIsValid = isValid;
-    validateForm();
-    notifyListeners();
-    return isValid;
   }
 
   void validateDate() {
