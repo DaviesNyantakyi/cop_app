@@ -1,8 +1,18 @@
+import 'package:cop_belgium_app/models/testimony_model.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
+import 'package:cop_belgium_app/screens/testimonies_screens/create_testmony_screen.dart';
+import 'package:cop_belgium_app/screens/testimonies_screens/widgets/testimony_card.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
+import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TestimoniesScreen extends StatefulWidget {
@@ -13,28 +23,74 @@ class TestimoniesScreen extends StatefulWidget {
 }
 
 class _TestimoniesScreenState extends State<TestimoniesScreen> {
+  final testimoniesStream = CloudFire().getTestimonies();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kContentSpacing16,
-              vertical: kContentSpacing24,
-            ),
-            child: ListView.separated(
-              itemCount: 20,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => const TestimonyCard(),
-              separatorBuilder: (context, index) => const SizedBox(
-                height: kContentSpacing8,
+      body: StreamBuilder<List<TestimonyModel>>(
+        stream: testimoniesStream,
+        builder: (context, snapshot) {
+          List<TestimonyModel>? testmonies = snapshot.data;
+          if (snapshot.hasError) {
+            return CustomErrorWidget(
+              onPressed: () {},
+            );
+          }
+
+          if (snapshot.data != null && testmonies!.isEmpty) {
+            return const Center(
+              child: SingleChildScrollView(
+                child: Text(
+                  'Share your testimony',
+                  style: kFontH6,
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-          ),
+            );
+          }
+
+          if (snapshot.hasData) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kContentSpacing16,
+                  vertical: kContentSpacing24,
+                ),
+                child: ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: testmonies?.length ?? 0,
+                  shrinkWrap: true,
+                  separatorBuilder: (context, index) => const SizedBox(
+                    height: kContentSpacing8,
+                  ),
+                  itemBuilder: (context, index) {
+                    return TestimonyCard(
+                      testimony: testmonies![index],
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+
+          return Container();
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Create testimony',
+        backgroundColor: kBlue,
+        child: const Icon(
+          Icons.add,
         ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const CreateTestimonyScreen(),
+            ),
+          );
+        },
       ),
     );
   }
@@ -50,121 +106,6 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
         'Testimonies',
         style: kFontH6,
       ),
-    );
-  }
-}
-
-class TestimonyCard extends StatefulWidget {
-  const TestimonyCard({Key? key}) : super(key: key);
-
-  @override
-  State<TestimonyCard> createState() => _TestimonyCardState();
-}
-
-class _TestimonyCardState extends State<TestimonyCard> {
-  final popupMenuKey = GlobalKey<PopupMenuButtonState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      decoration: const BoxDecoration(
-        color: kWhite,
-        borderRadius: BorderRadius.all(
-          Radius.circular(kRadius),
-        ),
-      ),
-      child: CustomElevatedButton(
-        padding: const EdgeInsets.all(kContentSpacing8),
-        child: Column(
-          children: [
-            _headerInfo(),
-            const SizedBox(
-              height: kContentSpacing12,
-            ),
-            const Text(
-              paragrapgh,
-              maxLines: 5,
-              style: kFontBody,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-        onPressed: () {},
-      ),
-    );
-  }
-
-  Widget _headerInfo() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            const CircleAvatar(
-              backgroundImage: NetworkImage(unsplashPhotoUrl),
-              radius: 24,
-            ),
-            const SizedBox(width: kContentSpacing12),
-            Padding(
-              padding: const EdgeInsets.only(top: kContentSpacing4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Rick Wright',
-                    style: kFontBody2.copyWith(
-                      fontWeight: kFontWeightMedium,
-                    ),
-                  ),
-                  const Text(
-                    '24 Dec 2019 - 14:45',
-                    style: kFontCaption,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Flexible(
-          child: CustomElevatedButton(
-            backgroundColor: Colors.transparent,
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              popupMenuKey.currentState?.showButtonMenu();
-            },
-            child: PopupMenuButton<double>(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(kRadius),
-                ),
-              ),
-              key: popupMenuKey,
-              // Callback that sets the selected popup menu item.
-              onSelected: (item) {},
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem(
-                  value: 0.5,
-                  child: const Text('Edit', style: kFontBody),
-                  onTap: () {},
-                ),
-                PopupMenuItem(
-                  value: 0.5,
-                  child: Text('Delete', style: kFontBody.copyWith(color: kRed)),
-                  onTap: () {
-                    setState(() {});
-                  },
-                ),
-              ],
-              child: const Icon(
-                Icons.more_vert_rounded,
-                color: kBlack,
-              ),
-            ),
-          ),
-        )
-      ],
     );
   }
 }

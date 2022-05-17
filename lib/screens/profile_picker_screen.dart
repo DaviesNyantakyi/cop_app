@@ -122,8 +122,8 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
   Widget _buildAvatar() {
     ImageProvider? image;
     Widget icon = const Icon(
-      Icons.person_outline_rounded,
-      color: Colors.black45,
+      kAvatarIcon,
+      color: kBlack,
       size: 50,
     );
 

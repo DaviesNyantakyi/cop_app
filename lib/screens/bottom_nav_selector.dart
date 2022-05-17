@@ -1,8 +1,6 @@
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/buttons.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavigationScreen extends StatefulWidget {

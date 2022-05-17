@@ -2,7 +2,6 @@ import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_detail_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_card.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/greeting.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';

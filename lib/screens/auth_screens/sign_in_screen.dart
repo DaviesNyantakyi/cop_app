@@ -161,7 +161,7 @@ class _SignInScreenState extends State<SignInScreen> {
       builder: (context, signUpNotifier, _) {
         return Form(
           key: signUpNotifier.emailKey,
-          child: CustomTextField(
+          child: CustomTextFormField(
             key: ObjectKey(signUpNotifier.emailCntlr),
             controller: signUpNotifier.emailCntlr,
             hintText: 'Email',
@@ -185,7 +185,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return Consumer<SignUpNotifier>(builder: (context, signUpNotifier, _) {
       return Form(
         key: signUpNotifier.passwordKey,
-        child: CustomTextField(
+        child: CustomTextFormField(
           key: ObjectKey(signUpNotifier.passwordCntlr),
           controller: signUpNotifier.passwordCntlr,
           hintText: 'Password',

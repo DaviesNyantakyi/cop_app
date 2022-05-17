@@ -1,43 +1,95 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class TestimonyModel {
   String? id;
   final String userId;
   String title;
-  final String? userName;
-  String description;
-  int? likes;
-  final DateTime? date;
+  final String? displayName;
+  String testimony;
+  final Timestamp date;
+  final Timestamp? lastUpdate;
 
   TestimonyModel({
-    required this.id,
-    required this.userName,
+    this.id,
     required this.userId,
     required this.title,
-    required this.description,
-    this.likes,
+    required this.displayName,
+    required this.testimony,
     required this.date,
+    this.lastUpdate,
   });
 
-  static Map<String, dynamic> toMap({required TestimonyModel map}) {
-    return {
-      'id': map.id,
-      'userName': map.userName,
-      'userId': map.userId,
-      'title': map.title,
-      'description': map.description,
-      'likes': map.likes,
-      'date': map.date,
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'displayName': displayName,
+      'testimony': testimony,
+      'date': date,
+      'lastUpdate': lastUpdate,
     };
   }
 
-  static TestimonyModel fromMap({required Map<String, dynamic> map}) {
+  factory TestimonyModel.fromMap(Map<String, dynamic> map) {
     return TestimonyModel(
       id: map['id'],
-      userName: map['userName'],
       userId: map['userId'],
       title: map['title'],
-      description: map['description'],
-      date: map['date'].toDate(),
-      likes: map['likes'],
+      displayName: map['displayName'],
+      testimony: map['testimony'],
+      date: map['date'],
+      lastUpdate: map['lastUpdate'],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'TestimonyModel(id: $id, userId: $userId, title: $title, displayName: $displayName, testimony: $testimony, date: $date, lastUpdate: $lastUpdate)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is TestimonyModel &&
+        other.id == id &&
+        other.userId == userId &&
+        other.title == title &&
+        other.displayName == displayName &&
+        other.testimony == testimony &&
+        other.date == date &&
+        other.lastUpdate == lastUpdate;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        userId.hashCode ^
+        title.hashCode ^
+        displayName.hashCode ^
+        testimony.hashCode ^
+        date.hashCode ^
+        lastUpdate.hashCode;
+  }
+
+  TestimonyModel copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? displayName,
+    String? testimony,
+    Timestamp? date,
+    Timestamp? lastUpdate,
+  }) {
+    return TestimonyModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      displayName: displayName ?? this.displayName,
+      testimony: testimony ?? this.testimony,
+      date: date ?? this.date,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
     );
   }
 }

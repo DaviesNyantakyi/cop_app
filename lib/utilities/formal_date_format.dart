@@ -1,11 +1,14 @@
 import 'package:dart_date/dart_date.dart';
 
-// •
 class FormalDates {
-  static String? formatEDmyyyyHm({required DateTime? date}) {
+  static String? formatDmyyyyHm({required DateTime? date}) {
     // Wed, 1 Jan, 2023 • 14:00
     if (date != null) {
-      return date.format('E, dd MMM, yyyy • hh:mm');
+      if (date.year == DateTime.now().year) {
+        return date.format('dd MMM • HH:mm');
+      } else {
+        return date.format('dd MMM, yyyy • HH:mm');
+      }
     }
     return null;
   }
@@ -33,20 +36,5 @@ class FormalDates {
       return date.format('HH:mm');
     }
     return null;
-  }
-
-  // Podcast episode
-  static String getEpisodeDuration({required Duration duration}) {
-    // formats the episode duration in hh:mm:ss
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-
-    // return mm:ss if the duration is less then one hour
-
-    if (duration.inHours < 1) {
-      return "$twoDigitMinutes:$twoDigitSeconds";
-    }
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 }

@@ -124,7 +124,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       builder: (context, signUpNotifier, _) {
         return Form(
           key: signUpNotifier.firstNameKey,
-          child: CustomTextField(
+          child: CustomTextFormField(
             controller: signUpNotifier.firstNameCntlr,
             hintText: 'First name',
             textInputAction: TextInputAction.next,
@@ -146,7 +146,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       builder: (context, signUpNotifier, _) {
         return Form(
           key: signUpNotifier.lastNameKey,
-          child: CustomTextField(
+          child: CustomTextFormField(
             controller: signUpNotifier.lastNameCntlr,
             hintText: 'Last name',
             textInputAction: TextInputAction.next,
@@ -168,7 +168,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       builder: (context, signUpNotifier, _) {
         return Form(
           key: signUpNotifier.emailKey,
-          child: CustomTextField(
+          child: CustomTextFormField(
             controller: signUpNotifier.emailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,
@@ -189,7 +189,7 @@ class _AddInfoViewState extends State<AddInfoView> {
     return Consumer<SignUpNotifier>(builder: (context, signUpNotifier, _) {
       return Form(
         key: signUpNotifier.passwordKey,
-        child: CustomTextField(
+        child: CustomTextFormField(
           controller: signUpNotifier.passwordCntlr,
           hintText: 'Password',
           textInputAction: TextInputAction.done,

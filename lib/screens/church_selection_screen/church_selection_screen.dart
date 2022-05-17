@@ -56,7 +56,7 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextField(
+              CustomTextFormField(
                 controller: searchContlr,
                 hintText: 'Search',
                 maxLines: 1,

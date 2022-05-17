@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
@@ -53,11 +54,8 @@ class CloudFire {
     }
   }
 
-  Stream<UserModel?> userStream() {
-    final docSnap = _firebaseFirestore
-        .collection('users')
-        .doc(_firebaseUser?.uid)
-        .snapshots();
+  Stream<UserModel?> getUserStream({String? id}) {
+    final docSnap = _firebaseFirestore.collection('users').doc(id).snapshots();
 
     return docSnap.map((doc) {
       if (doc.data() != null) {
@@ -259,6 +257,89 @@ class CloudFire {
               .delete();
           await FireStorage().deleteUser();
         }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  // Testimonies
+  Future<void> createTestimony({required TestimonyModel testimony}) async {
+    try {
+      bool hasConnection = await _connectionChecker.checkConnection();
+
+      if (hasConnection) {
+        final docRef = await _firebaseFirestore.collection('testimonies').add(
+              testimony.toMap(),
+            );
+        docRef.update({'id': docRef.id});
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Stream<List<TestimonyModel>> getTestimonies() {
+    try {
+      final qSnap = _firebaseFirestore.collection('testimonies').snapshots();
+
+      return qSnap.map((qSnap) {
+        return qSnap.docs.map((e) {
+          return TestimonyModel.fromMap(e.data());
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> updateTestimony({required TestimonyModel testimony}) async {
+    try {
+      bool hasConnection = await _connectionChecker.checkConnection();
+
+      if (hasConnection) {
+        await _firebaseFirestore
+            .collection('testimonies')
+            .doc(testimony.id)
+            .update(
+              testimony.toMap(),
+            );
+        await _firebaseFirestore
+            .collection('testimonies')
+            .doc(testimony.id)
+            .update({
+          'lastUpdate': DateTime.now(),
+        });
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<bool?> deleteTestimony({required TestimonyModel testimony}) async {
+    try {
+      bool hasConnection = await _connectionChecker.checkConnection();
+
+      if (hasConnection) {
+        // delete doc
+        await _firebaseFirestore
+            .collection('testimonies')
+            .doc(testimony.id)
+            .delete();
+        return true;
       } else {
         throw ConnectionNotifier.connectionException;
       }

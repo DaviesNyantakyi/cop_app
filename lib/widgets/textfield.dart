@@ -1,7 +1,7 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextFormField extends StatelessWidget {
   final String? hintText;
   final String? initialValue;
 
@@ -20,10 +20,11 @@ class CustomTextField extends StatelessWidget {
   final InputBorder? focusedBorder;
   final InputBorder? border;
   final TextStyle? style;
+  final TextStyle? hintStyle;
   final TextEditingController? controller;
   final AutovalidateMode? autovalidateMode;
 
-  const CustomTextField({
+  const CustomTextFormField({
     Key? key,
     this.hintText,
     this.initialValue,
@@ -38,6 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.fillColor,
     this.prefixIcon,
     this.onChanged,
+    this.hintStyle,
     this.validator,
     this.textInputAction,
     this.suffixIcon,
@@ -63,7 +65,7 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         errorMaxLines: 2,
         hintText: hintText,
-        hintStyle: kFontBody.copyWith(color: kGrey),
+        hintStyle: hintStyle ?? kFontBody.copyWith(color: kGrey),
         fillColor: fillColor ?? kWhite,
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,

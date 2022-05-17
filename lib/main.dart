@@ -1,9 +1,11 @@
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/auth_wrapper.dart';
+import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_track_shape.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -48,12 +50,6 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider<SignUpNotifier>(
             create: (conext) => SignUpNotifier(),
-          ),
-          StreamProvider<UserModel?>(
-            create: (context) {
-              return CloudFire().userStream();
-            },
-            initialData: null,
           ),
         ],
         child: const AuthWrapper(),

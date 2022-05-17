@@ -295,7 +295,7 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
               },
             ),
             PopupMenuItem(
-              value: 0.5,
+              value: 1,
               child: const Text('1', style: kFontBody),
               onTap: () {
                 selectedPlaybackSpeed = 1.0;
@@ -303,7 +303,7 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
               },
             ),
             PopupMenuItem(
-              value: 0.5,
+              value: 1.5,
               child: const Text('1.5', style: kFontBody),
               onTap: () {
                 selectedPlaybackSpeed = 1.5;
@@ -311,7 +311,7 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
               },
             ),
             PopupMenuItem(
-              value: 0.5,
+              value: 2,
               child: const Text('2', style: kFontBody),
               onTap: () {
                 selectedPlaybackSpeed = 2.0;
@@ -319,7 +319,7 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
               },
             ),
             PopupMenuItem(
-              value: 0.5,
+              value: 2.5,
               child: const Text('2.5', style: kFontBody),
               onTap: () {
                 selectedPlaybackSpeed = 2.5;

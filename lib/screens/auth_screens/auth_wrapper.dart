@@ -1,10 +1,13 @@
+import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/bottom_nav_selector.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthWrapper extends StatefulWidget {
   static String authScreenSwitcher = 'authScreenSwitcher';
@@ -37,7 +40,19 @@ class _AuthWrapperState extends State<AuthWrapper> {
           if (snapshot.hasData &&
               snapshot.data?.uid != null &&
               snapshot.data != null) {
-            return const BottomNavigationScreen();
+            return MultiProvider(
+              providers: [
+                StreamProvider<UserModel?>(
+                  create: (context) {
+                    return CloudFire().getUserStream(
+                      id: snapshot.data?.uid,
+                    );
+                  },
+                  initialData: null,
+                ),
+              ],
+              child: const BottomNavigationScreen(),
+            );
           }
 
           //return the welcomeScreen if the user is logged out or the user object is null.

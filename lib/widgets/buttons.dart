@@ -16,7 +16,7 @@ class CustomElevatedButton extends StatelessWidget {
     Key? key,
     required this.child,
     this.onPressed,
-    this.height = kButtonHeight,
+    this.height,
     this.width,
     this.side,
     this.padding,

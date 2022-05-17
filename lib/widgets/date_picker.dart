@@ -16,6 +16,7 @@ Future<void> showCustomDatePicker({
   showCustomBottomSheet(
     isDismissable: false,
     context: context,
+    snappings: [0.7],
     child: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,

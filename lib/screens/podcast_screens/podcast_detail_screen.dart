@@ -3,7 +3,6 @@ import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/episode_card.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:expandable_text/expandable_text.dart';

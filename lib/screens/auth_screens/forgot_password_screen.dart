@@ -126,7 +126,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       builder: (context, signUpNotifier, _) {
         return Form(
           key: signUpNotifier.forgotEmailKey,
-          child: CustomTextField(
+          child: CustomTextFormField(
             controller: signUpNotifier.forgotEmailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,

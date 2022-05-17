@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({Key? key}) : super(key: key);
@@ -129,18 +130,21 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildUserInfo() {
-    final userName = FirebaseAuth.instance.currentUser?.displayName;
+    final user = Provider.of<UserModel?>(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          userName ?? ' ',
+          user?.displayName ??
+              FirebaseAuth.instance.currentUser?.displayName ??
+              '',
           style: kFontBody,
         ),
         const SizedBox(height: kContentSpacing4),
-        const Text(
-          'Piwc Turnhout',
+        Text(
+          user?.church?['churchName'] ?? '',
           style: kFontBody2,
         ),
       ],
