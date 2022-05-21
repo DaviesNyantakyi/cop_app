@@ -16,6 +16,10 @@ class ConnectionNotifier extends ChangeNotifier {
 
   Future<bool> checkConnection() async {
     bool result = await InternetConnectionChecker().hasConnection;
+
+    if (result == false) {
+      throw connectionException;
+    }
     hasConnection = result;
     notifyListeners();
     return result;

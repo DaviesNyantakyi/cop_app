@@ -11,10 +11,6 @@ const kAvatarIcon = Icons.person_outline_rounded;
 
 const kBottomsheetHeight = 0.67; // 67% precentage of the screen
 
-const kCircularProgressIndicator = CircularProgressIndicator(
-  strokeWidth: 5,
-  color: kBlack,
-);
 Duration kPagViewDuration = const Duration(milliseconds: 800);
 Curve kPagViewCurve = Curves.easeOutExpo;
 

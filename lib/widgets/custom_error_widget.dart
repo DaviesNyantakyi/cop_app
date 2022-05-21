@@ -29,6 +29,7 @@ class CustomErrorWidget extends StatelessWidget {
               const SizedBox(height: kContentSpacing24),
               CustomElevatedButton(
                 width: double.infinity,
+                height: kButtonHeight,
                 backgroundColor: kBlue,
                 child: Text(
                   'Try again',

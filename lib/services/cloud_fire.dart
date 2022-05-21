@@ -18,10 +18,10 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (user.id != null && user.email != null) {
+        if (user.uid != null && user.email != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(user.id)
+              .doc(user.uid)
               .set(user.toMap());
         }
       } else {
@@ -318,7 +318,7 @@ class CloudFire {
             .collection('testimonies')
             .doc(testimony.id)
             .update({
-          'lastUpdate': DateTime.now(),
+          'updatedAt': DateTime.now(),
         });
       } else {
         throw ConnectionNotifier.connectionException;
@@ -329,7 +329,8 @@ class CloudFire {
     }
   }
 
-  Future<bool?> deleteTestimony({required TestimonyModel testimony}) async {
+  Future<bool?> deleteTestimony(
+      {required TestimonyModel testimonyModel}) async {
     try {
       bool hasConnection = await _connectionChecker.checkConnection();
 
@@ -337,7 +338,7 @@ class CloudFire {
         // delete doc
         await _firebaseFirestore
             .collection('testimonies')
-            .doc(testimony.id)
+            .doc(testimonyModel.id)
             .delete();
         return true;
       } else {

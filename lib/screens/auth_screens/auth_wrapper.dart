@@ -3,8 +3,8 @@ import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/bottom_nav_selector.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
-import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
+import 'package:cop_belgium_app/widgets/progress_indicator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,7 +61,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           // show a progress indicator if the snaphot data is loading.
           return const Scaffold(
             body: Center(
-              child: kCircularProgressIndicator,
+              child: CustomCircularProgressIndicator(),
             ),
           );
         }

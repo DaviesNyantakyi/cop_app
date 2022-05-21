@@ -58,14 +58,10 @@ class Validators {
   }
 
   Widget showValidationWidget({String? errorText}) {
-    if (errorText == null) {
-      return Container();
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kContentSpacing8),
       child: Text(
-        errorText,
+        errorText!,
         style: kFontCaption.copyWith(color: kRed),
       ),
     );

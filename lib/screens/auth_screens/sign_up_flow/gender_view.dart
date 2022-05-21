@@ -22,6 +22,7 @@ class GenderView extends StatefulWidget {
 }
 
 class _GenderViewState extends State<GenderView> {
+  Gender? gender;
   void onSubmit() {
     nextPage(controller: widget.pageController);
   }
@@ -75,7 +76,7 @@ class _GenderViewState extends State<GenderView> {
               style: kFontH5,
             ),
             Text(
-              '${signUpNotifier.displayName ?? signUpNotifier.firstNameCntlr.text.trim()}?',
+              '${signUpNotifier.firstNameCntlr.text.trim()}?',
               style: kFontH5,
             ),
           ],
@@ -87,7 +88,6 @@ class _GenderViewState extends State<GenderView> {
   Widget _genderButtons() {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
-        final gender = signUpNotifier.selectedGender;
         return Row(
           children: [
             Expanded(
@@ -96,9 +96,7 @@ class _GenderViewState extends State<GenderView> {
                 groupsValue: gender,
                 title: 'Male',
                 image: 'assets/images/male.png',
-                onChanged: (value) {
-                  signUpNotifier.setGender(value: value);
-                },
+                onChanged: (value) {},
               ),
             ),
             const SizedBox(width: kContentSpacing8),
@@ -108,9 +106,7 @@ class _GenderViewState extends State<GenderView> {
                 groupsValue: gender,
                 title: 'Female',
                 image: 'assets/images/female.png',
-                onChanged: (value) {
-                  signUpNotifier.setGender(value: value);
-                },
+                onChanged: (value) {},
               ),
             ),
           ],
@@ -122,15 +118,16 @@ class _GenderViewState extends State<GenderView> {
   Widget _continueButton() {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
-        final gender = signUpNotifier.selectedGender;
+        // final gender = signUpNotifier.selectedGender;
         return CustomElevatedButton(
+          height: kButtonHeight,
           width: double.infinity,
           backgroundColor: kBlue,
           child: Text(
             'Continue',
-            style: kFontBody.copyWith(color: gender != null ? kWhite : kGrey),
+            style: kFontBody.copyWith(color: kGrey),
           ),
-          onPressed: gender != null ? onSubmit : null,
+          onPressed: onSubmit,
         );
       },
     );

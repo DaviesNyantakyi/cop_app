@@ -53,8 +53,11 @@ class _BuildImage extends StatelessWidget {
         height: _cardHeight,
         width: 140,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: kContentSpacing8)
-              .copyWith(left: kContentSpacing8, right: kContentSpacing12),
+          margin:
+              const EdgeInsets.symmetric(vertical: kContentSpacing8).copyWith(
+            left: kContentSpacing8,
+            right: kContentSpacing12,
+          ),
           height: 100,
           decoration: BoxDecoration(
             borderRadius: const BorderRadius.all(Radius.circular(kRadius)),

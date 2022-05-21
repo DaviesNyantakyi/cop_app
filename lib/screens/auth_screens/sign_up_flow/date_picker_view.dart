@@ -70,17 +70,28 @@ class _DatePickerViewState extends State<DatePickerView> {
 
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
+        String question;
+        Widget? displayName;
+
+        if (signUpNotifier.displayName != null) {
+          question = 'What\'s your date of birth?';
+          displayName = Text(
+            '${signUpNotifier.displayName?.trim() ?? signUpNotifier.firstNameCntlr.text.trim()}?',
+            style: kFontH5,
+          );
+        } else {
+          question = 'What\'s your date of birth?';
+          displayName = Container();
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'What\'s your date of birth,',
+              question,
               style: headerStyle,
             ),
-            Text(
-              '${signUpNotifier.displayName ?? signUpNotifier.firstNameCntlr.text.trim()}?',
-              style: kFontH5,
-            ),
+            displayName
           ],
         );
       },
@@ -94,8 +105,9 @@ class _DatePickerViewState extends State<DatePickerView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomElevatedButton(
-              side: BorderSide(
-                color: signUpNotifier.dateOfBirthIsValid ? kBlue : kGrey,
+              height: kButtonHeight,
+              side: const BorderSide(
+                color: kBlue,
               ),
               child: Padding(
                 padding:
@@ -112,10 +124,7 @@ class _DatePickerViewState extends State<DatePickerView> {
                         ),
                         const SizedBox(width: kContentSpacing8),
                         Text(
-                          FormalDates.formatDmyyyy(
-                                date: signUpNotifier.dateOfBirth,
-                              ) ??
-                              '',
+                          FormalDates.formatDmyyyy(date: DateTime.now()) ?? '',
                           style: kFontBody,
                         ),
                       ],
@@ -125,20 +134,17 @@ class _DatePickerViewState extends State<DatePickerView> {
               ),
               onPressed: () async {
                 await showCustomDatePicker(
-                  initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
+                  initialDateTime: DateTime.now(),
                   maxDate: DateTime.now(),
                   mode: CupertinoDatePickerMode.date,
                   context: context,
-                  onChanged: (date) {
-                    signUpNotifier.setDateOfBirth(value: date);
-                    signUpNotifier.validateDate();
-                  },
+                  onChanged: (date) {},
                 );
               },
             ),
-            Validators().showValidationWidget(
-              errorText: signUpNotifier.errorText,
-            )
+            // Validators().showValidationWidget(
+            //   errorText: 'hey',
+            // )
           ],
         );
       },
@@ -146,17 +152,19 @@ class _DatePickerViewState extends State<DatePickerView> {
   }
 
   Widget _continueButton() {
-    return Consumer<SignUpNotifier>(builder: (context, signUpNotifier, _) {
-      final dateOfBirthIsValid = signUpNotifier.dateOfBirthIsValid;
-      return CustomElevatedButton(
-        width: double.infinity,
-        backgroundColor: dateOfBirthIsValid ? kBlue : kGreyLight,
-        child: Text(
-          'Continue',
-          style: kFontBody.copyWith(color: dateOfBirthIsValid ? kWhite : kGrey),
-        ),
-        onPressed: dateOfBirthIsValid ? onSubmit : null,
-      );
-    });
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return CustomElevatedButton(
+          height: kButtonHeight,
+          width: double.infinity,
+          backgroundColor: kBlue,
+          child: Text(
+            'Continue',
+            style: kFontBody.copyWith(color: kWhite),
+          ),
+          onPressed: onSubmit,
+        );
+      },
+    );
   }
 }

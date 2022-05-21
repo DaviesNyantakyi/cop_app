@@ -40,7 +40,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
       );
       await _firebaseAuth.currentUser?.reload();
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
@@ -59,7 +59,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
       await FireStorage().deleteProfileImage();
       await _firebaseAuth.currentUser?.reload();
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',

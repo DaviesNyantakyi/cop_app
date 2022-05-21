@@ -32,7 +32,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       EasyLoading.show();
       await fireAuth.loginGoogle();
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
@@ -86,7 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   void dispose() {
-    signUpNotifier.resetForm();
+    // signUpNotifier.resetForm();
     super.dispose();
   }
 
@@ -184,8 +184,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildGoogleButton() {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
-        return SocialButton(
-          icon: screenInfo.screenSize.width <= kScreenSizeMobile
+        return CustomIconButton(
+          height: kButtonHeight,
+          leading: screenInfo.screenSize.width <= kScreenSizeMobile
               ? Container()
               : const Icon(
                   FontAwesomeIcons.google,
@@ -208,9 +209,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildAppleButton() {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
-        return SocialButton(
+        return CustomIconButton(
+          height: kButtonHeight,
           backgroundColor: kBlack,
-          icon: screenInfo.screenSize.width <= kScreenSizeMobile
+          leading: screenInfo.screenSize.width <= kScreenSizeMobile
               ? Container()
               : const Icon(
                   FontAwesomeIcons.apple,
@@ -232,6 +234,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildEmailButton({required BuildContext context}) {
     return CustomElevatedButton(
+      height: kButtonHeight,
       side: const BorderSide(width: kBoderWidth, color: kBlack),
       child: Text(
         'Continue with Email',

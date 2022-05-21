@@ -1,14 +1,23 @@
 import 'package:dart_date/dart_date.dart';
 
+import 'package:timeago/timeago.dart' as timeago;
+
 class FormalDates {
+  static String? timeAgo({required DateTime? date}) {
+    if (date != null) {
+      if (date.year == DateTime.now().year) {
+        return timeago.format(date);
+      } else {
+        return formatDmyyyyHm(date: date);
+      }
+    }
+    return null;
+  }
+
   static String? formatDmyyyyHm({required DateTime? date}) {
     // Wed, 1 Jan, 2023 • 14:00
     if (date != null) {
-      if (date.year == DateTime.now().year) {
-        return date.format('dd MMM • HH:mm');
-      } else {
-        return date.format('dd MMM, yyyy • HH:mm');
-      }
+      return date.format('dd MMM, yyyy • HH:mm');
     }
     return null;
   }

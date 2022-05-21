@@ -58,7 +58,7 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
         Navigator.pop(context);
       }
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',

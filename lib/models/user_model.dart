@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
-  String? id;
+  String? uid;
   String? photoURL;
   String? firstName;
   String? displayName;
@@ -15,7 +15,7 @@ class UserModel {
   Timestamp? dateOfBirth;
 
   UserModel({
-    this.id,
+    this.uid,
     this.photoURL,
     required this.firstName,
     required this.lastName,
@@ -29,7 +29,7 @@ class UserModel {
 
   static UserModel fromMap({required Map<String, dynamic> map}) {
     return UserModel(
-      id: map['id'],
+      uid: map['uid'],
       photoURL: map['photoURL'],
       dateOfBirth: map['dateOfBirth'],
       firstName: map['firstName'],
@@ -44,7 +44,7 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'uid': uid,
       'photoURL': photoURL,
       'firstName': firstName,
       'lastName': lastName,
@@ -58,7 +58,7 @@ class UserModel {
   }
 
   UserModel copyWith({
-    String? id,
+    String? uid,
     String? photoURL,
     String? firstName,
     String? displayName,
@@ -70,7 +70,7 @@ class UserModel {
     Timestamp? dateOfBirth,
   }) {
     return UserModel(
-      id: id ?? this.id,
+      uid: uid ?? this.uid,
       photoURL: photoURL ?? this.photoURL,
       firstName: firstName ?? this.firstName,
       displayName: displayName ?? this.displayName,
@@ -85,6 +85,6 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, photoURL: $photoURL, firstName: $firstName, displayName: $displayName, lastName: $lastName, email: $email, bio: $bio, gender: $gender, church: $church, dateOfBirth: $dateOfBirth)';
+    return 'UserModel(uid: $uid, photoURL: $photoURL, firstName: $firstName, displayName: $displayName, lastName: $lastName, email: $email, bio: $bio, gender: $gender, church: $church, dateOfBirth: $dateOfBirth)';
   }
 }

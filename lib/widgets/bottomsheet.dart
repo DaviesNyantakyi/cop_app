@@ -12,7 +12,7 @@ Future<dynamic> showCustomBottomSheet({
   Color backgroundColor = kWhite,
   double? initialSnap,
   EdgeInsets? padding,
-  List<double> snappings = const [0.4, 1.0],
+  List<double> snappings = const [0.5, 1.0],
   required Widget child,
 }) async {
   return showSlidingBottomSheet(
@@ -24,13 +24,13 @@ Future<dynamic> showCustomBottomSheet({
         cornerRadius: kRadius,
         avoidStatusBar: true,
         isDismissable: isDismissable,
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 500),
         color: backgroundColor,
         headerBuilder: showHeader
             ? (context, state) {
                 return Container(
                   margin: const EdgeInsets.all(kContentSpacing8),
-                  width: 40,
+                  width: 42,
                   height: 8,
                   decoration: const BoxDecoration(
                     color: kGrey,
@@ -45,7 +45,6 @@ Future<dynamic> showCustomBottomSheet({
           snap: true,
           initialSnap: initialSnap,
           snappings: snappings,
-          positioning: SnapPositioning.relativeToAvailableSpace,
         ),
         builder: (context, state) {
           return SafeArea(

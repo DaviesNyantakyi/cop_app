@@ -36,10 +36,11 @@ class FireAuth {
           );
           await _firebaseAuth.currentUser?.updateDisplayName(user.displayName);
 
-          final updatedUser = user.copyWith(id: _firebaseAuth.currentUser?.uid);
+          final updatedUser =
+              user.copyWith(uid: _firebaseAuth.currentUser?.uid);
 
           await _cloudFire.createUserDoc(user: updatedUser);
-          user.id = _firebaseAuth.currentUser?.uid;
+          user.uid = _firebaseAuth.currentUser?.uid;
 
           await _firebaseAuth.currentUser?.reload();
           return _firebaseAuth.currentUser;
@@ -165,7 +166,7 @@ class FireAuth {
           // Create a user if in firestore if it does not exists.
           if (userDoc == null) {
             final user = UserModel(
-              id: _firebaseAuth.currentUser?.uid,
+              uid: _firebaseAuth.currentUser?.uid,
               photoURL: _firebaseAuth.currentUser?.photoURL,
               firstName: null,
               dateOfBirth: null,

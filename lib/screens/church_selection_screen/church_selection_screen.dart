@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/church_tile.dart';
+import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
+import 'package:cop_belgium_app/widgets/progress_indicator.dart';
 import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 
@@ -75,38 +77,45 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
                 builder: (context, snapshot) {
                   final data = snapshot.data;
 
-                  // Show loading indicator when churches are being loaded.
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: kCircularProgressIndicator);
+                  if (snapshot.hasError) {
+                    return CustomErrorWidget(
+                      onPressed: () {
+                        setState(() {});
+                      },
+                    );
                   }
 
-                  // Turn each church data into an ChurchModel.
-                  List<ChurchModel>? churches = data?.docs.map((map) {
-                    return ChurchModel.fromMap(map: map.data());
-                  }).toList();
+                  if (snapshot.hasData && snapshot.data != null) {
+                    // Get all the churches information and turn it into a ChurchModel.
+                    List<ChurchModel>? churches = data?.docs.map((map) {
+                      return ChurchModel.fromMap(map: map.data());
+                    }).toList();
+                    // Show message when the return list of churches is empty.
+                    if (churches!.isEmpty) {
+                      return const Text('No result found', style: kFontBody);
+                    }
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return ChurchTile(
+                          church: churches[index],
+                          onTap: () async {
+                            selectedChurch = churches[index];
 
-                  // Show message when the return list of churches is empty.
-                  if (churches!.isEmpty) {
-                    return const Text('No result found', style: kFontBody);
+                            widget.onTap!(selectedChurch);
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) => const SizedBox(
+                        height: kContentSpacing8,
+                      ),
+                      itemCount: churches.length,
+                    );
                   }
 
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return ChurchTile(
-                        church: churches[index],
-                        onTap: () async {
-                          selectedChurch = churches[index];
-
-                          widget.onTap!(selectedChurch);
-                        },
-                      );
-                    },
-                    separatorBuilder: (context, index) => const SizedBox(
-                      height: kContentSpacing8,
-                    ),
-                    itemCount: churches.length,
+                  return const Center(
+                    child: CustomCircularProgressIndicator(),
                   );
                 },
               )

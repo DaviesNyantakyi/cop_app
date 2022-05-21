@@ -1,20 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TestimonyModel {
+class QuestionAnswerModel {
   String? id;
   final String uid;
   String title;
   final String? displayName;
-  String testimony;
+  String question;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
 
-  TestimonyModel({
+  QuestionAnswerModel({
     this.id,
     required this.uid,
     required this.title,
     required this.displayName,
-    required this.testimony,
+    required this.question,
     required this.createdAt,
     this.updatedAt,
   });
@@ -25,39 +25,59 @@ class TestimonyModel {
       'uid': uid,
       'title': title,
       'displayName': displayName,
-      'testimony': testimony,
+      'question': question,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
   }
 
-  factory TestimonyModel.fromMap(Map<String, dynamic> map) {
-    return TestimonyModel(
+  factory QuestionAnswerModel.fromMap(Map<String, dynamic> map) {
+    return QuestionAnswerModel(
       id: map['id'],
       uid: map['uid'],
       title: map['title'],
       displayName: map['displayName'],
-      testimony: map['testimony'],
+      question: map['question'],
       createdAt: map['createdAt'],
-      updatedAt: map['lastUpdate'],
+      updatedAt: map['updatedAt'],
+    );
+  }
+
+  QuestionAnswerModel copyWith({
+    String? id,
+    String? uid,
+    String? title,
+    String? displayName,
+    String? question,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
+  }) {
+    return QuestionAnswerModel(
+      id: id ?? this.id,
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      displayName: displayName ?? this.displayName,
+      question: question ?? this.question,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   @override
   String toString() {
-    return 'TestimonyModel(id: $id, uid: $uid, title: $title, displayName: $displayName, testimony: $testimony, createdAt: $createdAt, lastUpdate: $updatedAt)';
+    return 'QuestionAndAnswerModel(id: $id, uid: $uid, title: $title, displayName: $displayName, question: $question, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is TestimonyModel &&
+    return other is QuestionAnswerModel &&
         other.id == id &&
         other.uid == uid &&
         other.title == title &&
         other.displayName == displayName &&
-        other.testimony == testimony &&
+        other.question == question &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -68,28 +88,8 @@ class TestimonyModel {
         uid.hashCode ^
         title.hashCode ^
         displayName.hashCode ^
-        testimony.hashCode ^
+        question.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
-  }
-
-  TestimonyModel copyWith({
-    String? id,
-    String? uid,
-    String? title,
-    String? displayName,
-    String? testimony,
-    Timestamp? createdAt,
-    Timestamp? updatedAt,
-  }) {
-    return TestimonyModel(
-      id: id ?? this.id,
-      uid: uid ?? this.uid,
-      title: title ?? this.title,
-      displayName: displayName ?? this.displayName,
-      testimony: testimony ?? this.testimony,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
   }
 }

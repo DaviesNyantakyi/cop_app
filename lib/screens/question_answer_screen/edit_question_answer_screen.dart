@@ -1,85 +1,91 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cop_belgium_app/models/testimony_model.dart';
-import 'package:cop_belgium_app/services/cloud_fire.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
+import 'package:cop_belgium_app/models/question_answer_model.dart';
+
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
-import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-class CreateTestimonyScreen extends StatefulWidget {
-  const CreateTestimonyScreen({Key? key}) : super(key: key);
+class EditQuestionAnswerScreen extends StatefulWidget {
+  final QuestionAnswerModel questionModel;
+  const EditQuestionAnswerScreen({
+    Key? key,
+    required this.questionModel,
+  }) : super(key: key);
 
   @override
-  State<CreateTestimonyScreen> createState() => _CreateTestimonyScreenState();
+  State<EditQuestionAnswerScreen> createState() =>
+      _EditQuestionAnswerScreenState();
 }
 
-class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
-  TextEditingController titleCntlr = TextEditingController();
-  TextEditingController testimonyCntlr = TextEditingController();
+class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
+  TextEditingController? titleCntlr;
+  TextEditingController? testimonyCntlr;
 
   final titleKey = GlobalKey<FormState>();
   final testimonyKey = GlobalKey<FormState>();
 
   final user = FirebaseAuth.instance.currentUser;
 
-  Future<void> createTestimony() async {
-    try {
-      final hasConnection = await ConnectionNotifier().checkConnection();
-      if (hasConnection) {
-        final validTitleForm = titleKey.currentState?.validate();
-        final validTestimonyForm = testimonyKey.currentState?.validate();
+  // Future<void> updateTestimony() async {
+  //   try {
+  //     if (widget.questionModel.title.trim() == titleCntlr?.text.trim() &&
+  //         widget.questionModel.testimony.trim() ==
+  //             testimonyCntlr?.text.trim()) {
+  //       Navigator.pop(context);
+  //       return;
+  //     }
+  //     final validTitleForm = titleKey.currentState?.validate();
+  //     final validTestimonyForm = testimonyKey.currentState?.validate();
 
-        if (validTitleForm == true &&
-            validTestimonyForm == true &&
-            titleCntlr.text.isNotEmpty &&
-            testimonyCntlr.text.isNotEmpty &&
-            user != null &&
-            user?.uid != null) {
-          TestimonyModel testimonyModel = TestimonyModel(
-            uid: user!.uid,
-            title: titleCntlr.text,
-            displayName: user?.displayName,
-            testimony: testimonyCntlr.text,
-            createdAt: Timestamp.fromDate(DateTime.now()),
-          );
+  //     if (validTitleForm == true && validTestimonyForm == true) {
+  //       TestimonyModel testimonyModel = widget.questionModel.copyWith(
+  //         title: titleCntlr!.text.trim(),
+  //         testimony: testimonyCntlr!.text.trim(),
+  //       );
 
-          EasyLoading.show();
-          await CloudFire().createTestimony(testimony: testimonyModel);
-          Navigator.pop(context);
-        }
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } on FirebaseException catch (e) {
-      showCustomSnackBar(
-        context: context,
-        type: SnackBarType.error,
-        message: e.message ?? '',
-      );
-      debugPrint(e.toString());
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      EasyLoading.dismiss();
-    }
-  }
+  //       EasyLoading.show();
+  //       await CloudFire().updateTestimony(
+  //         testimony: testimonyModel,
+  //       );
+
+  //       Navigator.pop(context);
+  //     }
+  //   } on FirebaseException catch (e) {
+  //     kShowSnackbar(
+  //       context: context,
+  //       type: SnackBarType.error,
+  //       message: e.message ?? '',
+  //     );
+  //     debugPrint(e.toString());
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //   } finally {
+  //     EasyLoading.dismiss();
+  //   }
+  // }
 
   @override
   void initState() {
+    titleCntlr = TextEditingController(
+      text: widget.questionModel.title,
+    );
+    testimonyCntlr = TextEditingController(
+      text: widget.questionModel.question,
+    );
+
+    if (mounted) {
+      setState(() {});
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print(DateTime.now());
     return ResponsiveBuilder(builder: (context, screenInfo) {
       return Scaffold(
         appBar: _buildAppBar(),
@@ -99,7 +105,6 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
                     controller: titleCntlr,
                     hintText: 'Title',
                     border: InputBorder.none,
-                    maxLines: 1,
                     focusedBorder: InputBorder.none,
                     validator: Validators.textValidator,
                     style: kFontH6.copyWith(fontWeight: kFontWeightMedium),
@@ -117,7 +122,6 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
                     validator: Validators.textValidator,
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    onSubmitted: (value) {},
                   ),
                 ),
               ],
@@ -138,10 +142,10 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
       actions: [
         CustomElevatedButton(
           child: const Text(
-            'Create',
+            'Update',
             style: kFontBody,
           ),
-          onPressed: createTestimony,
+          onPressed: () {},
         )
       ],
     );

@@ -9,6 +9,8 @@ class CustomBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomElevatedButton(
+      alignment: Alignment.centerLeft,
+      padding: EdgeInsets.zero,
       radius: 0,
       child: const Icon(
         Icons.chevron_left_rounded,

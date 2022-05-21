@@ -2,7 +2,7 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
 enum SnackBarType { success, error, normal }
-dynamic kShowSnackbar({
+dynamic showCustomSnackBar({
   required BuildContext context,
   required SnackBarType type,
   required String message,

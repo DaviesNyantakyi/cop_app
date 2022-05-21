@@ -32,21 +32,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       if (hasConnection) {
         if (validEmailForm == true) {
-          final result = await signUpNotifier.sendPasswordResetEmail();
-          if (result) {
-            kShowSnackbar(
-              context: context,
-              type: SnackBarType.success,
-              message:
-                  'Password recovery instructions has been sent to ${signUpNotifier.forgotEmailCntlr.text.trim()}',
-            );
-          }
+          // final result = await signUpNotifier.sendPasswordResetEmail();
+          // if (result) {
+          //   kShowSnackbar(
+          //     context: context,
+          //     type: SnackBarType.success,
+          //     message:
+          //         'Password recovery instructions has been sent to ${signUpNotifier.forgotEmailCntlr.text.trim()}',
+          //   );
+          // }
         }
       } else {
         throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
@@ -64,14 +64,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      signUpNotifier.setFormType(formType: FormType.forgotEmailForm);
+      // signUpNotifier.setFormType(formType: FormType.forgotEmailForm);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpNotifier.resetForm();
+    // signUpNotifier.resetForm();
     super.dispose();
   }
 
@@ -125,9 +125,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return Form(
-          key: signUpNotifier.forgotEmailKey,
+          key: signUpNotifier.emailKey,
           child: CustomTextFormField(
-            controller: signUpNotifier.forgotEmailCntlr,
+            controller: signUpNotifier.emailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,
             maxLines: 1,
@@ -146,17 +146,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
-          backgroundColor:
-              signUpNotifier.validForm == true ? kBlue : kGreyLight,
+          backgroundColor: kBlue,
           width: double.infinity,
           child: Text(
             'Send',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.validForm == true ? kWhite : kGrey,
+              color: kWhite,
             ),
           ),
-          onPressed: signUpNotifier.validForm == true ? onSubmit : null,
+          onPressed: onSubmit,
         );
       },
     );

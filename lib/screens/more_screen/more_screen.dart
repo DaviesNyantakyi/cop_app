@@ -21,7 +21,7 @@ class _MoreScreenState extends State<MoreScreen> {
     try {
       await FireAuth().logout();
     } on FirebaseAuthException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
@@ -30,6 +30,15 @@ class _MoreScreenState extends State<MoreScreen> {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void navigateToScreen({required Widget screen}) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => screen,
+      ),
+    );
   }
 
   @override
@@ -48,14 +57,7 @@ class _MoreScreenState extends State<MoreScreen> {
             const Divider(),
             _buildTile(
               title: 'Testimonies',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => const TestimoniesScreen(),
-                  ),
-                );
-              },
+              onTap: () => navigateToScreen(screen: const TestimoniesScreen()),
             ),
             _buildTile(
               title: 'Request Baptism',
@@ -122,7 +124,7 @@ class _MoreScreenState extends State<MoreScreen> {
       child = Container();
     }
     return CircleAvatar(
-      radius: 36,
+      radius: 28,
       backgroundColor: kGreyLight,
       child: child,
       backgroundImage: backgroundImage,

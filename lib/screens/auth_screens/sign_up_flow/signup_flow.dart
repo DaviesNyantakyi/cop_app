@@ -36,7 +36,6 @@ class _SignUpFlowState extends State<SignUpFlow> {
 
   @override
   void dispose() {
-    signUpProvider.resetForm();
     super.dispose();
   }
 
@@ -44,14 +43,14 @@ class _SignUpFlowState extends State<SignUpFlow> {
     final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     try {
       EasyLoading.show();
-      signUpNotifier.setSelectedChurch(value: church);
-      final user = await signUpNotifier.signUp();
+      // signUpNotifier.setSelectedChurch(value: church);
+      // final user = await signUpNotifier.signUp();
 
-      if (user != null) {
-        nextPage(controller: pageController);
-      }
+      // if (user != null) {
+      //   nextPage(controller: pageController);
+      // }
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',

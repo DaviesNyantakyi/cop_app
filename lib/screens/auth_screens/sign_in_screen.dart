@@ -25,6 +25,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   bool? validEmailForm;
   bool? validPasswordForm;
+  bool obscureText = true;
 
   final user = FirebaseAuth.instance.currentUser;
   late SignUpNotifier signUpNotifier;
@@ -40,7 +41,7 @@ class _SignInScreenState extends State<SignInScreen> {
       if (hasConnection) {
         if (validEmailForm == true && validPasswordForm == true) {
           EasyLoading.show();
-          final user = await signUpNotifier.signIn();
+          // final user = await signUpNotifier.signIn();
           if (user != null) {
             // Leave the SignInScreen
             Navigator.pop(context);
@@ -50,7 +51,7 @@ class _SignInScreenState extends State<SignInScreen> {
         throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
-      kShowSnackbar(
+      showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
@@ -82,14 +83,14 @@ class _SignInScreenState extends State<SignInScreen> {
     signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      signUpNotifier.setFormType(formType: FormType.signInForm);
+      // signUpNotifier.setFormType(formType: FormType.signInForm);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpNotifier.resetForm();
+    // signUpNotifier.resetForm();
     super.dispose();
   }
 
@@ -171,9 +172,6 @@ class _SignInScreenState extends State<SignInScreen> {
             validator: Validators.emailValidator,
             onChanged: (value) {
               validEmailForm = signUpNotifier.emailKey.currentState?.validate();
-              if (mounted) {
-                setState(() {});
-              }
             },
           ),
         );
@@ -191,16 +189,17 @@ class _SignInScreenState extends State<SignInScreen> {
           hintText: 'Password',
           textInputAction: TextInputAction.done,
           validator: Validators.passwordValidator,
-          obscureText: signUpNotifier.obscureText,
+          obscureText: obscureText,
           maxLines: 1,
           suffixIcon: GestureDetector(
             child: Icon(
-              signUpNotifier.obscureText
-                  ? Icons.visibility_off
-                  : Icons.visibility,
+              obscureText ? Icons.visibility_off : Icons.visibility,
               color: kBlack,
             ),
-            onTap: signUpNotifier.togglePasswordView,
+            onTap: () {
+              obscureText = !obscureText;
+              setState(() {});
+            },
           ),
           onChanged: (value) {
             validPasswordForm =
@@ -219,6 +218,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
+          height: kButtonHeight,
           backgroundColor: validEmailForm == true && validPasswordForm == true
               ? kBlue
               : kGreyLight,
