@@ -40,16 +40,14 @@ class _ReadQuestionAnswerScreenState extends State<ReadQuestionAnswerScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () => Navigator.pop(context),
-      ),
+      leading: const CustomBackButton(),
     );
   }
 
   Widget _buildTestimonyCard() {
     return Consumer<QuestionAnswerModel>(
       builder: (context, qandAModel, _) {
-        return Text('Change to tesimony card');
+        return const Text('Change to tesimony card');
       },
     );
   }

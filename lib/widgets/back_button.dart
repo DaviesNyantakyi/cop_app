@@ -17,7 +17,7 @@ class CustomBackButton extends StatelessWidget {
         color: kBlack,
         size: 42,
       ),
-      onPressed: onPressed,
+      onPressed: onPressed ?? () => Navigator.pop(context),
     );
   }
 }

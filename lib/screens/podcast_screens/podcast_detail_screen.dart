@@ -45,11 +45,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+      leading: const CustomBackButton(),
     );
   }
 

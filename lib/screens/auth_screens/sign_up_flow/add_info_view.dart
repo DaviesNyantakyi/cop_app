@@ -103,11 +103,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+          leading: const CustomBackButton(),
         ),
         body: SafeArea(
           child: SingleChildScrollView(

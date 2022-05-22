@@ -50,7 +50,7 @@ class Validators {
   }
 
   static String? birthdayValidator({DateTime? date}) {
-    if (date == null) {
+    if (date == null || date.year >= DateTime.now().year) {
       return 'Date of birth required';
     }
 
@@ -58,10 +58,15 @@ class Validators {
   }
 
   Widget showValidationWidget({String? errorText}) {
+    if (errorText == null) {
+      return Container();
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: kContentSpacing8),
+      padding: const EdgeInsets.symmetric(vertical: kContentSpacing8)
+          .copyWith(bottom: 0),
       child: Text(
-        errorText!,
+        errorText,
         style: kFontCaption.copyWith(color: kRed),
       ),
     );

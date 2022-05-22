@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
@@ -23,8 +24,39 @@ class DatePickerView extends StatefulWidget {
 }
 
 class _DatePickerViewState extends State<DatePickerView> {
+  final currentDate = DateTime.now();
+
+  late SignUpNotifier signUpNotifier;
+  bool? validForm;
+
+  @override
+  void initState() {
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    super.initState();
+  }
+
   void onSubmit() {
-    nextPage(controller: widget.pageController);
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+
+    if (signUpNotifier.dateOfBirth?.year != null &&
+        signUpNotifier.dateOfBirth!.year < currentDate.year) {
+      nextPage(controller: widget.pageController);
+    }
+  }
+
+  void validDate() {
+    if (signUpNotifier.dateOfBirth == null) {
+      validForm = false;
+    }
+
+    if (signUpNotifier.dateOfBirth != null) {
+      if (signUpNotifier.dateOfBirth!.year < currentDate.year) {
+        validForm = true;
+      } else {
+        validForm = false;
+      }
+    }
+    setState(() {});
   }
 
   @override
@@ -37,11 +69,7 @@ class _DatePickerViewState extends State<DatePickerView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(
-            onPressed: () {
-              previousPage(pageContoller: widget.pageController);
-            },
-          ),
+          leading: const CustomBackButton(),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -106,8 +134,10 @@ class _DatePickerViewState extends State<DatePickerView> {
           children: [
             CustomElevatedButton(
               height: kButtonHeight,
-              side: const BorderSide(
-                color: kBlue,
+              side: BorderSide(
+                color: signUpNotifier.dateOfBirth != null && validForm == true
+                    ? kBlue
+                    : kGrey,
               ),
               child: Padding(
                 padding:
@@ -124,7 +154,11 @@ class _DatePickerViewState extends State<DatePickerView> {
                         ),
                         const SizedBox(width: kContentSpacing8),
                         Text(
-                          FormalDates.formatDmyyyy(date: DateTime.now()) ?? '',
+                          FormalDates.formatDmyyyy(
+                                date: signUpNotifier.dateOfBirth,
+                              ) ??
+                              FormalDates.formatDmyyyy(date: DateTime.now()) ??
+                              '',
                           style: kFontBody,
                         ),
                       ],
@@ -134,17 +168,24 @@ class _DatePickerViewState extends State<DatePickerView> {
               ),
               onPressed: () async {
                 await showCustomDatePicker(
-                  initialDateTime: DateTime.now(),
+                  initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
                   maxDate: DateTime.now(),
                   mode: CupertinoDatePickerMode.date,
                   context: context,
-                  onChanged: (date) {},
+                  onChanged: (date) {
+                    signUpNotifier.setDateOfBirth(
+                      value: date,
+                    );
+                    validDate();
+                  },
                 );
               },
             ),
-            // Validators().showValidationWidget(
-            //   errorText: 'hey',
-            // )
+            Validators().showValidationWidget(
+              errorText: Validators.birthdayValidator(
+                date: signUpNotifier.dateOfBirth,
+              ),
+            )
           ],
         );
       },
@@ -157,12 +198,21 @@ class _DatePickerViewState extends State<DatePickerView> {
         return CustomElevatedButton(
           height: kButtonHeight,
           width: double.infinity,
-          backgroundColor: kBlue,
+          backgroundColor:
+              signUpNotifier.dateOfBirth != null && validForm == true
+                  ? kBlue
+                  : kGreyLight,
           child: Text(
             'Continue',
-            style: kFontBody.copyWith(color: kWhite),
+            style: kFontBody.copyWith(
+              color: signUpNotifier.dateOfBirth != null && validForm == true
+                  ? kWhite
+                  : kGrey,
+            ),
           ),
-          onPressed: onSubmit,
+          onPressed: signUpNotifier.dateOfBirth != null && validForm == true
+              ? onSubmit
+              : null,
         );
       },
     );

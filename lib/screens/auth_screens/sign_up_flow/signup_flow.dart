@@ -116,9 +116,7 @@ class _SignUpFlowState extends State<SignUpFlow> {
   Widget _profilePickerView() {
     return ProfilePickerScreen(
       appBar: AppBar(
-        leading: CustomBackButton(onPressed: () {
-          Navigator.pop(context);
-        }),
+        leading: const CustomBackButton(),
       ),
       onWillPop: () async {
         Navigator.pop(context);

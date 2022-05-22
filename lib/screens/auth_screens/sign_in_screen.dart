@@ -137,11 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+      leading: const CustomBackButton(),
     );
   }
 

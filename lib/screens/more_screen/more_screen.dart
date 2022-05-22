@@ -3,6 +3,8 @@ import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
+import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -165,7 +167,45 @@ class _MoreScreenState extends State<MoreScreen> {
           ],
         ),
       ),
-      onTap: () async {},
+      onTap: () async {
+        Navigator.push(context,
+            CupertinoPageRoute(builder: (context) => const ProfileScreen()));
+      },
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: SingleChildScrollView(
+          child: Container(),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget? _buildAppBar() {
+    return AppBar(
+      leading: const CustomBackButton(),
+      title: const Text(
+        'Profile',
+        style: kFontH6,
+      ),
+      actions: [
+        CustomElevatedButton(
+          child: const Text(
+            'Edit profile',
+            style: kFontBody,
+          ),
+          onPressed: () {},
+        )
+      ],
     );
   }
 }

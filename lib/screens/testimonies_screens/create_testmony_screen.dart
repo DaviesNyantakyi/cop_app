@@ -130,11 +130,7 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+      leading: const CustomBackButton(),
       actions: [
         CustomElevatedButton(
           child: const Text(

@@ -28,6 +28,7 @@ class SignUpNotifier extends ChangeNotifier {
   GlobalKey<FormState> get emailKey => _emailKey;
   GlobalKey<FormState> get passwordKey => _passwordKey;
   String? get displayName => _displayName;
+  DateTime? get dateOfBirth => _dateOfBirth;
 
   // if the form is valid or not
   void validateForm({required bool value}) {
@@ -38,6 +39,12 @@ class SignUpNotifier extends ChangeNotifier {
   // Set the display name
   void setDisplayName() {
     _displayName = '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
+    notifyListeners();
+  }
+
+  // Set the selected date of birth.
+  void setDateOfBirth({required DateTime value}) {
+    _dateOfBirth = value.toUtc();
     notifyListeners();
   }
 }

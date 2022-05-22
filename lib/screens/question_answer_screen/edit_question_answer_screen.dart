@@ -134,11 +134,7 @@ class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+      leading: const CustomBackButton(),
       actions: [
         CustomElevatedButton(
           child: const Text(

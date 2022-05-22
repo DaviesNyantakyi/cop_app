@@ -79,11 +79,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: CustomBackButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        leading: const CustomBackButton(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

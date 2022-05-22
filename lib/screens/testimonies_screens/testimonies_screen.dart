@@ -209,11 +209,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
-      leading: CustomBackButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
+      leading: const CustomBackButton(),
       title: const Text(
         'Testimonies',
         style: kFontH6,
