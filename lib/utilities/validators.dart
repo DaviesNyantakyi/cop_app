@@ -50,7 +50,7 @@ class Validators {
   }
 
   static String? birthdayValidator({DateTime? date}) {
-    if (date == null || date.year >= DateTime.now().year) {
+    if (date == null || date.year == DateTime.now().year) {
       return 'Date of birth required';
     }
 

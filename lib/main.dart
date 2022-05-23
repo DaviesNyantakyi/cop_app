@@ -1,7 +1,5 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/auth_wrapper.dart';
-import 'package:cop_belgium_app/screens/bottom_nav_view.dart';
-import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/custom_track_shape.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';

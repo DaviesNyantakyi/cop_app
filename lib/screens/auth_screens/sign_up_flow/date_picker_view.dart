@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
@@ -25,9 +24,8 @@ class DatePickerView extends StatefulWidget {
 
 class _DatePickerViewState extends State<DatePickerView> {
   final currentDate = DateTime.now();
-
   late SignUpNotifier signUpNotifier;
-  bool? validForm;
+  String? dateOfBirthErrorText;
 
   @override
   void initState() {
@@ -46,14 +44,14 @@ class _DatePickerViewState extends State<DatePickerView> {
 
   void validDate() {
     if (signUpNotifier.dateOfBirth == null) {
-      validForm = false;
+      signUpNotifier.validateDateOfBirth(value: false);
     }
 
     if (signUpNotifier.dateOfBirth != null) {
       if (signUpNotifier.dateOfBirth!.year < currentDate.year) {
-        validForm = true;
+        signUpNotifier.validateDateOfBirth(value: true);
       } else {
-        validForm = false;
+        signUpNotifier.validateDateOfBirth(value: false);
       }
     }
     setState(() {});
@@ -69,7 +67,11 @@ class _DatePickerViewState extends State<DatePickerView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: const CustomBackButton(),
+          leading: CustomBackButton(
+            onPressed: () {
+              previousPage(pageContoller: widget.pageController);
+            },
+          ),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -135,7 +137,8 @@ class _DatePickerViewState extends State<DatePickerView> {
             CustomElevatedButton(
               height: kButtonHeight,
               side: BorderSide(
-                color: signUpNotifier.dateOfBirth != null && validForm == true
+                color: signUpNotifier.dateOfBirth != null &&
+                        signUpNotifier.dateOfBirthIsValid == true
                     ? kBlue
                     : kGrey,
               ),
@@ -176,15 +179,16 @@ class _DatePickerViewState extends State<DatePickerView> {
                     signUpNotifier.setDateOfBirth(
                       value: date,
                     );
+                    dateOfBirthErrorText = Validators.birthdayValidator(
+                      date: date,
+                    );
                     validDate();
                   },
                 );
               },
             ),
             Validators().showValidationWidget(
-              errorText: Validators.birthdayValidator(
-                date: signUpNotifier.dateOfBirth,
-              ),
+              errorText: dateOfBirthErrorText,
             )
           ],
         );
@@ -198,19 +202,21 @@ class _DatePickerViewState extends State<DatePickerView> {
         return CustomElevatedButton(
           height: kButtonHeight,
           width: double.infinity,
-          backgroundColor:
-              signUpNotifier.dateOfBirth != null && validForm == true
-                  ? kBlue
-                  : kGreyLight,
+          backgroundColor: signUpNotifier.dateOfBirth != null &&
+                  signUpNotifier.dateOfBirthIsValid == true
+              ? kBlue
+              : kGreyLight,
           child: Text(
             'Continue',
             style: kFontBody.copyWith(
-              color: signUpNotifier.dateOfBirth != null && validForm == true
+              color: signUpNotifier.dateOfBirth != null &&
+                      signUpNotifier.dateOfBirthIsValid == true
                   ? kWhite
                   : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.dateOfBirth != null && validForm == true
+          onPressed: signUpNotifier.dateOfBirth != null &&
+                  signUpNotifier.dateOfBirthIsValid == true
               ? onSubmit
               : null,
         );

@@ -42,7 +42,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       // When coming back from the other screen,
       // The button is enabled and the form remains valid even if one field is not valid.
       // So form is validated again even if the form is valid.
-      if (signUpNotifier.validForm == true) {
+      if (signUpNotifier.formIsValid == true) {
         validFirstNameForm =
             signUpNotifier.firstNameKey.currentState?.validate();
         validLastNameForm = signUpNotifier.lastNameKey.currentState?.validate();
@@ -58,7 +58,7 @@ class _AddInfoViewState extends State<AddInfoView> {
     super.initState();
   }
 
-  Future<void> submitForm() async {
+  Future<void> onSubmit() async {
     // Hide keyboard
 
     FocusScope.of(context).unfocus();
@@ -66,7 +66,7 @@ class _AddInfoViewState extends State<AddInfoView> {
       bool hasConnection = await ConnectionNotifier().checkConnection();
 
       if (hasConnection) {
-        if (signUpNotifier.validForm == true) {
+        if (signUpNotifier.formIsValid == true) {
           signUpNotifier.setDisplayName();
           await nextPage(controller: widget.pageController);
         }
@@ -236,7 +236,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             validForm();
             setState(() {});
           },
-          onSubmitted: (value) => submitForm(),
+          onSubmitted: (value) => onSubmit(),
         ),
       );
     });
@@ -247,16 +247,16 @@ class _AddInfoViewState extends State<AddInfoView> {
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
-          backgroundColor: signUpNotifier.validForm ? kBlue : kGreyLight,
+          backgroundColor: signUpNotifier.formIsValid ? kBlue : kGreyLight,
           width: double.infinity,
           child: Text(
             'Continue',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: signUpNotifier.validForm ? kWhite : kGrey,
+              color: signUpNotifier.formIsValid ? kWhite : kGrey,
             ),
           ),
-          onPressed: signUpNotifier.validForm ? submitForm : null,
+          onPressed: signUpNotifier.formIsValid ? onSubmit : null,
         );
       },
     );

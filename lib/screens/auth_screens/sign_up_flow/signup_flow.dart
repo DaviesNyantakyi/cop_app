@@ -39,24 +39,24 @@ class _SignUpFlowState extends State<SignUpFlow> {
     super.dispose();
   }
 
-  Future<void> signUp({required ChurchModel church}) async {
+  Future<void> signUp({required ChurchModel selectedChurch}) async {
     final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     try {
       EasyLoading.show();
-      // signUpNotifier.setSelectedChurch(value: church);
-      // final user = await signUpNotifier.signUp();
+      signUpNotifier.setSelectedChurch(value: selectedChurch);
+      final user = await signUpNotifier.signUp();
 
-      // if (user != null) {
-      //   nextPage(controller: pageController);
-      // }
+      if (user != null) {
+        nextPage(controller: pageController);
+      }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
         type: SnackBarType.error,
         message: e.message ?? '',
       );
-      await EasyLoading.dismiss();
 
+      await EasyLoading.dismiss();
       if (e.code.contains('email-already-in-use') ||
           e.code.contains('invalid-email')) {
         await pageController.animateToPage(
@@ -107,7 +107,7 @@ class _SignUpFlowState extends State<SignUpFlow> {
       },
       onTap: (church) {
         if (church != null) {
-          signUp(church: church);
+          signUp(selectedChurch: church);
         }
       },
     );
