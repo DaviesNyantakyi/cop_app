@@ -54,8 +54,11 @@ class CloudFire {
     }
   }
 
-  Stream<UserModel?> getUserStream({String? id}) {
-    final docSnap = _firebaseFirestore.collection('users').doc(id).snapshots();
+  Stream<UserModel?> getUserStream() {
+    final docSnap = _firebaseFirestore
+        .collection('users')
+        .doc(_firebaseUser?.uid)
+        .snapshots();
 
     return docSnap.map((doc) {
       if (doc.data() != null) {

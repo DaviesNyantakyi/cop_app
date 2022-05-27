@@ -34,7 +34,7 @@ class _SocialAvatarState extends State<SocialAvatar> {
       mainAxisSize: MainAxisSize.min,
       children: [
         StreamBuilder<UserModel?>(
-          stream: CloudFire().getUserStream(id: widget.uid),
+          stream: CloudFire().getUserStream(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               child = Container();

@@ -1,5 +1,4 @@
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
+import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
@@ -9,7 +8,6 @@ import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:provider/provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -19,36 +17,34 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  late SignUpNotifier signUpNotifier;
-  bool? validEmailForm;
+  TextEditingController emailCntlr = TextEditingController();
+  final emailKey = GlobalKey<FormState>();
+  FireAuth fireAuth = FireAuth();
+
+  bool? formIsValid;
 
   Future<void> onSubmit() async {
+    final email = emailCntlr.text;
+
     try {
       // Hide keyboard
       FocusScope.of(context).unfocus();
 
-      // Check for network connection
-      bool hasConnection = await ConnectionNotifier().checkConnection();
-
-      if (hasConnection) {
-        if (validEmailForm == true) {
-          // final result = await signUpNotifier.sendPasswordResetEmail();
-          // if (result) {
-          //   kShowSnackbar(
-          //     context: context,
-          //     type: SnackBarType.success,
-          //     message:
-          //         'Password recovery instructions has been sent to ${signUpNotifier.forgotEmailCntlr.text.trim()}',
-          //   );
-          // }
+      if (formIsValid == true && emailCntlr.text.isNotEmpty) {
+        EasyLoading.show();
+        final result = await fireAuth.sendPasswordResetEmail(email: email);
+        if (result) {
+          showCustomSnackBar(
+            context: context,
+            type: CustomSnackBarType.success,
+            message: 'Password recovery instructions has been sent to $email',
+          );
         }
-      } else {
-        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());
@@ -60,18 +56,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   @override
-  void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
-
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      // signUpNotifier.setFormType(formType: FormType.forgotEmailForm);
-    });
-    super.initState();
-  }
-
-  @override
   void dispose() {
-    // signUpNotifier.resetForm();
+    emailCntlr.clear();
+    emailKey.currentState?.reset();
     super.dispose();
   }
 
@@ -118,42 +105,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildEmailField() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
-        return Form(
-          key: signUpNotifier.emailKey,
-          child: CustomTextFormField(
-            controller: signUpNotifier.emailCntlr,
-            hintText: 'Email',
-            textInputAction: TextInputAction.next,
-            maxLines: 1,
-            keyboardType: TextInputType.emailAddress,
-            validator: Validators.emailValidator,
-            onChanged: (value) {
-              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
-            },
-          ),
-        );
-      },
+    return Form(
+      key: emailKey,
+      child: CustomTextFormField(
+        controller: emailCntlr,
+        hintText: 'Email',
+        textInputAction: TextInputAction.next,
+        maxLines: 1,
+        keyboardType: TextInputType.emailAddress,
+        validator: Validators.emailValidator,
+        onChanged: (value) {
+          formIsValid = emailKey.currentState?.validate();
+          setState(() {});
+        },
+      ),
     );
   }
 
   Widget _buildSendButton() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
-        return CustomElevatedButton(
-          backgroundColor: kBlue,
-          width: double.infinity,
-          child: Text(
-            'Send',
-            style: kFontBody.copyWith(
-              fontWeight: FontWeight.bold,
-              color: kWhite,
-            ),
-          ),
-          onPressed: onSubmit,
-        );
-      },
+    return CustomElevatedButton(
+      backgroundColor: formIsValid == true ? kBlue : kGreyLight,
+      height: kButtonHeight,
+      width: double.infinity,
+      child: Text(
+        'Send',
+        style: kFontBody.copyWith(
+          fontWeight: FontWeight.bold,
+          color: formIsValid == true ? kWhite : kGrey,
+        ),
+      ),
+      onPressed: formIsValid == true ? onSubmit : null,
     );
   }
 }

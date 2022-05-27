@@ -122,7 +122,7 @@ class Test extends StatelessWidget {
                 Text('HEY'),
               ],
             ),
-            Align(
+            const Align(
               alignment: Alignment.bottomCenter,
               child: TextField(
                 decoration: InputDecoration(

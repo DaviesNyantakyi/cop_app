@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
@@ -32,36 +31,31 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
 
   Future<void> createTestimony() async {
     try {
-      final hasConnection = await ConnectionNotifier().checkConnection();
-      if (hasConnection) {
-        final validTitleForm = titleKey.currentState?.validate();
-        final validTestimonyForm = testimonyKey.currentState?.validate();
+      final validTitleForm = titleKey.currentState?.validate();
+      final validTestimonyForm = testimonyKey.currentState?.validate();
 
-        if (validTitleForm == true &&
-            validTestimonyForm == true &&
-            titleCntlr.text.isNotEmpty &&
-            testimonyCntlr.text.isNotEmpty &&
-            user != null &&
-            user?.uid != null) {
-          TestimonyModel testimonyModel = TestimonyModel(
-            uid: user!.uid,
-            title: titleCntlr.text,
-            displayName: user?.displayName,
-            testimony: testimonyCntlr.text,
-            createdAt: Timestamp.fromDate(DateTime.now()),
-          );
+      if (validTitleForm == true &&
+          validTestimonyForm == true &&
+          titleCntlr.text.isNotEmpty &&
+          testimonyCntlr.text.isNotEmpty &&
+          user != null &&
+          user?.uid != null) {
+        TestimonyModel testimonyModel = TestimonyModel(
+          uid: user!.uid,
+          title: titleCntlr.text,
+          displayName: user?.displayName,
+          testimony: testimonyCntlr.text,
+          createdAt: Timestamp.fromDate(DateTime.now()),
+        );
 
-          EasyLoading.show();
-          await CloudFire().createTestimony(testimony: testimonyModel);
-          Navigator.pop(context);
-        }
-      } else {
-        throw ConnectionNotifier.connectionException;
+        EasyLoading.show();
+        await CloudFire().createTestimony(testimony: testimonyModel);
+        Navigator.pop(context);
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());
@@ -79,7 +73,6 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(DateTime.now());
     return ResponsiveBuilder(builder: (context, screenInfo) {
       return Scaffold(
         appBar: _buildAppBar(),

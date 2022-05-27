@@ -1,9 +1,12 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/gender_button.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,8 +23,26 @@ class GenderView extends StatefulWidget {
 }
 
 class _GenderViewState extends State<GenderView> {
-  void onSubmit() {
-    nextPage(controller: widget.pageController);
+  Future<void> onSubmit() async {
+    try {
+      bool hasConnection = await ConnectionNotifier().checkConnection();
+
+      if (hasConnection) {
+        nextPage(controller: widget.pageController);
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override

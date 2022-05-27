@@ -4,15 +4,14 @@ import 'package:cop_belgium_app/screens/question_answer_screen/question_answer_s
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-class BottomNavigationView extends StatefulWidget {
-  static String bottomNavScreen = 'BottomNavScreen';
-  const BottomNavigationView({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _BottomNavigationViewState createState() => _BottomNavigationViewState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _BottomNavigationViewState extends State<BottomNavigationView> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [

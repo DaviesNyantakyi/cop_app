@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
@@ -169,7 +168,7 @@ class _EpisodeTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: const [
-        AutoSizeText('Deep Truths', style: kFontH6),
+        Text('Deep Truths', style: kFontH6),
         SizedBox(height: kContentSpacing4),
         Text('Church of Pentecost Belgium', style: kFontBody2),
       ],

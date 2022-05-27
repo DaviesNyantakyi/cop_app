@@ -1,4 +1,5 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
@@ -6,6 +7,8 @@ import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/date_picker.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,12 +36,30 @@ class _DatePickerViewState extends State<DatePickerView> {
     super.initState();
   }
 
-  void onSubmit() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+  Future<void> onSubmit() async {
+    try {
+      signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
 
-    if (signUpNotifier.dateOfBirth?.year != null &&
-        signUpNotifier.dateOfBirth!.year < currentDate.year) {
-      nextPage(controller: widget.pageController);
+      bool hasConnection = await ConnectionNotifier().checkConnection();
+
+      if (signUpNotifier.dateOfBirth?.year != null &&
+          signUpNotifier.dateOfBirth!.year < currentDate.year) {
+        if (hasConnection) {
+          nextPage(controller: widget.pageController);
+        } else {
+          throw ConnectionNotifier.connectionException;
+        }
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

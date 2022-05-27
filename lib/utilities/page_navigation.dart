@@ -1,5 +1,5 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 Future<void> nextPage({required PageController controller}) async {
   controller.nextPage(

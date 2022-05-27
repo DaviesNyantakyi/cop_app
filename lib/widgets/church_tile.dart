@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:flutter/material.dart';
@@ -49,26 +50,24 @@ class _BuildImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       flex: 2,
-      child: SizedBox(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: kContentSpacing8).copyWith(
+          left: kContentSpacing8,
+          right: kContentSpacing12,
+        ),
         height: _cardHeight,
         width: 140,
-        child: Container(
-          margin:
-              const EdgeInsets.symmetric(vertical: kContentSpacing8).copyWith(
-            left: kContentSpacing8,
-            right: kContentSpacing12,
-          ),
-          height: 100,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(kRadius)),
-            color: kGreyLight,
-            image: church.imageURL != null
-                ? DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(church.imageURL!),
-                  )
-                : null,
-          ),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(kRadius)),
+          color: kGreyLight,
+          image: church.imageURL != null
+              ? DecorationImage(
+                  fit: BoxFit.cover,
+                  image: CachedNetworkImageProvider(
+                    church.imageURL!,
+                  ),
+                )
+              : null,
         ),
       ),
     );

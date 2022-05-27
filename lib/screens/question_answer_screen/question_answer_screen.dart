@@ -68,7 +68,7 @@ class _QuestionAnswerScreenState extends State<QuestionAnswerScreen> {
             height: kContentSpacing8,
           ),
           itemBuilder: (context, index) {
-            return Text('Change to tesimony card');
+            return const Text('Change to tesimony card');
           },
         ),
       ),

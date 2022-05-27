@@ -60,7 +60,7 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());

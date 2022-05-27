@@ -21,11 +21,11 @@ class MoreScreen extends StatefulWidget {
 class _MoreScreenState extends State<MoreScreen> {
   Future<void> logout() async {
     try {
-      await FireAuth().logout();
+      await FireAuth().signOut();
     } on FirebaseAuthException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());

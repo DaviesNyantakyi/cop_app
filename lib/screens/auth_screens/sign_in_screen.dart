@@ -1,6 +1,6 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/forgot_password_screen.dart';
-import 'package:cop_belgium_app/utilities/connection_checker.dart';
+import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
@@ -23,37 +23,49 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  bool? validEmailForm;
-  bool? validPasswordForm;
+  bool? emailFormIsValid;
+  bool? passwordFormIsValid;
   bool obscureText = true;
 
   final user = FirebaseAuth.instance.currentUser;
   late SignUpNotifier signUpNotifier;
+
+  @override
+  void initState() {
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    signUpNotifier.close();
+    super.dispose();
+  }
 
   Future<void> onSubmit() async {
     try {
       // Hide keyboard
       FocusScope.of(context).unfocus();
 
-      // Check for network connection
-      bool hasConnection = await ConnectionNotifier().checkConnection();
+      if (emailFormIsValid == true &&
+          passwordFormIsValid == true &&
+          signUpNotifier.emailCntlr.text.isNotEmpty &&
+          signUpNotifier.passwordCntlr.text.isNotEmpty) {
+        EasyLoading.show();
 
-      if (hasConnection) {
-        if (validEmailForm == true && validPasswordForm == true) {
-          EasyLoading.show();
-          // final user = await signUpNotifier.signIn();
-          if (user != null) {
-            // Leave the SignInScreen
-            Navigator.pop(context);
-          }
+        final user = await FireAuth().signInEmailPassword(
+          email: signUpNotifier.emailCntlr.text.trim(),
+          password: signUpNotifier.passwordCntlr.text,
+        );
+        if (user != null) {
+          // Leave the SignInScreen
+          Navigator.pop(context);
         }
-      } else {
-        throw ConnectionNotifier.connectionException;
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());
@@ -78,20 +90,13 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  @override
-  void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
-
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      // signUpNotifier.setFormType(formType: FormType.signInForm);
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // signUpNotifier.resetForm();
-    super.dispose();
+  // Validate if all the form fields are filled in
+  void validForm() {
+    if (emailFormIsValid == true && passwordFormIsValid == true) {
+      signUpNotifier.validateForm(value: true);
+    } else {
+      signUpNotifier.validateForm(value: false);
+    }
   }
 
   @override
@@ -159,15 +164,17 @@ class _SignInScreenState extends State<SignInScreen> {
         return Form(
           key: signUpNotifier.emailKey,
           child: CustomTextFormField(
-            key: ObjectKey(signUpNotifier.emailCntlr),
             controller: signUpNotifier.emailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,
-            keyboardType: TextInputType.emailAddress,
             maxLines: 1,
+            keyboardType: TextInputType.emailAddress,
             validator: Validators.emailValidator,
             onChanged: (value) {
-              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
+              emailFormIsValid =
+                  signUpNotifier.emailKey.currentState?.validate();
+              validForm();
+              setState(() {});
             },
           ),
         );
@@ -180,7 +187,6 @@ class _SignInScreenState extends State<SignInScreen> {
       return Form(
         key: signUpNotifier.passwordKey,
         child: CustomTextFormField(
-          key: ObjectKey(signUpNotifier.passwordCntlr),
           controller: signUpNotifier.passwordCntlr,
           hintText: 'Password',
           textInputAction: TextInputAction.done,
@@ -198,13 +204,12 @@ class _SignInScreenState extends State<SignInScreen> {
             },
           ),
           onChanged: (value) {
-            validPasswordForm =
+            passwordFormIsValid =
                 signUpNotifier.passwordKey.currentState?.validate();
-            if (mounted) {
-              setState(() {});
-            }
+            validForm();
+            setState(() {});
           },
-          onSubmitted: validPasswordForm == true ? (value) => onSubmit() : null,
+          onSubmitted: (value) => onSubmit(),
         ),
       );
     });
@@ -215,20 +220,21 @@ class _SignInScreenState extends State<SignInScreen> {
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
-          backgroundColor: validEmailForm == true && validPasswordForm == true
-              ? kBlue
-              : kGreyLight,
+          backgroundColor:
+              emailFormIsValid == true && passwordFormIsValid == true
+                  ? kBlue
+                  : kGreyLight,
           width: double.infinity,
           child: Text(
             'Sign in',
             style: kFontBody.copyWith(
               fontWeight: FontWeight.bold,
-              color: validEmailForm == true && validPasswordForm == true
+              color: emailFormIsValid == true && passwordFormIsValid == true
                   ? kWhite
                   : kGrey,
             ),
           ),
-          onPressed: validEmailForm == true && validPasswordForm == true
+          onPressed: emailFormIsValid == true && passwordFormIsValid == true
               ? onSubmit
               : null,
         );

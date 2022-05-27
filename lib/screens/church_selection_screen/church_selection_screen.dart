@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:cop_belgium_app/models/church_model.dart';
@@ -7,6 +8,17 @@ import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
 import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:flutter/material.dart';
+
+Future<void> precacheChurchImages({required BuildContext context}) async {
+  final churchesDoc =
+      await FirebaseFirestore.instance.collection('churches').get();
+  await Future.wait(churchesDoc.docs.map((doc) {
+    return precacheImage(
+      CachedNetworkImageProvider(doc.data()['imageURL']),
+      context,
+    );
+  }));
+}
 
 class ChurchSelectionScreen extends StatefulWidget {
   final Function(ChurchModel?)? onTap;
@@ -29,13 +41,6 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
   ChurchModel? selectedChurch;
 
   TextEditingController searchContlr = TextEditingController();
-
-  void searchChanges() {
-    searchContlr.addListener(() {
-      setState(() {});
-    });
-  }
-
   @override
   void initState() {
     searchChanges();
@@ -46,6 +51,12 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
   void dispose() {
     searchContlr.dispose();
     super.dispose();
+  }
+
+  void searchChanges() {
+    searchContlr.addListener(() {
+      setState(() {});
+    });
   }
 
   @override

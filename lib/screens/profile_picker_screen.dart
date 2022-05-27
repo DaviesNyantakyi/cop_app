@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/image_picker.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
@@ -42,7 +43,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
     } catch (e) {
@@ -61,7 +62,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
     } catch (e) {
@@ -73,14 +74,31 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
   }
 
   Future<void> pickImage() async {
-    final delete = await myImagePicker.showBottomSheet(context: context);
-    if (myImagePicker.image != null && delete == false) {
-      await uploadImage();
-      myImagePicker.image = null;
-      setState(() {});
-    }
-    if (delete == true) {
-      deleteImage();
+    try {
+      final hasconnection = await ConnectionNotifier().checkConnection();
+      if (hasconnection) {
+        final delete = await myImagePicker.showBottomSheet(context: context);
+        if (myImagePicker.image != null && delete == false) {
+          await uploadImage();
+          myImagePicker.image = null;
+          setState(() {});
+        }
+        if (delete == true) {
+          deleteImage();
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
@@ -161,6 +179,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
         return CustomElevatedButton(
+          height: kButtonHeight,
           width: double.infinity,
           backgroundColor: kBlue,
           child: Text(

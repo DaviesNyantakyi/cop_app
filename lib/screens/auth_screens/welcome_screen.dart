@@ -1,6 +1,6 @@
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/sign_in_screen.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/signup_flow.dart';
+import 'package:cop_belgium_app/screens/auth_screens/signup_page_view.dart';
 
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -25,16 +25,16 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late SignUpNotifier signUpNotifier;
+  FireAuth fireAuth = FireAuth();
 
   Future<void> continueWithGoogle() async {
-    FireAuth fireAuth = FireAuth();
     try {
       EasyLoading.show();
-      await fireAuth.loginGoogle();
+      await fireAuth.signInWithGoogle();
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
     } catch (e) {
@@ -56,7 +56,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               value: signUpNotifier,
             ),
           ],
-          child: const SignUpFlow(),
+          child: const SignUpPageView(),
         ),
       ),
     );
@@ -78,16 +78,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  Future<void> signInAnonymously() async {
+    try {
+      EasyLoading.show();
+
+      await fireAuth.signInAnonymously();
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
+
   @override
   void initState() {
     signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    // signUpNotifier.resetForm();
-    super.dispose();
   }
 
   @override
@@ -282,7 +296,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         'Skip for now',
         style: kFontBody.copyWith(color: kGrey),
       ),
-      onPressed: () {},
+      onPressed: signInAnonymously,
     );
   }
 }

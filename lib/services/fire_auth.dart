@@ -14,10 +14,14 @@ class FireAuth {
   final CloudFire _cloudFire = CloudFire();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<User?> createUserEmailPassword(
-      {required UserModel user, required String password}) async {
+  final ConnectionNotifier _connectionNotifier = ConnectionNotifier();
+
+  Future<User?> createUserEmailPassword({
+    required UserModel user,
+    required String password,
+  }) async {
     try {
-      final hasConnection = await ConnectionNotifier().checkConnection();
+      final hasConnection = await _connectionNotifier.checkConnection();
       if (hasConnection == true) {
         if (user.firstName != null &&
             user.lastName != null &&
@@ -57,12 +61,12 @@ class FireAuth {
     }
   }
 
-  Future<UserCredential?> loginEmailPassword({
+  Future<UserCredential?> signInEmailPassword({
     required String email,
     required String password,
   }) async {
     try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         if (email.isNotEmpty && password.isNotEmpty) {
@@ -71,7 +75,7 @@ class FireAuth {
             await _firebaseAuth.currentUser?.delete();
           }
           final user = await _firebaseAuth.signInWithEmailAndPassword(
-            email: email,
+            email: email.trim(),
             password: password,
           );
           return user;
@@ -88,9 +92,54 @@ class FireAuth {
     }
   }
 
-  Future<User?> loginAnonymous() async {
+  // Returns true if succesfull
+  Future<bool> sendPasswordResetEmail({required String? email}) async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+      if (hasConnection) {
+        if (email != null) {
+          await _firebaseAuth.sendPasswordResetEmail(email: email);
+          return true;
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+      return false;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  // Send email verifaction.
+  Future<void> sendEmailVerfication() async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
+
+      if (hasConnection) {
+        // Reload the current user info.
+        await _firebaseAuth.currentUser?.reload();
+
+        // Check if the user id verifed.
+        final verfied = _firebaseAuth.currentUser?.emailVerified;
+
+        // Send verfication mail if the user is not verified.
+        if (verfied == false) {
+          await _firebaseAuth.currentUser?.sendEmailVerification();
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+    // return null if authentication fails.
+  }
+
+  Future<User?> signInAnonymously() async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         await _firebaseAuth.signInAnonymously();
@@ -98,6 +147,20 @@ class FireAuth {
       } else {
         throw ConnectionNotifier.connectionException;
       }
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      // Delete anon user when signed out
+      if (_firebaseAuth.currentUser?.isAnonymous == true) {
+        await _firebaseAuth.currentUser?.delete();
+      }
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
@@ -127,22 +190,7 @@ class FireAuth {
     }
   }
 
-  Future<void> logout() async {
-    try {
-      // When a anon user singOut and login again a new anon user gets created.
-      // So when the user logs out we delete the account.
-      if (_firebaseAuth.currentUser?.isAnonymous == true) {
-        await _firebaseAuth.currentUser?.delete();
-      }
-      await _firebaseAuth.signOut();
-      await _googleSignIn.signOut();
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<UserCredential?> loginGoogle() async {
+  Future<UserCredential?> signInWithGoogle() async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
 
@@ -191,12 +239,12 @@ class FireAuth {
     // return null if authentication fails.
   }
 
-  Future<User?> loginApple() async {
+  Future<User?> signInWithApple() async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
 
       if (hasConnection) {
-        // TODO: Implement login with Apple:
+        // TODO: Implement sing in with Apple:
         // https://firebase.flutter.dev/docs/auth/social/#:~:text=see%20this%20issue.-,apple
       } else {
         throw ConnectionNotifier.connectionException;
@@ -204,32 +252,6 @@ class FireAuth {
 
       // Return null if the authentication flow fails.
       return null;
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-    // return null if authentication fails.
-  }
-
-  // Send email verifaction.
-  Future<void> sendEmailVerfication() async {
-    try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
-
-      if (hasConnection) {
-        // Reload the current user info.
-        await _firebaseAuth.currentUser?.reload();
-
-        // Check if the user id verifed.
-        final verfied = _firebaseAuth.currentUser?.emailVerified;
-
-        // Send verfication mail if the user is not verified.
-        if (verfied == false) {
-          await _firebaseAuth.currentUser?.sendEmailVerification();
-        }
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
@@ -287,25 +309,7 @@ class FireAuth {
           await _cloudFire.updateUserEmail(email: email);
           await _firebaseAuth.currentUser?.sendEmailVerification();
 
-          await logout();
-          return true;
-        }
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-      return false;
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<bool> sendPasswordResetEmail({required String? email}) async {
-    try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
-      if (hasConnection) {
-        if (email != null) {
-          await _firebaseAuth.sendPasswordResetEmail(email: email);
+          await signOut();
           return true;
         }
       } else {

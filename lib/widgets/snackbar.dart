@@ -1,20 +1,20 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-enum SnackBarType { success, error, normal }
+enum CustomSnackBarType { success, error, normal }
 dynamic showCustomSnackBar({
   required BuildContext context,
-  required SnackBarType type,
+  required CustomSnackBarType type,
   required String message,
 }) {
   Color? backgroundColor;
   Color textColor;
   switch (type) {
-    case SnackBarType.error:
+    case CustomSnackBarType.error:
       backgroundColor = kRed;
       textColor = Colors.white;
       break;
-    case SnackBarType.success:
+    case CustomSnackBarType.success:
       backgroundColor = kGreen;
       textColor = Colors.white;
       break;

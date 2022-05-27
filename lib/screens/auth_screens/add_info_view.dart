@@ -28,31 +28,16 @@ class _AddInfoViewState extends State<AddInfoView> {
   late final SignUpNotifier signUpNotifier;
   bool obscureText = true;
 
-  bool? validFirstNameForm;
-  bool? validLastNameForm;
-  bool? validEmailForm;
-  bool? validPasswordForm;
+  bool? firstNameFormIsValid;
+  bool? lastNameFormIsValid;
+  bool? emailFormIsValid;
+  bool? passwordFormIsValid;
 
   @override
   void initState() {
     // addPostFrameCallback is called after the screen and the widget has been renderd.
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
-
-      // When coming back from the other screen,
-      // The button is enabled and the form remains valid even if one field is not valid.
-      // So form is validated again even if the form is valid.
-      if (signUpNotifier.formIsValid == true) {
-        validFirstNameForm =
-            signUpNotifier.firstNameKey.currentState?.validate();
-        validLastNameForm = signUpNotifier.lastNameKey.currentState?.validate();
-        validEmailForm = signUpNotifier.emailKey.currentState?.validate();
-        validPasswordForm = signUpNotifier.passwordKey.currentState?.validate();
-        validForm();
-      }
-      if (mounted) {
-        setState(() {});
-      }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      revalidateForm();
     });
 
     super.initState();
@@ -74,7 +59,7 @@ class _AddInfoViewState extends State<AddInfoView> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
       debugPrint(e.toString());
@@ -85,13 +70,31 @@ class _AddInfoViewState extends State<AddInfoView> {
 
   // Validate if all the form fields are filled in
   void validForm() {
-    if (validFirstNameForm == true &&
-        validLastNameForm == true &&
-        validEmailForm == true &&
-        validPasswordForm == true) {
+    if (firstNameFormIsValid == true &&
+        lastNameFormIsValid == true &&
+        emailFormIsValid == true &&
+        passwordFormIsValid == true) {
       signUpNotifier.validateForm(value: true);
     } else {
       signUpNotifier.validateForm(value: false);
+    }
+  }
+
+  void revalidateForm() {
+    // The form state remains valid when coming back from the orther screen.
+    // So we validated again.
+
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    if (signUpNotifier.formIsValid == true) {
+      firstNameFormIsValid =
+          signUpNotifier.firstNameKey.currentState?.validate();
+      lastNameFormIsValid = signUpNotifier.lastNameKey.currentState?.validate();
+      emailFormIsValid = signUpNotifier.emailKey.currentState?.validate();
+      passwordFormIsValid = signUpNotifier.passwordKey.currentState?.validate();
+      validForm();
+    }
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -152,7 +155,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
-              validFirstNameForm =
+              firstNameFormIsValid =
                   signUpNotifier.firstNameKey.currentState?.validate();
               setState(() {});
               validForm();
@@ -175,7 +178,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
-              validLastNameForm =
+              lastNameFormIsValid =
                   signUpNotifier.lastNameKey.currentState?.validate();
               validForm();
               setState(() {});
@@ -199,7 +202,8 @@ class _AddInfoViewState extends State<AddInfoView> {
             keyboardType: TextInputType.emailAddress,
             validator: Validators.emailValidator,
             onChanged: (value) {
-              validEmailForm = signUpNotifier.emailKey.currentState?.validate();
+              emailFormIsValid =
+                  signUpNotifier.emailKey.currentState?.validate();
               validForm();
               setState(() {});
             },
@@ -231,7 +235,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             },
           ),
           onChanged: (value) {
-            validPasswordForm =
+            passwordFormIsValid =
                 signUpNotifier.passwordKey.currentState?.validate();
             validForm();
             setState(() {});
@@ -274,7 +278,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             InkWell(
               child: const Text(
                 'Privacy Policy',
-                style: TextStyle(fontWeight: FontWeight.bold, color: kBlue),
+                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
               ),
               onTap: () {
                 loadMdFile(
@@ -288,8 +292,8 @@ class _AddInfoViewState extends State<AddInfoView> {
             ),
             InkWell(
               child: const Text(
-                ' Terms of Conditions',
-                style: TextStyle(fontWeight: FontWeight.bold, color: kBlue),
+                ' Terms of Conditions.',
+                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
               ),
               onTap: () {
                 loadMdFile(

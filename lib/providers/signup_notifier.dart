@@ -6,8 +6,6 @@ import 'package:cop_belgium_app/utilities/enum_to_string.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/auth_screens/sign_up_flow/gender_view.dart';
-
 enum FormType {
   signInForm,
   signupForm,
@@ -34,7 +32,6 @@ class SignUpNotifier extends ChangeNotifier {
   bool _dateOfBirthIsValid = false;
   DateTime? _dateOfBirth;
   Gender? _selectedGender;
-
   ChurchModel? _selectedChurch;
 
   GlobalKey<FormState> get firstNameKey => _firstNameKey;
@@ -109,5 +106,24 @@ class SignUpNotifier extends ChangeNotifier {
     } catch (e) {
       rethrow;
     }
+  }
+
+  void close() {
+    firstNameCntlr.clear();
+    lastNameCntlr.clear();
+    emailCntlr.clear();
+    passwordCntlr.clear();
+
+    _firstNameKey.currentState?.reset();
+    _lastNameKey.currentState?.reset();
+    _emailKey.currentState?.reset();
+    _passwordKey.currentState?.reset();
+
+    _displayName = null;
+    _formIsValid = false;
+    _dateOfBirthIsValid = false;
+    _dateOfBirth = null;
+    _selectedGender = null;
+    _selectedChurch = null;
   }
 }

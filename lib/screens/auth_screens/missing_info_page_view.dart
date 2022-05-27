@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/date_picker_view.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/gender_view.dart';
-import 'package:cop_belgium_app/screens/auth_screens/sign_up_flow/add_info_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/add_info_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
+import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
+
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -14,28 +16,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 
-class SignUpFlow extends StatefulWidget {
+class MissingInfoPageView extends StatefulWidget {
   static String signUpScreen = 'signUpScreen';
-  const SignUpFlow({
+  const MissingInfoPageView({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<SignUpFlow> createState() => _SignUpFlowState();
+  State<MissingInfoPageView> createState() => _MissingInfoPageViewState();
 }
 
-class _SignUpFlowState extends State<SignUpFlow> {
+class _MissingInfoPageViewState extends State<MissingInfoPageView> {
   late final SignUpNotifier signUpProvider;
   PageController pageController = PageController();
 
   @override
   void initState() {
     signUpProvider = Provider.of<SignUpNotifier>(context, listen: false);
+    precacheChurchImages(context: context);
     super.initState();
   }
 
   @override
   void dispose() {
+    signUpProvider.close();
     super.dispose();
   }
 
@@ -52,7 +56,7 @@ class _SignUpFlowState extends State<SignUpFlow> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
 

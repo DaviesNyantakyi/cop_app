@@ -3,7 +3,6 @@ import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/create_testmony_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/edit_testimony_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/widgets/testimony_content.dart';
-import 'package:cop_belgium_app/utilities/enum_to_string.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/dialog.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -43,7 +42,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        type: SnackBarType.error,
+        type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
     } catch (e) {
