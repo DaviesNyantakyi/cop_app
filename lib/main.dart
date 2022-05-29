@@ -93,6 +93,7 @@ ThemeData _theme = ThemeData(
   progressIndicatorTheme: const ProgressIndicatorThemeData(
     color: kBlue,
   ),
+  shadowColor: kGreyLight,
   sliderTheme: SliderThemeData(
     activeTrackColor: kBlue,
     thumbColor: kBlue,

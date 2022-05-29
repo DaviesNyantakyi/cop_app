@@ -35,23 +35,36 @@ class _SocialCardState extends State<SocialCard> {
   @override
   Widget build(BuildContext context) {
     return CustomElevatedButton(
-      height: null,
-      backgroundColor: kGreyLight,
-      padding: widget.footer == null || widget.footer?.isEmpty == true
-          ? const EdgeInsets.all(kContentSpacing16)
-          : const EdgeInsets.symmetric(horizontal: kContentSpacing16).copyWith(
-              top: kContentSpacing16,
+      padding: EdgeInsets.zero,
+      child: Container(
+        padding: widget.footer == null || widget.footer?.isEmpty == true
+            ? const EdgeInsets.all(kContentSpacing16)
+            : const EdgeInsets.symmetric(horizontal: kContentSpacing16)
+                .copyWith(
+                top: kContentSpacing16,
+              ),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(kRadius)),
+          color: kWhite,
+          boxShadow: [
+            BoxShadow(
+              color: kGreyLight,
+              offset: kCardOffset,
+              blurRadius: kElevation,
             ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _header(),
-          const SizedBox(height: kContentSpacing8),
-          widget.content,
-          const SizedBox(width: kContentSpacing12),
-          _buildFooter(),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _header(),
+            const SizedBox(height: kContentSpacing8),
+            widget.content,
+            const SizedBox(width: kContentSpacing12),
+            _buildFooter(),
+          ],
+        ),
       ),
       onPressed: widget.onPressedCard,
     );

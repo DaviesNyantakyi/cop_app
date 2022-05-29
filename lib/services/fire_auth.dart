@@ -10,42 +10,50 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class FireAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
-  final CloudFire _cloudFire = CloudFire();
+  final FireStorage _fireStorage = FireStorage();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  final CloudFire _cloudFire = CloudFire();
   final ConnectionNotifier _connectionNotifier = ConnectionNotifier();
 
   Future<User?> createUserEmailPassword({
-    required UserModel user,
+    required UserModel userModel,
     required String password,
   }) async {
     try {
       final hasConnection = await _connectionNotifier.checkConnection();
       if (hasConnection == true) {
-        if (user.firstName != null &&
-            user.lastName != null &&
-            user.gender != null &&
-            user.email != null &&
+        if (userModel.firstName != null &&
+            userModel.lastName != null &&
+            userModel.displayName != null &&
+            userModel.dateOfBirth != null &&
+            userModel.gender != null &&
+            userModel.email != null &&
             password.isNotEmpty &&
-            user.church != null) {
+            userModel.church != null) {
           // Delete anon user if he desides to signup.
           if (_firebaseAuth.currentUser?.isAnonymous == true) {
             await _firebaseAuth.currentUser?.delete();
           }
 
+          // Create a new user with email and password
           await _firebaseAuth.createUserWithEmailAndPassword(
-            email: user.email!,
+            email: userModel.email!,
             password: password,
           );
-          await _firebaseAuth.currentUser?.updateDisplayName(user.displayName);
 
-          final updatedUser =
-              user.copyWith(uid: _firebaseAuth.currentUser?.uid);
+          await updateDisplayName(
+            displayName: userModel.displayName ??
+                '${userModel.firstName} ${userModel.lastName}',
+          );
 
+          // Update the userModel with the uid
+          final updatedUser = userModel.copyWith(
+            uid: _firebaseAuth.currentUser?.uid,
+          );
+
+          // Create a user document in cloud firstore
           await _cloudFire.createUserDoc(user: updatedUser);
-          user.uid = _firebaseAuth.currentUser?.uid;
-
           await _firebaseAuth.currentUser?.reload();
           return _firebaseAuth.currentUser;
         } else {
@@ -215,7 +223,6 @@ class FireAuth {
           if (userDoc == null) {
             final user = UserModel(
               uid: _firebaseAuth.currentUser?.uid,
-              photoURL: _firebaseAuth.currentUser?.photoURL,
               firstName: null,
               dateOfBirth: null,
               lastName: null,
@@ -223,6 +230,7 @@ class FireAuth {
               email: _firebaseAuth.currentUser?.email,
             );
             await _cloudFire.createUserDoc(user: user);
+            await _firebaseAuth.currentUser?.updatePhotoURL(null);
           }
           return userCred;
         }
@@ -260,19 +268,13 @@ class FireAuth {
   }
 
   // Update the user display name.
-  Future<void> updateDisplayName(
-      {required String firstName, required String lastName}) async {
+  Future<void> updateDisplayName({required String displayName}) async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
 
       if (hasConnection) {
-        final displayName = '$firstName $lastName';
-        if (firstName.isNotEmpty) {
+        if (displayName.isNotEmpty && _firebaseAuth.currentUser != null) {
           await _firebaseAuth.currentUser?.updateDisplayName(displayName);
-          await _cloudFire.updateUsername(
-            firstName: displayName,
-            lastName: lastName,
-          );
         }
       } else {
         throw ConnectionNotifier.connectionException;

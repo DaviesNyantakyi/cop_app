@@ -47,8 +47,12 @@ dependencies:
   flutter_markdown: ^0.6.10  # For reading markdown files
   responsive_builder: ^0.4.2 # For screen sizes
   expandable_text: ^2.3.0 # Show more text button
+  dio: ^4.0.6 # Make http request
+  image_downloader: ^0.31.0 # Download images
+  enum_to_string: ^2.0.1
 
-  # preload_page_view: ^0.1.6 # Preload the next pageview
+
+
 
   
   internet_connection_checker: ^0.0.1+3  # Check for actual internet connection
@@ -61,7 +65,7 @@ dependencies:
 
 
 
-  #Firebase
+  #Firebase related
   uuid: ^3.0.6 # Generate unique id
   firebase_core: ^1.10.6 # Initialize firebase functionalities
   firebase_auth: ^3.3.9 # Firebase Authenitcation

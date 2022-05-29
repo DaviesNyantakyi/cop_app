@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "28966762484-hfmo5c1dgefbpurlaklp9bqg284b2d2k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.copbelgium.copbelgiumapp",
+            "certificate_hash": "1cdb65d9741595ff9d19725fc7ef45171af17304"
+          }
+        },
+        {
           "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
           "client_type": 3
         }

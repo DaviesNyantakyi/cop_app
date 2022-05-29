@@ -31,6 +31,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     try {
       EasyLoading.show();
       await fireAuth.signInWithGoogle();
+      EasyLoading.dismiss();
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
@@ -135,11 +136,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     _buildEmailButton(context: context),
                     screenInfo.screenSize.width < kScreenSizeMobile
                         ? const SizedBox(height: kContentSpacing16)
-                        : const SizedBox(height: kContentSpacing20),
+                        : const SizedBox(height: kContentSpacing32),
                     _buildSignInButton(),
                     screenInfo.screenSize.width < kScreenSizeMobile
                         ? const SizedBox(height: kContentSpacing12)
-                        : const SizedBox(height: kContentSpacing20),
+                        : const SizedBox(height: kContentSpacing16),
                     _buildSkipButton(),
                   ],
                 ),
@@ -177,17 +178,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       fontWeight: kFontWeightMedium,
                     ),
             ),
-            Text(
-              'Welcome',
-              style: screenInfo.screenSize.width <= kScreenSizeMobile
-                  ? kFontBody.copyWith(
-                      color: kBlue,
-                      fontWeight: kFontWeightMedium,
-                    )
-                  : kFontBody.copyWith(
-                      color: kBlue,
-                      fontWeight: kFontWeightMedium,
-                    ),
+            FittedBox(
+              child: Text(
+                'Welcome',
+                style: screenInfo.screenSize.width <= kScreenSizeMobile
+                    ? kFontBody.copyWith(
+                        color: kBlue,
+                        fontWeight: kFontWeightMedium,
+                      )
+                    : kFontBody.copyWith(
+                        color: kBlue,
+                        fontWeight: kFontWeightMedium,
+                      ),
+              ),
             ),
           ],
         );
@@ -207,11 +210,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   size: 30,
                   color: kWhite,
                 ),
-          label: Text(
-            'Continue with Google',
-            style: kFontBody.copyWith(
-              fontWeight: FontWeight.bold,
-              color: kWhite,
+          label: FittedBox(
+            child: Text(
+              'Continue with Google',
+              style: kFontBody.copyWith(
+                fontWeight: FontWeight.bold,
+                color: kWhite,
+              ),
             ),
           ),
           onPressed: continueWithGoogle,
@@ -233,11 +238,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   size: 32,
                   color: kWhite,
                 ),
-          label: Text(
-            'Continue with Apple',
-            style: kFontBody.copyWith(
-              fontWeight: FontWeight.bold,
-              color: kWhite,
+          label: FittedBox(
+            child: Text(
+              'Continue with Apple',
+              style: kFontBody.copyWith(
+                fontWeight: FontWeight.bold,
+                color: kWhite,
+              ),
             ),
           ),
           onPressed: continueWithApple,
@@ -250,11 +257,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return CustomElevatedButton(
       height: kButtonHeight,
       side: const BorderSide(width: kBoderWidth, color: kBlack),
-      child: Text(
-        'Continue with Email',
-        style: kFontBody.copyWith(
-          fontWeight: FontWeight.bold,
-          color: kBlack,
+      child: FittedBox(
+        child: Text(
+          'Continue with Email',
+          style: kFontBody.copyWith(
+            fontWeight: FontWeight.bold,
+            color: kBlack,
+          ),
         ),
       ),
       onPressed: continueWithEmail,
@@ -262,11 +271,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildSignInButton() {
-    return CustomElevatedButton(
-      height: null,
-      splashColor: Colors.transparent,
-      onPressed: signIn,
-      child: FittedBox(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: CustomElevatedButton(
+        height: null,
+        splashColor: Colors.transparent,
+        onPressed: signIn,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -288,15 +298,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  CustomElevatedButton _buildSkipButton() {
-    return CustomElevatedButton(
-      height: null,
-      splashColor: Colors.transparent,
-      child: Text(
-        'Skip for now',
-        style: kFontBody.copyWith(color: kGrey),
+  Widget _buildSkipButton() {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: CustomElevatedButton(
+        height: null,
+        splashColor: Colors.transparent,
+        onPressed: signInAnonymously,
+        child: Text(
+          'Skip for now',
+          style: kFontBody.copyWith(color: kGrey),
+        ),
       ),
-      onPressed: signInAnonymously,
     );
   }
 }

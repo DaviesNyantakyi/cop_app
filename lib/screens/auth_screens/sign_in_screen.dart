@@ -122,13 +122,13 @@ class _SignInScreenState extends State<SignInScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildHeaderText(),
-                    const SizedBox(height: kContentSpacing32),
+                    const SizedBox(height: kContentSpacing24),
                     _buildEmailField(),
                     const SizedBox(height: kContentSpacing8),
                     _buildPasswordField(),
                     const SizedBox(height: kContentSpacing32),
                     _buildSignInButton(),
-                    const SizedBox(height: kContentSpacing20),
+                    const SizedBox(height: kContentSpacing24),
                     _buildForgotPasswordButton()
                   ],
                 ),

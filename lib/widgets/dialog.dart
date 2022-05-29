@@ -12,12 +12,14 @@ Future<String?> showCustomDialog({
     barrierDismissible: barrierDismissible,
     context: context,
     builder: (BuildContext context) => AlertDialog(
+      elevation: 0,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(kRadius),
         ),
       ),
       title: title,
+      actionsPadding: const EdgeInsets.all(kContentSpacing8),
       content: content,
       actions: actions,
     ),

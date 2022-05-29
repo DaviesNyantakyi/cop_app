@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/add_info_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
@@ -12,6 +11,7 @@ import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
@@ -27,31 +27,29 @@ class SignUpPageView extends StatefulWidget {
 }
 
 class _SignUpPageViewState extends State<SignUpPageView> {
-  late final SignUpNotifier signUpProvider;
+  late final SignUpNotifier signUpNotifier;
   PageController pageController = PageController();
 
   @override
   void initState() {
-    signUpProvider = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     precacheChurchImages(context: context);
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpProvider.close();
+    signUpNotifier.close();
     super.dispose();
   }
 
-  Future<void> signUp({required ChurchModel selectedChurch}) async {
+  Future<void> signUp() async {
     final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     try {
       EasyLoading.show();
-      signUpNotifier.setSelectedChurch(value: selectedChurch);
-      final user = await signUpNotifier.signUp();
-
-      if (user != null) {
-        nextPage(controller: pageController);
+      final result = await signUpNotifier.signUp();
+      if (result == true) {
+        Navigator.pop(context);
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
@@ -89,7 +87,6 @@ class _SignUpPageViewState extends State<SignUpPageView> {
             DatePickerView(pageController: pageController),
             GenderView(pageController: pageController),
             _churchSelectionView(),
-            _profilePickerView(),
           ],
         ),
       ),
@@ -109,25 +106,11 @@ class _SignUpPageViewState extends State<SignUpPageView> {
         previousPage(pageContoller: pageController);
         return false;
       },
-      onTap: (church) {
-        if (church != null) {
-          signUp(selectedChurch: church);
+      onTap: (selectedChurch) {
+        if (selectedChurch != null) {
+          signUpNotifier.setSelectedChurch(value: selectedChurch);
+          signUp();
         }
-      },
-    );
-  }
-
-  Widget _profilePickerView() {
-    return ProfilePickerScreen(
-      appBar: AppBar(
-        leading: const CustomBackButton(),
-      ),
-      onWillPop: () async {
-        Navigator.pop(context);
-        return true;
-      },
-      onSubmit: () async {
-        Navigator.pop(context);
       },
     );
   }

@@ -1,5 +1,6 @@
 import 'package:cop_belgium_app/screens/auth_screens/missing_info_wrapper.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
+import 'package:cop_belgium_app/screens/home_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
@@ -25,31 +26,26 @@ class _AuthWrapperState extends State<AuthWrapper> {
         // When there is an error logout user
         if (snapshot.hasError) {
           return CustomErrorWidget(
-            onPressed: () async {
-              FireAuth().signOut();
-            },
+            onPressed: () async {},
           );
         }
 
-        if (snapshot.connectionState == ConnectionState.active) {
-          // return the Infowrapper if the date is not null or loading
-
-          if (snapshot.hasData &&
-              snapshot.data?.uid != null &&
-              snapshot.data != null) {
-            return const MissingInfoWrapper();
-          }
-
-          //return the welcomeScreen if the user is logged out or the user object is null.
-          return const WelcomeScreen();
-        } else {
-          // show a progress indicator if the snaphot data is loading.
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
               child: CustomCircularProgressIndicator(),
             ),
           );
         }
+
+        if (snapshot.hasData &&
+            snapshot.data?.uid != null &&
+            snapshot.data != null) {
+          return const MissingInfoWrapper();
+        }
+
+        //return the welcomeScreen if the user is logged out or the user object is null.
+        return const WelcomeScreen();
       },
     );
   }

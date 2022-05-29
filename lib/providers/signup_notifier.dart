@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
-import 'package:cop_belgium_app/utilities/enum_to_string.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,10 +14,13 @@ enum FormType {
   forgotEmailForm,
   updateInfoForm
 }
+
 enum Gender { male, female }
 
 class SignUpNotifier extends ChangeNotifier {
   final FireAuth _fireAuth = FireAuth();
+  final CloudFire _cloudFire = CloudFire();
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   TextEditingController firstNameCntlr = TextEditingController();
   TextEditingController lastNameCntlr = TextEditingController();
   TextEditingController emailCntlr = TextEditingController();
@@ -61,12 +65,17 @@ class SignUpNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDateOfBirth({required DateTime value}) {
-    _dateOfBirth = value.toUtc();
+  void setEmail({required String email}) {
+    emailCntlr.text = email;
     notifyListeners();
   }
 
-  void setGender({required dynamic value}) {
+  void setDateOfBirth({required DateTime value}) {
+    _dateOfBirth = value;
+    notifyListeners();
+  }
+
+  void setGender({required Gender value}) {
     _selectedGender = value;
     notifyListeners();
   }
@@ -76,33 +85,77 @@ class SignUpNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<User?> signUp() async {
+  Future<bool?> signUp() async {
     try {
       if (firstNameCntlr.text.isNotEmpty &&
           lastNameCntlr.text.isNotEmpty &&
+          emailCntlr.text.isNotEmpty &&
+          _selectedGender != null &&
           selectedChurch != null &&
           _dateOfBirth != null) {
+        final displayName =
+            '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
         final user = UserModel(
+          uid: _firebaseAuth.currentUser?.uid,
           firstName: firstNameCntlr.text.trim(),
           lastName: lastNameCntlr.text.trim(),
-          displayName: _displayName ??
-              '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}',
+          displayName: _displayName?.trim() ?? displayName,
           dateOfBirth: Timestamp.fromMillisecondsSinceEpoch(
-              _dateOfBirth!.millisecondsSinceEpoch),
+            _dateOfBirth!.millisecondsSinceEpoch,
+          ),
           email: emailCntlr.text.trim(),
-          gender: enumToString(object: _selectedGender),
+          gender: EnumToString.convertToString(_selectedGender),
           church: {
             'id': selectedChurch!.id,
             'churchName': selectedChurch!.churchName
           },
         );
 
-        return await _fireAuth.createUserEmailPassword(
-          user: user,
+        await _fireAuth.createUserEmailPassword(
+          userModel: user,
           password: passwordCntlr.text,
         );
+        return true;
       }
-      return null;
+      return false;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool?> updateUpdateInfo() async {
+    try {
+      if (firstNameCntlr.text.isNotEmpty &&
+          lastNameCntlr.text.isNotEmpty &&
+          emailCntlr.text.isNotEmpty &&
+          _selectedGender != null &&
+          selectedChurch != null &&
+          _dateOfBirth != null) {
+        final displayName =
+            '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
+
+        await _fireAuth.updateDisplayName(displayName: displayName);
+        await _cloudFire.updateUsername(
+          firstName: firstNameCntlr.text,
+          lastName: lastNameCntlr.text,
+        );
+        await _cloudFire.updateUserDateOfBirth(
+          dateOfBirth: Timestamp.fromDate(_dateOfBirth!),
+        );
+
+        final gender = EnumToString.convertToString(_selectedGender);
+
+        await _cloudFire.updateUserGender(
+          gender: gender,
+        );
+
+        await _cloudFire.updateUserChurch(
+          id: _selectedChurch!.id!,
+          churchName: _selectedChurch!.churchName,
+        );
+        return true;
+      }
+      return false;
     } catch (e) {
       rethrow;
     }

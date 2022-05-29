@@ -96,7 +96,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
           padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
           child: Image.asset(
             'assets/images/playing_wave.gif',
-            width: 42,
+            width: 32,
           ),
           onPressed: showPlayerScreen,
         ),

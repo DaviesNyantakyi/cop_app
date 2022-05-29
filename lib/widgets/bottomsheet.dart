@@ -12,6 +12,7 @@ Future<dynamic> showCustomBottomSheet({
   Color backgroundColor = kWhite,
   double? initialSnap,
   EdgeInsets? padding,
+  Function(SheetState)? listener,
   List<double> snappings = const [0.5, 1.0],
   required Widget child,
 }) async {
@@ -23,6 +24,7 @@ Future<dynamic> showCustomBottomSheet({
         elevation: 8,
         cornerRadius: kRadius,
         avoidStatusBar: true,
+        listener: listener,
         isDismissable: isDismissable,
         duration: const Duration(milliseconds: 500),
         color: backgroundColor,

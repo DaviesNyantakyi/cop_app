@@ -7,6 +7,8 @@ const double kButtonHeight = 60.0;
 const double kIconSize = 24;
 const double kElevation = 8.0;
 
+const Offset kCardOffset = Offset(0, 4);
+
 const kAvatarIcon = Icons.person_outline_rounded;
 
 const kBottomsheetHeight = 0.67; // 67% precentage of the screen

@@ -179,9 +179,11 @@ class _DatePickerViewState extends State<DatePickerView> {
                         const SizedBox(width: kContentSpacing8),
                         Text(
                           FormalDates.formatDmyyyy(
-                                date: signUpNotifier.dateOfBirth,
+                                date: signUpNotifier.dateOfBirth?.toLocal(),
                               ) ??
-                              FormalDates.formatDmyyyy(date: DateTime.now()) ??
+                              FormalDates.formatDmyyyy(
+                                date: DateTime.now().toLocal(),
+                              ) ??
                               '',
                           style: kFontBody,
                         ),
@@ -196,10 +198,18 @@ class _DatePickerViewState extends State<DatePickerView> {
                   maxDate: DateTime.now(),
                   mode: CupertinoDatePickerMode.date,
                   context: context,
+                  isDismissible: true,
+                  listener: (sheetState) {
+                    if (sheetState.isHidden) {
+                      dateOfBirthErrorText = Validators.birthdayValidator(
+                        date: signUpNotifier.dateOfBirth,
+                      );
+                      validDate();
+                      setState(() {});
+                    }
+                  },
                   onChanged: (date) {
-                    signUpNotifier.setDateOfBirth(
-                      value: date,
-                    );
+                    signUpNotifier.setDateOfBirth(value: date);
                     dateOfBirthErrorText = Validators.birthdayValidator(
                       date: date,
                     );

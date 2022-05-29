@@ -24,60 +24,67 @@ class SocialAvatar extends StatefulWidget {
 class _SocialAvatarState extends State<SocialAvatar> {
   @override
   Widget build(BuildContext context) {
-    Widget child = const Icon(
-      kAvatarIcon,
-      color: kBlack,
-    );
-    ImageProvider? backgoundImage;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        StreamBuilder<UserModel?>(
-          stream: CloudFire().getUserStream(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              child = Container();
-              // set the background image to the profile pic
-              if (snapshot.data?.photoURL != null) {
-                backgoundImage = CachedNetworkImageProvider(
-                  snapshot.data!.photoURL!,
-                );
-              }
-            }
-            return CircleAvatar(
-              radius: 14,
-              backgroundImage: backgoundImage,
-              child: child,
-              backgroundColor: kGreyLight,
-            );
-          },
-        ),
+        _buildAvatar(),
         const SizedBox(width: kContentSpacing8),
-        Padding(
-          padding: const EdgeInsets.only(top: kContentSpacing4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.displayName,
-                style: kFontBody2.copyWith(
-                  fontWeight: kFontWeightMedium,
-                ),
-              ),
-              Text(
-                FormalDates.timeAgo(
-                      date: DateTime.fromMillisecondsSinceEpoch(
-                        widget.createdAt.millisecondsSinceEpoch,
-                      ),
-                    ) ??
-                    '',
-                style: kFontCaption,
-              ),
-            ],
-          ),
-        ),
+        _buildDateAndName(),
       ],
+    );
+  }
+
+  Widget _buildAvatar() {
+    Widget child = const Icon(
+      kAvatarIcon,
+      color: kBlack,
+      size: 18,
+    );
+    ImageProvider? backgoundImage;
+    return StreamBuilder<UserModel?>(
+      stream: CloudFire().getUserStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          // set the background image to the profile pic
+          if (snapshot.data?.photoURL != null) {
+            backgoundImage = CachedNetworkImageProvider(
+              snapshot.data!.photoURL!,
+            );
+          }
+        }
+        return CircleAvatar(
+          radius: 18,
+          backgroundImage: backgoundImage,
+          child: child,
+          backgroundColor: kGreyLight,
+        );
+      },
+    );
+  }
+
+  Padding _buildDateAndName() {
+    return Padding(
+      padding: const EdgeInsets.only(top: kContentSpacing4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.displayName,
+            style: kFontBody2.copyWith(
+              fontWeight: kFontWeightMedium,
+            ),
+          ),
+          Text(
+            FormalDates.timeAgo(
+                  date: DateTime.fromMillisecondsSinceEpoch(
+                    widget.createdAt.millisecondsSinceEpoch,
+                  ),
+                ) ??
+                '',
+            style: kFontCaption,
+          ),
+        ],
+      ),
     );
   }
 }

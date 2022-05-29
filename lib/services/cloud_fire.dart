@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 class CloudFire {
   final _firebaseFirestore = FirebaseFirestore.instance;
-  final _firebaseUser = FirebaseAuth.instance.currentUser;
+  final _firebaseAuth = FirebaseAuth.instance;
 
   final _connectionChecker = ConnectionNotifier();
 
@@ -57,7 +57,7 @@ class CloudFire {
   Stream<UserModel?> getUserStream() {
     final docSnap = _firebaseFirestore
         .collection('users')
-        .doc(_firebaseUser?.uid)
+        .doc(_firebaseAuth.currentUser?.uid)
         .snapshots();
 
     return docSnap.map((doc) {
@@ -73,14 +73,14 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'photoURL': photoURL,
           });
-          await _firebaseUser?.updatePhotoURL(photoURL);
+          await _firebaseAuth.currentUser?.updatePhotoURL(photoURL);
         }
       } else {
         throw ConnectionNotifier.connectionException;
@@ -94,17 +94,22 @@ class CloudFire {
     }
   }
 
-  Future<void> updateUsername(
-      {required String firstName, required String lastName}) async {
+  Future<void> updateUsername({
+    required String firstName,
+    required String lastName,
+  }) async {
     try {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        // print(_firebaseUser?.uid);
+        if (_firebaseAuth.currentUser?.uid != null &&
+            firstName.isNotEmpty &&
+            lastName.isNotEmpty) {
           final displayName = '${firstName.trim()} ${lastName.trim()}';
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'firstName': firstName.trim(),
             'lastName': lastName.trim(),
@@ -128,10 +133,10 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'email': email,
           });
@@ -156,13 +161,15 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
-            'id': id,
-            'churchName': churchName,
+            'church': {
+              'id': id,
+              'churchName': churchName,
+            },
           });
         }
       } else {
@@ -182,10 +189,10 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null && gender.isNotEmpty) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'gender': gender,
           });
@@ -202,15 +209,15 @@ class CloudFire {
     }
   }
 
-  Future<void> updateUserDateOfBirth({required DateTime? dateOfBirth}) async {
+  Future<void> updateUserDateOfBirth({required Timestamp? dateOfBirth}) async {
     try {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null && dateOfBirth != null) {
+        if (_firebaseAuth.currentUser?.uid != null && dateOfBirth != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'dateOfBirth': dateOfBirth,
           });
@@ -232,10 +239,10 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .update({
             'bio': bio,
           });
@@ -253,10 +260,10 @@ class CloudFire {
     try {
       final hasConnection = await _connectionChecker.checkConnection();
       if (hasConnection) {
-        if (_firebaseUser?.uid != null) {
+        if (_firebaseAuth.currentUser?.uid != null) {
           await _firebaseFirestore
               .collection('users')
-              .doc(_firebaseUser?.uid)
+              .doc(_firebaseAuth.currentUser?.uid)
               .delete();
           await FireStorage().deleteUser();
         }

@@ -45,6 +45,8 @@ class CustomElevatedButton extends StatelessWidget {
             ),
           ),
           alignment: alignment,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
           backgroundColor: MaterialStateProperty.all<Color?>(
             backgroundColor ?? Colors.transparent,
           ),

@@ -6,7 +6,6 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/church_tile.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
-import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:flutter/material.dart';
 
 Future<void> precacheChurchImages({required BuildContext context}) async {
@@ -40,25 +39,6 @@ class ChurchSelectionScreen extends StatefulWidget {
 class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
   ChurchModel? selectedChurch;
 
-  TextEditingController searchContlr = TextEditingController();
-  @override
-  void initState() {
-    searchChanges();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    searchContlr.dispose();
-    super.dispose();
-  }
-
-  void searchChanges() {
-    searchContlr.addListener(() {
-      setState(() {});
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,22 +49,11 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextFormField(
-                controller: searchContlr,
-                hintText: 'Search',
-                maxLines: 1,
-              ),
-              const SizedBox(height: kContentSpacing32),
               StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: searchContlr.text.isEmpty
-                    ? FirebaseFirestore.instance
-                        .collection('churches')
-                        .snapshots()
-                    : FirebaseFirestore.instance
-                        .collection('churches')
-                        .where('searchIndex',
-                            arrayContains: searchContlr.text.toLowerCase())
-                        .snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection('churches')
+                    .orderBy('churchName')
+                    .snapshots(),
                 builder: (context, snapshot) {
                   final data = snapshot.data;
 
@@ -105,23 +74,30 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
                     if (churches!.isEmpty) {
                       return const Text('No result found', style: kFontBody);
                     }
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return ChurchTile(
-                          church: churches[index],
-                          onTap: () async {
-                            selectedChurch = churches[index];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Select your church', style: kFontH5),
+                        const SizedBox(height: kContentSpacing24),
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return ChurchTile(
+                              church: churches[index],
+                              onTap: () async {
+                                selectedChurch = churches[index];
 
-                            widget.onTap!(selectedChurch);
+                                widget.onTap!(selectedChurch);
+                              },
+                            );
                           },
-                        );
-                      },
-                      separatorBuilder: (context, index) => const SizedBox(
-                        height: kContentSpacing8,
-                      ),
-                      itemCount: churches.length,
+                          separatorBuilder: (context, index) => const SizedBox(
+                            height: kContentSpacing8,
+                          ),
+                          itemCount: churches.length,
+                        ),
+                      ],
                     );
                   }
 

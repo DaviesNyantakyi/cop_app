@@ -57,9 +57,9 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
   }) async {
     showCustomDialog(
       context: context,
-      title: const Text(
+      title: Text(
         'Delete testimony?',
-        style: kFontBody,
+        style: kFontBody.copyWith(fontWeight: kFontWeightMedium),
       ),
       actions: [
         CustomElevatedButton(

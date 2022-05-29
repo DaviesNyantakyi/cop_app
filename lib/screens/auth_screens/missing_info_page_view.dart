@@ -1,17 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cop_belgium_app/models/church_model.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
-import 'package:cop_belgium_app/screens/auth_screens/add_info_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
 
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
+import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
+import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
+import 'package:cop_belgium_app/widgets/textfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
@@ -27,32 +30,28 @@ class MissingInfoPageView extends StatefulWidget {
 }
 
 class _MissingInfoPageViewState extends State<MissingInfoPageView> {
-  late final SignUpNotifier signUpProvider;
+  late final SignUpNotifier signUpNotifier;
   PageController pageController = PageController();
 
   @override
   void initState() {
-    signUpProvider = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     precacheChurchImages(context: context);
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpProvider.close();
+    signUpNotifier.close();
     super.dispose();
   }
 
-  Future<void> signUp({required ChurchModel selectedChurch}) async {
+  Future<void> updateInfo() async {
     final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     try {
       EasyLoading.show();
-      signUpNotifier.setSelectedChurch(value: selectedChurch);
-      final user = await signUpNotifier.signUp();
 
-      if (user != null) {
-        nextPage(controller: pageController);
-      }
+      await signUpNotifier.updateUpdateInfo();
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
@@ -85,11 +84,10 @@ class _MissingInfoPageViewState extends State<MissingInfoPageView> {
           controller: pageController,
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            AddInfoView(pageController: pageController),
+            _AddInfoView(pageController: pageController),
             DatePickerView(pageController: pageController),
             GenderView(pageController: pageController),
             _churchSelectionView(),
-            _profilePickerView(),
           ],
         ),
       ),
@@ -109,26 +107,244 @@ class _MissingInfoPageViewState extends State<MissingInfoPageView> {
         previousPage(pageContoller: pageController);
         return false;
       },
-      onTap: (church) {
-        if (church != null) {
-          signUp(selectedChurch: church);
+      onTap: (setSelectedChurch) {
+        if (setSelectedChurch != null) {
+          signUpNotifier.setSelectedChurch(value: setSelectedChurch);
+          updateInfo();
         }
       },
     );
   }
+}
 
-  Widget _profilePickerView() {
-    return ProfilePickerScreen(
-      appBar: AppBar(
-        leading: const CustomBackButton(),
-      ),
+class _AddInfoView extends StatefulWidget {
+  final PageController pageController;
+  const _AddInfoView({
+    Key? key,
+    required this.pageController,
+  }) : super(key: key);
+
+  @override
+  State<_AddInfoView> createState() => _AddInfoViewState();
+}
+
+class _AddInfoViewState extends State<_AddInfoView> {
+  final user = FirebaseAuth.instance.currentUser;
+  late final SignUpNotifier signUpNotifier;
+
+  bool? firstNameFormIsValid;
+  bool? lastNameFormIsValid;
+
+  @override
+  void initState() {
+    // addPostFrameCallback is called after the screen and the widget has been renderd.
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      revalidateForm();
+    });
+
+    super.initState();
+  }
+
+  Future<void> onSubmit() async {
+    // Hide keyboard
+
+    FocusScope.of(context).unfocus();
+    try {
+      bool hasConnection = await ConnectionNotifier().checkConnection();
+
+      if (hasConnection) {
+        if (signUpNotifier.formIsValid == true &&
+            user != null &&
+            user?.email != null) {
+          signUpNotifier.setDisplayName();
+          signUpNotifier.setEmail(email: user!.email!);
+
+          await nextPage(controller: widget.pageController);
+        }
+      }
+    } on FirebaseException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  // Validate if all the form fields are filled in
+  void validForm() {
+    if (firstNameFormIsValid == true && lastNameFormIsValid == true) {
+      signUpNotifier.validateForm(value: true);
+    } else {
+      signUpNotifier.validateForm(value: false);
+    }
+  }
+
+  void revalidateForm() {
+    // The form state remains valid when coming back from the orther screen.
+    // So we validated again.
+
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    if (signUpNotifier.formIsValid == true) {
+      firstNameFormIsValid =
+          signUpNotifier.firstNameKey.currentState?.validate();
+      lastNameFormIsValid = signUpNotifier.lastNameKey.currentState?.validate();
+      validForm();
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context);
         return true;
       },
-      onSubmit: () async {
-        Navigator.pop(context);
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kContentSpacing16,
+              vertical: kContentSpacing24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildHeaderText(),
+                const SizedBox(height: kContentSpacing24),
+                _buildFirstNameField(),
+                const SizedBox(height: kContentSpacing8),
+                _buildLastNameField(),
+                const SizedBox(height: kContentSpacing32),
+                _buildContinueButton(),
+                const SizedBox(height: kContentSpacing32),
+                _buildPolicyText()
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderText() {
+    return const Text('Add your info', style: kFontH5);
+  }
+
+  Widget _buildFirstNameField() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return Form(
+          key: signUpNotifier.firstNameKey,
+          child: CustomTextFormField(
+            controller: signUpNotifier.firstNameCntlr,
+            hintText: 'First name',
+            textInputAction: TextInputAction.next,
+            maxLines: 1,
+            validator: Validators.nameValidator,
+            onChanged: (value) {
+              firstNameFormIsValid =
+                  signUpNotifier.firstNameKey.currentState?.validate();
+              setState(() {});
+              validForm();
+            },
+          ),
+        );
       },
+    );
+  }
+
+  Widget _buildLastNameField() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return Form(
+          key: signUpNotifier.lastNameKey,
+          child: CustomTextFormField(
+            controller: signUpNotifier.lastNameCntlr,
+            hintText: 'Last name',
+            textInputAction: TextInputAction.next,
+            maxLines: 1,
+            validator: Validators.nameValidator,
+            onChanged: (value) {
+              lastNameFormIsValid =
+                  signUpNotifier.lastNameKey.currentState?.validate();
+              validForm();
+              setState(() {});
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildContinueButton() {
+    return Consumer<SignUpNotifier>(
+      builder: (context, signUpNotifier, _) {
+        return CustomElevatedButton(
+          height: kButtonHeight,
+          backgroundColor: signUpNotifier.formIsValid ? kBlue : kGreyLight,
+          width: double.infinity,
+          child: Text(
+            'Continue',
+            style: kFontBody.copyWith(
+              fontWeight: FontWeight.bold,
+              color: signUpNotifier.formIsValid ? kWhite : kGrey,
+            ),
+          ),
+          onPressed: signUpNotifier.formIsValid ? onSubmit : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildPolicyText() {
+    return Column(
+      children: [
+        const Text(
+          'By continuing, you agree to the ',
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            InkWell(
+              child: const Text(
+                'Privacy Policy',
+                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
+              ),
+              onTap: () {
+                loadMdFile(
+                  context: context,
+                  mdFile: 'assets/privacy/privacy_policy.md',
+                );
+              },
+            ),
+            const Text(
+              ' and',
+            ),
+            InkWell(
+              child: const Text(
+                ' Terms of Conditions.',
+                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
+              ),
+              onTap: () {
+                loadMdFile(
+                  context: context,
+                  mdFile: 'assets/privacy/terms_of_service.md',
+                );
+              },
+            ),
+          ],
+        )
+      ],
     );
   }
 }

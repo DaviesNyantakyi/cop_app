@@ -176,19 +176,15 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
   }
 
   Widget _submitButton() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
-        return CustomElevatedButton(
-          height: kButtonHeight,
-          width: double.infinity,
-          backgroundColor: kBlue,
-          child: Text(
-            'Done',
-            style: kFontBody.copyWith(color: kWhite),
-          ),
-          onPressed: widget.onSubmit,
-        );
-      },
+    return CustomElevatedButton(
+      height: kButtonHeight,
+      width: double.infinity,
+      backgroundColor: kBlue,
+      child: Text(
+        'Done',
+        style: kFontBody.copyWith(color: kWhite),
+      ),
+      onPressed: widget.onSubmit,
     );
   }
 }
