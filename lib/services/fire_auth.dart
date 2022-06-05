@@ -10,7 +10,6 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class FireAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FireStorage _fireStorage = FireStorage();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   final CloudFire _cloudFire = CloudFire();

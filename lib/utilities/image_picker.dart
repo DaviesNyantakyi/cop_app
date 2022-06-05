@@ -14,7 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MyImagePicker {
-  File? image;
+  File? selectedImage;
   bool _delete = false;
 
   final FirebaseAuth? _firebaseAuth = FirebaseAuth.instance;
@@ -22,7 +22,7 @@ class MyImagePicker {
   final ImagePicker _picker = ImagePicker();
 
   // Cropp the image using the file path
-  Future<File?> imageCropper({File? file}) async {
+  Future<File?> _imageCropper({File? file}) async {
     String? title = 'EDIT PHOTO';
     return await ImageCropper().cropImage(
       sourcePath: file!.path,
@@ -45,13 +45,13 @@ class MyImagePicker {
     required ImageSource source,
   }) async {
     try {
-      XFile? selectedImage;
+      XFile? image;
 
       if (source == ImageSource.gallery) {
         // pick image from storage if permission granted.
         var status = await Permission.storage.request();
         if (status == PermissionStatus.granted) {
-          selectedImage = await _picker.pickImage(
+          image = await _picker.pickImage(
             source: source,
           );
         }
@@ -68,7 +68,7 @@ class MyImagePicker {
                 'Tap Settings > Permissions and turn on Media Permissions.',
           );
         }
-        return selectedImage;
+        return image;
       }
 
       // pick image from storage and camera if permission granted.
@@ -80,7 +80,7 @@ class MyImagePicker {
         //pick image if the permission is granted.
         if (statusStorage == PermissionStatus.granted &&
             statusCamera == PermissionStatus.granted) {
-          selectedImage = await _picker.pickImage(
+          image = await _picker.pickImage(
             source: source,
           );
         }
@@ -114,7 +114,7 @@ class MyImagePicker {
                 'Tap Settings > Permissions and turn on Camera and Media Permissions.',
           );
         }
-        return selectedImage;
+        return image;
       }
       return null;
     } on PlatformException catch (e) {
@@ -127,7 +127,6 @@ class MyImagePicker {
     required BuildContext context,
   }) async {
     bool? deleteImage = await showCustomBottomSheet(
-      showHeader: true,
       context: context,
       child: Material(
         child: SizedBox(
@@ -140,11 +139,14 @@ class MyImagePicker {
                   icon: Icons.photo_camera_outlined,
                   text: 'Camera',
                   onPressed: () async {
-                    const source = ImageSource.camera;
-                    final pickedFile =
-                        await _pickImage(context: context, source: source);
+                    final pickedFile = await _pickImage(
+                      context: context,
+                      source: ImageSource.camera,
+                    );
                     if (pickedFile?.path != null) {
-                      image = await imageCropper(file: File(pickedFile!.path));
+                      selectedImage = await _imageCropper(
+                        file: File(pickedFile!.path),
+                      );
                     }
                     _delete = false;
                     Navigator.pop(context, _delete);
@@ -155,11 +157,14 @@ class MyImagePicker {
                   icon: Icons.collections_outlined,
                   text: 'Gallery',
                   onPressed: () async {
-                    const source = ImageSource.gallery;
-                    final pickedFile =
-                        await _pickImage(context: context, source: source);
+                    final pickedFile = await _pickImage(
+                      context: context,
+                      source: ImageSource.gallery,
+                    );
                     if (pickedFile?.path != null) {
-                      image = await imageCropper(file: File(pickedFile!.path));
+                      selectedImage = await _imageCropper(
+                        file: File(pickedFile!.path),
+                      );
                     }
                     _delete = false;
                     Navigator.pop(context, _delete);
@@ -220,13 +225,13 @@ class MyImagePicker {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Give COP Belgium access to your device\'s camera and media files.',
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           Text(
             instructions,
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           )
         ],
       ),
@@ -235,14 +240,14 @@ class MyImagePicker {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Not now', style: kFontBody),
+          child: Text('Not now', style: Theme.of(context).textTheme.bodyText1),
         ),
         CustomElevatedButton(
           onPressed: () async {
             Navigator.pop(context);
             await AppSettings.openAppSettings();
           },
-          child: const Text('Settings', style: kFontBody),
+          child: Text('Settings', style: Theme.of(context).textTheme.bodyText1),
         ),
       ],
     );

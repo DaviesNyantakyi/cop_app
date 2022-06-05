@@ -2,25 +2,21 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:sliding_sheet/sliding_sheet.dart';
+import 'package:flutter/material.dart';
 
 Future<void> showCustomDatePicker({
   required CupertinoDatePickerMode mode,
   required DateTime initialDateTime,
   required BuildContext context,
   required Function(DateTime) onChanged,
-  Function(SheetState)? listener,
   bool isDismissible = false,
   DateTime? maxDate,
 }) async {
   FocusScope.of(context).requestFocus(FocusNode());
 
   showCustomBottomSheet(
-    isDismissable: isDismissible,
+    isDismissible: isDismissible,
     context: context,
-    snappings: [1],
-    initialSnap: 1,
-    listener: listener,
     child: IntrinsicHeight(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -44,7 +40,11 @@ Future<void> showCustomDatePicker({
           Expanded(
             child: CustomElevatedButton(
               backgroundColor: kBlue,
-              child: Text('Done', style: kFontBody.copyWith(color: kWhite)),
+              child: Text('Done',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(color: kWhite)),
               height: kButtonHeight,
               width: double.infinity,
               onPressed: () => Navigator.pop(context),

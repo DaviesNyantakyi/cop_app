@@ -39,7 +39,10 @@ class GenderContianer extends StatelessWidget {
             children: [
               Expanded(child: Image.asset(image)),
               const SizedBox(height: kContentSpacing4),
-              Text(title, style: kFontBody),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
             ],
           ),
         ),

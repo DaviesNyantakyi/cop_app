@@ -7,11 +7,11 @@ const double kButtonHeight = 60.0;
 const double kIconSize = 24;
 const double kElevation = 8.0;
 
-const Offset kCardOffset = Offset(0, 4);
+// The angle of the shadow
+const Offset kBoxShadowOffset = Offset(0, 4);
 
-const kAvatarIcon = Icons.person_outline_rounded;
-
-const kBottomsheetHeight = 0.67; // 67% precentage of the screen
+// 67% precentage of the screen
+const kBottomsheetHeight = 0.67;
 
 Duration kPagViewDuration = const Duration(milliseconds: 800);
 Curve kPagViewCurve = Curves.easeOutExpo;
@@ -45,40 +45,4 @@ const double kContentSpacing64 = 64;
 const double kContentSpacing128 = 128;
 
 // Font
-const String _sfDisplayFont = 'SFDisplay';
 const kFontWeightMedium = FontWeight.w500;
-
-const kFontH4 = TextStyle(
-  fontSize: 34,
-  color: kBlack,
-  fontFamily: _sfDisplayFont,
-);
-const kFontH5 = TextStyle(
-  fontSize: 24,
-  color: kBlack,
-  fontFamily: _sfDisplayFont,
-);
-
-const kFontH6 = TextStyle(
-  fontSize: 20,
-  color: kBlack,
-  fontFamily: _sfDisplayFont,
-);
-
-const kFontBody = TextStyle(
-  color: kBlack,
-  fontSize: 16,
-  fontFamily: _sfDisplayFont,
-);
-
-const kFontBody2 = TextStyle(
-  color: kBlack,
-  fontSize: 14,
-  fontFamily: _sfDisplayFont,
-);
-
-const kFontCaption = TextStyle(
-  color: kBlack,
-  fontSize: 12,
-  fontFamily: _sfDisplayFont,
-);

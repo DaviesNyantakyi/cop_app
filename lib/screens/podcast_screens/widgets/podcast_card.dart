@@ -1,6 +1,6 @@
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class PodcastCard extends StatelessWidget {
   final String title;
@@ -28,7 +28,11 @@ class PodcastCard extends StatelessWidget {
           const SizedBox(height: kContentSpacing8),
           Text(
             title,
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  fontWeight: kFontWeightMedium,
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

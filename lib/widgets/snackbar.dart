@@ -2,6 +2,7 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
 enum CustomSnackBarType { success, error, normal }
+
 dynamic showCustomSnackBar({
   required BuildContext context,
   required CustomSnackBarType type,
@@ -33,7 +34,8 @@ dynamic showCustomSnackBar({
       duration: const Duration(seconds: 5),
       content: Text(
         message,
-        style: kFontBody.copyWith(color: textColor),
+        style:
+            Theme.of(context).textTheme.bodyText1?.copyWith(color: textColor),
       ),
     ),
   );

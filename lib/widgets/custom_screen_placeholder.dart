@@ -1,4 +1,3 @@
-import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
 class CustomScreenPlaceholder extends StatelessWidget {
@@ -8,11 +7,11 @@ class CustomScreenPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: SingleChildScrollView(
         child: Text(
           'Share your testimony',
-          style: kFontH6,
+          style: Theme.of(context).textTheme.headline6,
           textAlign: TextAlign.center,
         ),
       ),

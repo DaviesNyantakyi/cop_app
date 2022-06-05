@@ -5,13 +5,11 @@ import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
 
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
-import 'package:cop_belgium_app/screens/profile_picker_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';

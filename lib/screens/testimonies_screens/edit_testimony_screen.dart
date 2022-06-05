@@ -109,11 +109,14 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     validator: Validators.textValidator,
-                    style: kFontH6.copyWith(fontWeight: kFontWeightMedium),
-                    hintStyle: kFontH6.copyWith(
-                      fontWeight: kFontWeightMedium,
-                      color: kGrey,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        ?.copyWith(fontWeight: kFontWeightMedium),
+                    hintStyle: Theme.of(context).textTheme.headline6?.copyWith(
+                          fontWeight: kFontWeightMedium,
+                          color: kGrey,
+                        ),
                   ),
                 ),
                 Form(
@@ -139,9 +142,9 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
       leading: const CustomBackButton(),
       actions: [
         CustomElevatedButton(
-          child: const Text(
+          child: Text(
             'Update',
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onPressed: updateTestimony,
         )

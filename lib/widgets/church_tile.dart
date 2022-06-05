@@ -96,12 +96,18 @@ class _BuildAddress extends StatelessWidget {
           children: <Widget>[
             Text(
               church.churchName,
-              style: kFontBody.copyWith(fontWeight: kFontWeightMedium),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1
+                  ?.copyWith(fontWeight: kFontWeightMedium),
             ),
             const SizedBox(height: kContentSpacing4),
             Text(
               church.address,
-              style: kFontBody2.copyWith(fontWeight: FontWeight.normal),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  ?.copyWith(fontWeight: FontWeight.normal),
             ),
           ],
         ),

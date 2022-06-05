@@ -1,7 +1,12 @@
+import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
+import 'package:cop_belgium_app/providers/audio_notifier.dart';
+import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcasts_skeleton.dart';
+import 'package:cop_belgium_app/services/podcast_service.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_detail_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_card.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/greeting.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
@@ -11,12 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
-const unsplash =
-    'https://images.unsplash.com/photo-1652439578449-ea69ceb8e89d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=363&q=80';
-
-const unsplashPhotoUrl =
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=464&q=80';
+import 'package:skeletons/skeletons.dart';
 
 class PodcastScreen extends StatefulWidget {
   const PodcastScreen({Key? key}) : super(key: key);
@@ -26,13 +26,22 @@ class PodcastScreen extends StatefulWidget {
 }
 
 class _PodcastScreenState extends State<PodcastScreen> {
+  late final userStream = CloudFire().getUserStream();
+  PodcastService podcastNotifier = PodcastService();
+  late final Future<PodcastModel?> getPodcasts;
+
   void showPlayerScreen() {
     showCustomBottomSheet(
-      initialSnap: 1,
-      snappings: [1],
       context: context,
       child: const PodcastPlayerScreen(),
     );
+  }
+
+  @override
+  void initState() {
+    getPodcasts = podcastNotifier.getPodcasts(context: context);
+    setState(() {});
+    super.initState();
   }
 
   @override
@@ -43,8 +52,8 @@ class _PodcastScreenState extends State<PodcastScreen> {
           appBar: _buildAppBar(),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding(screenInfo),
+              padding: const EdgeInsets.symmetric(
+                horizontal: kContentSpacing16,
                 vertical: kContentSpacing24,
               ),
               child: Column(
@@ -52,30 +61,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
                 children: [
                   _buildGreetingText(),
                   const SizedBox(height: kContentSpacing32),
-                  GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: 5,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount(screenInfo),
-                      mainAxisExtent: 250,
-                      crossAxisSpacing: gradSpacing(screenInfo),
-                    ),
-                    itemBuilder: (context, index) {
-                      return PodcastCard(
-                        title: 'Deep thruths',
-                        imageUrl: unsplash,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => const PodcastDetailScreen(),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  )
+                  _buildPodcastsGridView(),
                 ],
               ),
             ),
@@ -87,12 +73,13 @@ class _PodcastScreenState extends State<PodcastScreen> {
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
-      title: const Text(
+      title: Text(
         'Podcasts',
-        style: kFontH6,
+        style: Theme.of(context).textTheme.headline6,
       ),
       actions: [
         CustomElevatedButton(
+          splashColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
           child: Image.asset(
             'assets/images/playing_wave.gif',
@@ -105,26 +92,98 @@ class _PodcastScreenState extends State<PodcastScreen> {
   }
 
   Widget _buildGreetingText() {
-    return Consumer<UserModel?>(
-      builder: (context, userModel, _) {
-        if (userModel != null && userModel.displayName != null) {
+    final String greeting = Greeting.showGreetings();
+
+    return StreamBuilder<UserModel?>(
+      stream: userStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${Greeting.showGreetings()},',
-                style: kFontH6.copyWith(color: kBlue),
+                greeting,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    ?.copyWith(color: kBlue),
               ),
-              Text(
-                userModel.displayName ?? '',
-                style: kFontH6,
-              )
+              snapshot.data?.displayName == null ||
+                      snapshot.data?.displayName?.isEmpty == true
+                  ? Container()
+                  : Text(
+                      snapshot.data?.displayName ?? '',
+                      style: Theme.of(context).textTheme.headline6,
+                    )
             ],
           );
         }
         return Text(
-          Greeting.showGreetings(),
-          style: kFontH6.copyWith(color: kBlue),
+          greeting,
+          style: Theme.of(context).textTheme.headline6?.copyWith(color: kBlue),
+        );
+      },
+    );
+  }
+
+  Widget _buildPodcastsGridView() {
+    return ResponsiveBuilder(
+      builder: (context, screenInfo) {
+        return FutureBuilder(
+          future: getPodcasts,
+          builder: (context, snapshot) {
+            bool isLoading = false;
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              isLoading = true;
+            } else {
+              isLoading = false;
+            }
+
+            return Skeleton(
+              isLoading: isLoading,
+              skeleton: const PodcastSkeleton(),
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: podcastNotifier.podcasts.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount(screenInfo),
+                  mainAxisExtent: 250,
+                  crossAxisSpacing: gradSpacing(screenInfo),
+                ),
+                itemBuilder: (context, index) {
+                  return PodcastCard(
+                    title: podcastNotifier.podcasts[index].title,
+                    imageUrl: podcastNotifier.podcasts[index].imageURL,
+                    onPressed: () {
+                      final audioPlayerNotifier =
+                          Provider.of<AudioPlayerNotifier>(
+                        context,
+                        listen: false,
+                      );
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => MultiProvider(
+                            providers: [
+                              Provider<PodcastModel>.value(
+                                value: podcastNotifier.podcasts[index],
+                              ),
+                              ChangeNotifierProvider<AudioPlayerNotifier>.value(
+                                value: audioPlayerNotifier,
+                              ),
+                            ],
+                            child: const PodcastDetailScreen(),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );

@@ -18,20 +18,6 @@ int crossAxisCount(SizingInformation screenInfo) {
   return 2;
 }
 
-double horizontalPadding(SizingInformation screenInfo) {
-  if (screenInfo.isDesktop) {
-    return kContentSpacing32;
-  }
-  if (screenInfo.isTablet) {
-    return kContentSpacing24;
-  }
-
-  if (screenInfo.isWatch) {
-    return kContentSpacing24;
-  }
-  return kContentSpacing16;
-}
-
 double gradSpacing(SizingInformation screenInfo) {
   if (screenInfo.isDesktop) {
     return kContentSpacing12;

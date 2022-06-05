@@ -26,6 +26,7 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late SignUpNotifier signUpNotifier;
   FireAuth fireAuth = FireAuth();
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future<void> continueWithGoogle() async {
     try {
@@ -110,6 +111,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
         return Scaffold(
+          appBar: _buildAppBar(),
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -122,25 +124,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    screenInfo.screenSize.width < kScreenSizeMobile
-                        ? const SizedBox(height: kContentSpacing32)
-                        : const SizedBox(height: kContentSpacing64),
-                    _buildHeader(),
-                    screenInfo.screenSize.width < kScreenSizeMobile
-                        ? const SizedBox(height: kContentSpacing32)
-                        : const SizedBox(height: kContentSpacing32),
+                    const SizedBox(height: kContentSpacing32),
+                    _buildImage(),
+                    const SizedBox(height: kContentSpacing32),
                     _buildGoogleButton(),
                     const SizedBox(height: kContentSpacing8),
                     _buildAppleButton(),
                     const SizedBox(height: kContentSpacing8),
                     _buildEmailButton(context: context),
-                    screenInfo.screenSize.width < kScreenSizeMobile
-                        ? const SizedBox(height: kContentSpacing16)
-                        : const SizedBox(height: kContentSpacing32),
+                    const SizedBox(height: kContentSpacing32),
                     _buildSignInButton(),
-                    screenInfo.screenSize.width < kScreenSizeMobile
-                        ? const SizedBox(height: kContentSpacing12)
-                        : const SizedBox(height: kContentSpacing16),
+                    const SizedBox(height: kContentSpacing16),
                     _buildSkipButton(),
                   ],
                 ),
@@ -152,7 +146,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  dynamic _buildAppBar() {
+    if (firebaseAuth.currentUser?.isAnonymous == false ||
+        firebaseAuth.currentUser == null) {
+      return PreferredSize(child: Container(), preferredSize: const Size(0, 0));
+    }
+    return AppBar(
+      automaticallyImplyLeading: false,
+      elevation: 0,
+      toolbarHeight: 70,
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.close),
+        )
+      ],
+    );
+  }
+
+  Widget _buildImage() {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
         return Column(
@@ -169,27 +183,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Text(
               'Church of Pentecost Belgium',
               style: screenInfo.screenSize.width <= kScreenSizeMobile
-                  ? kFontBody.copyWith(
-                      color: kBlue,
-                      fontWeight: kFontWeightMedium,
-                    )
-                  : kFontBody.copyWith(
-                      color: kBlue,
-                      fontWeight: kFontWeightMedium,
-                    ),
+                  ? Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: kBlue,
+                        fontWeight: kFontWeightMedium,
+                      )
+                  : Theme.of(context).textTheme.bodyText1?.copyWith(
+                        color: kBlue,
+                        fontWeight: kFontWeightMedium,
+                      ),
             ),
             FittedBox(
               child: Text(
                 'Welcome',
                 style: screenInfo.screenSize.width <= kScreenSizeMobile
-                    ? kFontBody.copyWith(
-                        color: kBlue,
-                        fontWeight: kFontWeightMedium,
-                      )
-                    : kFontBody.copyWith(
-                        color: kBlue,
-                        fontWeight: kFontWeightMedium,
-                      ),
+                    ? Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: kBlue,
+                          fontWeight: kFontWeightMedium,
+                        )
+                    : Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: kBlue,
+                          fontWeight: kFontWeightMedium,
+                        ),
               ),
             ),
           ],
@@ -213,10 +227,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           label: FittedBox(
             child: Text(
               'Continue with Google',
-              style: kFontBody.copyWith(
-                fontWeight: FontWeight.bold,
-                color: kWhite,
-              ),
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: kWhite,
+                  ),
             ),
           ),
           onPressed: continueWithGoogle,
@@ -241,10 +255,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           label: FittedBox(
             child: Text(
               'Continue with Apple',
-              style: kFontBody.copyWith(
-                fontWeight: FontWeight.bold,
-                color: kWhite,
-              ),
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: kWhite,
+                  ),
             ),
           ),
           onPressed: continueWithApple,
@@ -260,10 +274,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       child: FittedBox(
         child: Text(
           'Continue with Email',
-          style: kFontBody.copyWith(
-            fontWeight: FontWeight.bold,
-            color: kBlack,
-          ),
+          style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: kBlack,
+              ),
         ),
       ),
       onPressed: continueWithEmail,
@@ -281,16 +295,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Already have an account? ',
-              style: kFontBody,
+              style: Theme.of(context).textTheme.bodyText1,
             ),
             Text(
               'Sign in',
-              style: kFontBody.copyWith(
-                color: kBlue,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: kBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ],
         ),
@@ -299,6 +313,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildSkipButton() {
+    if (firebaseAuth.currentUser?.isAnonymous == true) {
+      return Container();
+    }
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: CustomElevatedButton(
@@ -307,7 +324,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         onPressed: signInAnonymously,
         child: Text(
           'Skip for now',
-          style: kFontBody.copyWith(color: kGrey),
+          style: Theme.of(context).textTheme.bodyText1?.copyWith(color: kGrey),
         ),
       ),
     );

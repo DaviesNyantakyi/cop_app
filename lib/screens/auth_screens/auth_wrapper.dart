@@ -1,9 +1,10 @@
 import 'package:cop_belgium_app/screens/auth_screens/missing_info_wrapper.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
-import 'package:cop_belgium_app/screens/home_screen.dart';
+import 'package:cop_belgium_app/screens/bottom_nav_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,22 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   final authChanges = FirebaseAuth.instance.authStateChanges();
+  final fireAuth = FireAuth();
+
+  Future<void> signOut() async {
+    try {
+      await fireAuth.signOut();
+    } on FirebaseAuthException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +43,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         // When there is an error logout user
         if (snapshot.hasError) {
           return CustomErrorWidget(
-            onPressed: () async {},
+            onPressed: signOut,
           );
         }
 
@@ -36,6 +53,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
               child: CustomCircularProgressIndicator(),
             ),
           );
+        }
+
+        if (snapshot.data?.isAnonymous == true) {
+          return const BottomNavigationScreen();
         }
 
         if (snapshot.hasData &&

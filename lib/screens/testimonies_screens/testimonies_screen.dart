@@ -59,14 +59,17 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
       context: context,
       title: Text(
         'Delete testimony?',
-        style: kFontBody.copyWith(fontWeight: kFontWeightMedium),
+        style: Theme.of(context)
+            .textTheme
+            .bodyText1
+            ?.copyWith(fontWeight: kFontWeightMedium),
       ),
       actions: [
         CustomElevatedButton(
           padding: EdgeInsets.zero,
-          child: const Text(
+          child: Text(
             'Cancel',
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -75,7 +78,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
         CustomElevatedButton(
           child: Text(
             'Delete',
-            style: kFontBody.copyWith(color: kRed),
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(color: kRed),
           ),
           onPressed: () => deleteTestimony(testimonyModel: testimonyModel),
         )
@@ -152,18 +155,21 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
       menuItems: testimonyModel.uid != _firebaseAuth.currentUser?.uid
           ? null
           : [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'edit',
                 child: Text(
                   'Edit',
-                  style: kFontBody2,
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
               ),
               PopupMenuItem(
                 value: 'delete',
                 child: Text(
                   'Delete',
-                  style: kFontBody2.copyWith(color: kRed),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(color: kRed),
                 ),
               )
             ],
@@ -209,9 +215,9 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
       leading: const CustomBackButton(),
-      title: const Text(
+      title: Text(
         'Testimonies',
-        style: kFontH6,
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }

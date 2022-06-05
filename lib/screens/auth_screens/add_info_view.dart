@@ -140,7 +140,7 @@ class _AddInfoViewState extends State<AddInfoView> {
   }
 
   Widget _buildHeaderText() {
-    return const Text('Add your info', style: kFontH5);
+    return Text('Add your info', style: Theme.of(context).textTheme.headline5);
   }
 
   Widget _buildFirstNameField() {
@@ -255,10 +255,10 @@ class _AddInfoViewState extends State<AddInfoView> {
           width: double.infinity,
           child: Text(
             'Continue',
-            style: kFontBody.copyWith(
-              fontWeight: FontWeight.bold,
-              color: signUpNotifier.formIsValid ? kWhite : kGrey,
-            ),
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: signUpNotifier.formIsValid ? kWhite : kGrey,
+                ),
           ),
           onPressed: signUpNotifier.formIsValid ? onSubmit : null,
         );

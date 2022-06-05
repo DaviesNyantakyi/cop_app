@@ -1,5 +1,5 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:regexpattern/regexpattern.dart';
 
 class Validators {
@@ -57,7 +57,8 @@ class Validators {
     return null;
   }
 
-  Widget showValidationWidget({String? errorText}) {
+  Widget showValidationWidget(
+      {String? errorText, required BuildContext context}) {
     if (errorText == null) {
       return Container();
     }
@@ -67,7 +68,7 @@ class Validators {
           .copyWith(bottom: 0),
       child: Text(
         errorText,
-        style: kFontCaption.copyWith(color: kRed),
+        style: Theme.of(context).textTheme.caption?.copyWith(color: kRed),
       ),
     );
   }

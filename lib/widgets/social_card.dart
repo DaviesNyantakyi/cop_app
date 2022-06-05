@@ -49,7 +49,7 @@ class _SocialCardState extends State<SocialCard> {
           boxShadow: [
             BoxShadow(
               color: kGreyLight,
-              offset: kCardOffset,
+              offset: kBoxShadowOffset,
               blurRadius: kElevation,
             ),
           ],
@@ -183,14 +183,14 @@ class _TestimonyCardState extends State<TestimonyCard> {
       context: context,
       title: const Text(
         'Delete testimony?',
-        style: kFontBody,
+        style:  Theme.of(context).textTheme.bodyText1?,
       ),
       actions: [
         CustomElevatedButton(
           padding: EdgeInsets.zero,
           child: const Text(
             'Cancel',
-            style: kFontBody,
+            style:  Theme.of(context).textTheme.bodyText1?,
           ),
           onPressed: () {
             Navigator.pop(context);
@@ -199,7 +199,7 @@ class _TestimonyCardState extends State<TestimonyCard> {
         CustomElevatedButton(
           child: Text(
             'Delete',
-            style: kFontBody.copyWith(color: kRed),
+            style:  Theme.of(context).textTheme.bodyText1?.copyWith(color: kRed),
           ),
           onPressed: deleteTestimony,
         )
@@ -266,12 +266,12 @@ class _TestimonyCardState extends State<TestimonyCard> {
         itemBuilder: (BuildContext context) => [
           PopupMenuItem(
             value: 'edit',
-            child: const Text('Edit', style: kFontBody),
+            child: const Text('Edit', style:  Theme.of(context).textTheme.bodyText1?),
             onTap: () {},
           ),
           PopupMenuItem(
             value: 'delete',
-            child: Text('Delete', style: kFontBody.copyWith(color: kRed)),
+            child: Text('Delete', style:  Theme.of(context).textTheme.bodyText1?.copyWith(color: kRed)),
             onTap: () {},
           ),
         ],
@@ -316,14 +316,14 @@ class _TestimonyCardState extends State<TestimonyCard> {
         Text(
           widget.testimonyModel.title,
           maxLines: 1,
-          style: kFontBody.copyWith(fontWeight: kFontWeightMedium),
+          style:  Theme.of(context).textTheme.bodyText1?.copyWith(fontWeight: kFontWeightMedium),
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: kContentSpacing4),
         Text(
           widget.testimonyModel.testimony,
           maxLines: 3,
-          style: kFontBody,
+          style:  Theme.of(context).textTheme.bodyText1?,
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -375,7 +375,7 @@ class _TestimonyCardState extends State<TestimonyCard> {
         children: [
           Text(
             widget.testimonyModel.displayName ?? '',
-            style: kFontBody2.copyWith(
+            style: Theme.of(context).textTheme.bodyText2.copyWith(
               fontWeight: kFontWeightMedium,
             ),
           ),
@@ -386,7 +386,7 @@ class _TestimonyCardState extends State<TestimonyCard> {
                   ),
                 ) ??
                 '',
-            style: kFontCaption,
+            style: Theme.of(context).textTheme.caption,
           ),
         ],
       ),

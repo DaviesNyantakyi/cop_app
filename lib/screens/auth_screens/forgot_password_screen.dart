@@ -93,12 +93,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget _buildHeaderText() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text('Forgot Password?', style: kFontH5),
-        SizedBox(height: kContentSpacing8),
+      children: [
+        Text('Forgot Password?', style: Theme.of(context).textTheme.headline5),
+        const SizedBox(height: kContentSpacing8),
         Text(
           'Enter your email below to receive instructions on how to reset your password',
-          style: kFontBody,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
       ],
     );
@@ -129,10 +129,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       width: double.infinity,
       child: Text(
         'Send',
-        style: kFontBody.copyWith(
-          fontWeight: FontWeight.bold,
-          color: formIsValid == true ? kWhite : kGrey,
-        ),
+        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: formIsValid == true ? kWhite : kGrey,
+            ),
       ),
       onPressed: formIsValid == true ? onSubmit : null,
     );

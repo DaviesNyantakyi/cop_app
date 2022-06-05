@@ -36,7 +36,7 @@ class _SocialAvatarState extends State<SocialAvatar> {
 
   Widget _buildAvatar() {
     Widget child = const Icon(
-      kAvatarIcon,
+      Icons.person_outline_rounded,
       color: kBlack,
       size: 18,
     );
@@ -70,9 +70,9 @@ class _SocialAvatarState extends State<SocialAvatar> {
         children: [
           Text(
             widget.displayName,
-            style: kFontBody2.copyWith(
-              fontWeight: kFontWeightMedium,
-            ),
+            style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                  fontWeight: kFontWeightMedium,
+                ),
           ),
           Text(
             FormalDates.timeAgo(
@@ -81,7 +81,7 @@ class _SocialAvatarState extends State<SocialAvatar> {
                   ),
                 ) ??
                 '',
-            style: kFontCaption,
+            style: Theme.of(context).textTheme.caption,
           ),
         ],
       ),

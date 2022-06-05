@@ -103,11 +103,11 @@ class _GenderViewState extends State<GenderView> {
           children: [
             Text(
               question,
-              style: kFontH5,
+              style: Theme.of(context).textTheme.headline5,
             ),
             Text(
               displayName,
-              style: kFontH5,
+              style: Theme.of(context).textTheme.headline5,
             )
           ],
         );
@@ -159,7 +159,10 @@ class _GenderViewState extends State<GenderView> {
           backgroundColor: gender != null ? kBlue : kGreyLight,
           child: Text(
             'Continue',
-            style: kFontBody.copyWith(color: gender != null ? kWhite : kGrey),
+            style: Theme.of(context)
+                .textTheme
+                .bodyText1
+                ?.copyWith(color: gender != null ? kWhite : kGrey),
           ),
           onPressed: gender != null ? onSubmit : null,
         );

@@ -30,7 +30,10 @@ class _ReadQuestionAnswerScreenState extends State<ReadQuestionAnswerScreen> {
             const SizedBox(height: kContentSpacing20),
             Text(
               'Comments',
-              style: kFontBody.copyWith(fontWeight: kFontWeightMedium),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1
+                  ?.copyWith(fontWeight: kFontWeightMedium),
             )
           ],
         ),

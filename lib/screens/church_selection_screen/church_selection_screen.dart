@@ -72,12 +72,18 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
                     }).toList();
                     // Show message when the return list of churches is empty.
                     if (churches!.isEmpty) {
-                      return const Text('No result found', style: kFontBody);
+                      return Text(
+                        'No result found',
+                        style: Theme.of(context).textTheme.bodyText1,
+                      );
                     }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Select your church', style: kFontH5),
+                        Text(
+                          'Select your church',
+                          style: Theme.of(context).textTheme.headline5,
+                        ),
                         const SizedBox(height: kContentSpacing24),
                         ListView.separated(
                           shrinkWrap: true,

@@ -55,7 +55,7 @@ class CustomTextFormField extends StatelessWidget {
       validator: validator,
       initialValue: initialValue,
       readOnly: readOnly,
-      style: style ?? kFontBody,
+      style: style ?? Theme.of(context).textTheme.bodyText1,
       keyboardType: keyboardType,
       obscureText: obscureText!,
       textInputAction: textInputAction,
@@ -65,7 +65,8 @@ class CustomTextFormField extends StatelessWidget {
         filled: true,
         errorMaxLines: 2,
         hintText: hintText,
-        hintStyle: hintStyle ?? kFontBody.copyWith(color: kGrey),
+        hintStyle: hintStyle ??
+            Theme.of(context).textTheme.bodyText1?.copyWith(color: kGrey),
         fillColor: fillColor ?? kWhite,
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,

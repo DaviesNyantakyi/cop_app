@@ -78,6 +78,28 @@ class _DatePickerViewState extends State<DatePickerView> {
     setState(() {});
   }
 
+  Future<void> showDatePicker() async {
+    await showCustomDatePicker(
+      initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
+      maxDate: DateTime.now(),
+      mode: CupertinoDatePickerMode.date,
+      context: context,
+      isDismissible: true,
+      onChanged: (date) {
+        signUpNotifier.setDateOfBirth(value: date);
+        dateOfBirthErrorText = Validators.birthdayValidator(
+          date: date,
+        );
+        validDate();
+      },
+    );
+    validDate();
+    dateOfBirthErrorText = Validators.birthdayValidator(
+      date: signUpNotifier.dateOfBirth,
+    );
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -117,7 +139,7 @@ class _DatePickerViewState extends State<DatePickerView> {
   }
 
   Widget _headerText() {
-    final headerStyle = kFontH5.copyWith(fontWeight: FontWeight.normal);
+    final headerStyle = Theme.of(context).textTheme.headline5;
 
     return Consumer<SignUpNotifier>(
       builder: (context, signUpNotifier, _) {
@@ -128,7 +150,7 @@ class _DatePickerViewState extends State<DatePickerView> {
           question = 'What\'s your date of birth?';
           displayName = Text(
             '${signUpNotifier.displayName?.trim() ?? signUpNotifier.firstNameCntlr.text.trim()}?',
-            style: kFontH5,
+            style: Theme.of(context).textTheme.headline5,
           );
         } else {
           question = 'What\'s your date of birth?';
@@ -185,40 +207,17 @@ class _DatePickerViewState extends State<DatePickerView> {
                                 date: DateTime.now().toLocal(),
                               ) ??
                               '',
-                          style: kFontBody,
+                          style: Theme.of(context).textTheme.bodyText1,
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              onPressed: () async {
-                await showCustomDatePicker(
-                  initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
-                  maxDate: DateTime.now(),
-                  mode: CupertinoDatePickerMode.date,
-                  context: context,
-                  isDismissible: true,
-                  listener: (sheetState) {
-                    if (sheetState.isHidden) {
-                      dateOfBirthErrorText = Validators.birthdayValidator(
-                        date: signUpNotifier.dateOfBirth,
-                      );
-                      validDate();
-                      setState(() {});
-                    }
-                  },
-                  onChanged: (date) {
-                    signUpNotifier.setDateOfBirth(value: date);
-                    dateOfBirthErrorText = Validators.birthdayValidator(
-                      date: date,
-                    );
-                    validDate();
-                  },
-                );
-              },
+              onPressed: showDatePicker,
             ),
             Validators().showValidationWidget(
+              context: context,
               errorText: dateOfBirthErrorText,
             )
           ],
@@ -239,12 +238,12 @@ class _DatePickerViewState extends State<DatePickerView> {
               : kGreyLight,
           child: Text(
             'Continue',
-            style: kFontBody.copyWith(
-              color: signUpNotifier.dateOfBirth != null &&
-                      signUpNotifier.dateOfBirthIsValid == true
-                  ? kWhite
-                  : kGrey,
-            ),
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  color: signUpNotifier.dateOfBirth != null &&
+                          signUpNotifier.dateOfBirthIsValid == true
+                      ? kWhite
+                      : kGrey,
+                ),
           ),
           onPressed: signUpNotifier.dateOfBirth != null &&
                   signUpNotifier.dateOfBirthIsValid == true

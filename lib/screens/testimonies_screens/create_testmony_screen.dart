@@ -95,11 +95,14 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
                     maxLines: 1,
                     focusedBorder: InputBorder.none,
                     validator: Validators.textValidator,
-                    style: kFontH6.copyWith(fontWeight: kFontWeightMedium),
-                    hintStyle: kFontH6.copyWith(
-                      fontWeight: kFontWeightMedium,
-                      color: kGrey,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6
+                        ?.copyWith(fontWeight: kFontWeightMedium),
+                    hintStyle: Theme.of(context).textTheme.headline6?.copyWith(
+                          fontWeight: kFontWeightMedium,
+                          color: kGrey,
+                        ),
                   ),
                 ),
                 Form(
@@ -126,9 +129,9 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
       leading: const CustomBackButton(),
       actions: [
         CustomElevatedButton(
-          child: const Text(
+          child: Text(
             'Create',
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onPressed: createTestimony,
         )

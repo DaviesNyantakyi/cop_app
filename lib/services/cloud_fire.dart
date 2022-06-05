@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cop_belgium_app/models/podcast_info_model.dart';
 import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
@@ -54,18 +57,25 @@ class CloudFire {
     }
   }
 
-  Stream<UserModel?> getUserStream() {
-    final docSnap = _firebaseFirestore
-        .collection('users')
-        .doc(_firebaseAuth.currentUser?.uid)
-        .snapshots();
+  Stream<UserModel?>? getUserStream() {
+    try {
+      final docSnap = _firebaseFirestore
+          .collection('users')
+          .doc(_firebaseAuth.currentUser?.uid)
+          .snapshots();
 
-    return docSnap.map((doc) {
-      if (doc.data() != null) {
-        return UserModel.fromMap(map: doc.data()!);
-      }
-      return null;
-    });
+      return docSnap.map((doc) {
+        if (doc.data() != null) {
+          return UserModel.fromMap(map: doc.data()!);
+        }
+        return null;
+      });
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
   }
 
   Future<void> updatePhotoURL({required String? photoURL}) async {
@@ -351,6 +361,35 @@ class CloudFire {
             .doc(testimonyModel.id)
             .delete();
         return true;
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  // Podcasts
+  Future<List<PodcastInfoModel>> getPodcastsFireStore() async {
+    // get the podcast rss link and page link from firestore.
+    try {
+      final hasConnection = await _connectionChecker.checkConnection();
+      if (hasConnection) {
+        QuerySnapshot<Map<String, dynamic>>? qSnap;
+
+        qSnap = await FirebaseFirestore.instance.collection('podcasts').get();
+
+        final listQDocSnap = qSnap.docs;
+
+        List<PodcastInfoModel> listPodRssInfo = listQDocSnap.map((doc) {
+          return PodcastInfoModel.fromMap(map: doc.data());
+        }).toList();
+
+        return listPodRssInfo;
       } else {
         throw ConnectionNotifier.connectionException;
       }

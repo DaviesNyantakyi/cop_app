@@ -1,15 +1,17 @@
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
+import 'package:cop_belgium_app/models/episodes_model.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 class EpisodeCard extends StatefulWidget {
-  const EpisodeCard({
-    Key? key,
-  }) : super(key: key);
+  final EpisodeModel episodeModel;
+  final VoidCallback onPressed;
+  const EpisodeCard(
+      {Key? key, required this.episodeModel, required this.onPressed})
+      : super(key: key);
 
   @override
   State<EpisodeCard> createState() => _EpisodeCardState();
@@ -36,7 +38,7 @@ class _EpisodeCardState extends State<EpisodeCard> {
                   ],
                 ),
               ),
-              onPressed: () {},
+              onPressed: widget.onPressed,
             ),
           ),
         );
@@ -55,7 +57,7 @@ class _EpisodeCardState extends State<EpisodeCard> {
       flex: 5,
       child: PodcastImage(
         width: size,
-        imageUrl: unsplash,
+        imageUrl: widget.episodeModel.imageURL,
       ),
     );
   }
@@ -68,17 +70,17 @@ class _EpisodeCardState extends State<EpisodeCard> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            paragrapgh,
-            style: kFontBody.copyWith(
-              fontWeight: kFontWeightMedium,
-            ),
+            widget.episodeModel.title,
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  fontWeight: kFontWeightMedium,
+                ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: kContentSpacing4),
-          const Text(
-            paragrapgh,
-            style: kFontBody2,
+          Text(
+            widget.episodeModel.description,
+            style: Theme.of(context).textTheme.bodyText2,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
@@ -86,17 +88,19 @@ class _EpisodeCardState extends State<EpisodeCard> {
             height: kContentSpacing20,
           ),
           Row(
-            children: const [
-              Icon(
+            children: [
+              const Icon(
                 Icons.schedule_rounded,
                 color: kBlack,
               ),
-              SizedBox(
+              const SizedBox(
                 width: kContentSpacing4,
               ),
               Text(
-                '23:00',
-                style: kFontBody2,
+                FormalDates.episodeDuration(
+                  duration: widget.episodeModel.duration,
+                ),
+                style: Theme.of(context).textTheme.bodyText2,
               )
             ],
           )

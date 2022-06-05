@@ -46,4 +46,18 @@ class FormalDates {
     }
     return null;
   }
+
+  static String episodeDuration({required Duration duration}) {
+    // formats the episode duration in hh:mm:ss
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final hours = twoDigits(duration.inHours);
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+
+    return [
+      if (duration.inHours > 0) hours,
+      minutes,
+      seconds,
+    ].join(':');
+  }
 }

@@ -1,5 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
+import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
@@ -8,6 +12,7 @@ import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({Key? key}) : super(key: key);
@@ -17,6 +22,22 @@ class MoreScreen extends StatefulWidget {
 }
 
 class _MoreScreenState extends State<MoreScreen> {
+  final firebaseAuth = FirebaseAuth.instance;
+
+  late SignUpNotifier signUpNotifier;
+  late final userStream = CloudFire().getUserStream();
+
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
+  void init() {
+    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    setState(() {});
+  }
+
   Future<void> logout() async {
     try {
       await FireAuth().signOut();
@@ -33,12 +54,24 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   void navigateToScreen({required Widget screen}) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => screen,
-      ),
-    );
+    if (firebaseAuth.currentUser?.isAnonymous == true) {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) => ChangeNotifierProvider<SignUpNotifier>.value(
+            value: signUpNotifier,
+            child: const WelcomeScreen(),
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) => screen,
+        ),
+      );
+    }
   }
 
   @override
@@ -84,9 +117,9 @@ class _MoreScreenState extends State<MoreScreen> {
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
-      title: const Text(
+      title: Text(
         'More',
-        style: kFontH6,
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }
@@ -103,7 +136,7 @@ class _MoreScreenState extends State<MoreScreen> {
         ),
         title: Text(
           title,
-          style: kFontBody,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         onTap: onTap,
       ),
@@ -111,7 +144,7 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildAvatar() {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = firebaseAuth.currentUser;
 
     ImageProvider<Object>? backgroundImage;
     Widget child = const Icon(
@@ -132,20 +165,34 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildUserInfo() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          FirebaseAuth.instance.currentUser?.displayName ?? '',
-          style: kFontBody,
-        ),
-        const SizedBox(height: kContentSpacing4),
-        const Text(
-          'churchName',
-          style: kFontBody2,
-        ),
-      ],
+    return StreamBuilder<UserModel?>(
+      stream: userStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                firebaseAuth.currentUser?.isAnonymous == true
+                    ? 'Sign In or Sign Up'
+                    : firebaseAuth.currentUser?.displayName ?? '',
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
+              firebaseAuth.currentUser?.isAnonymous == true
+                  ? Container()
+                  : const SizedBox(height: kContentSpacing4),
+              firebaseAuth.currentUser?.isAnonymous == true
+                  ? Container()
+                  : Text(
+                      snapshot.data?.church?['churchName'] ?? '',
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+            ],
+          );
+        }
+        return Container();
+      },
     );
   }
 
@@ -161,10 +208,7 @@ class _MoreScreenState extends State<MoreScreen> {
           ],
         ),
       ),
-      onTap: () async {
-        Navigator.push(context,
-            CupertinoPageRoute(builder: (context) => const ProfileScreen()));
-      },
+      onTap: () => navigateToScreen(screen: const ProfileScreen()),
     );
   }
 }
@@ -176,7 +220,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: _buildAppBar(),
+        appBar: _buildAppBar(context: context),
         body: SingleChildScrollView(
           child: Container(),
         ),
@@ -184,18 +228,18 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget? _buildAppBar() {
+  PreferredSizeWidget? _buildAppBar({required BuildContext context}) {
     return AppBar(
       leading: const CustomBackButton(),
-      title: const Text(
+      title: Text(
         'Profile',
-        style: kFontH6,
+        style: Theme.of(context).textTheme.headline6,
       ),
       actions: [
         CustomElevatedButton(
-          child: const Text(
+          child: Text(
             'Edit profile',
-            style: kFontBody,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           onPressed: () {},
         )

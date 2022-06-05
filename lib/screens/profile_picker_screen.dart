@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -9,7 +8,6 @@ import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:provider/provider.dart';
 
 class ProfilePickerScreen extends StatefulWidget {
   final VoidCallback? onSubmit;
@@ -37,7 +35,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
       EasyLoading.show();
 
       await FireStorage().uploadProfileImage(
-        image: myImagePicker.image,
+        image: myImagePicker.selectedImage,
       );
       await _firebaseAuth.currentUser?.reload();
     } on FirebaseException catch (e) {
@@ -78,9 +76,9 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
       final hasconnection = await ConnectionNotifier().checkConnection();
       if (hasconnection) {
         final delete = await myImagePicker.showBottomSheet(context: context);
-        if (myImagePicker.image != null && delete == false) {
+        if (myImagePicker.selectedImage != null && delete == false) {
           await uploadImage();
-          myImagePicker.image = null;
+          myImagePicker.selectedImage = null;
           setState(() {});
         }
         if (delete == true) {
@@ -131,16 +129,16 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
   }
 
   Text _headerText() {
-    return const Text(
+    return Text(
       'Add profile image',
-      style: kFontH5,
+      style: Theme.of(context).textTheme.headline5,
     );
   }
 
   Widget _buildAvatar() {
     ImageProvider? image;
     Widget icon = const Icon(
-      kAvatarIcon,
+      Icons.person_outline_rounded,
       color: kBlack,
       size: 50,
     );
@@ -182,7 +180,7 @@ class _ProfilePickerScreenState extends State<ProfilePickerScreen> {
       backgroundColor: kBlue,
       child: Text(
         'Done',
-        style: kFontBody.copyWith(color: kWhite),
+        style: Theme.of(context).textTheme.bodyText1?.copyWith(color: kWhite),
       ),
       onPressed: widget.onSubmit,
     );

@@ -36,7 +36,9 @@ class CustomElevatedButton extends StatelessWidget {
         style: ButtonStyle(
           minimumSize: MaterialStateProperty.all<Size?>(Size.zero),
           padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(padding),
-          textStyle: MaterialStateProperty.all<TextStyle?>(kFontBody),
+          textStyle: MaterialStateProperty.all<TextStyle?>(
+            Theme.of(context).textTheme.bodyText1,
+          ),
           shape: MaterialStateProperty.all<OutlinedBorder?>(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -137,7 +139,7 @@ class SocialRatingButton extends StatelessWidget {
               const SizedBox(width: kContentSpacing4),
               Text(
                 label,
-                style: kFontBody2,
+                style: Theme.of(context).textTheme.bodyText2,
               )
             ],
           ),

@@ -153,7 +153,7 @@ class _SignInScreenState extends State<SignInScreen> {
         if (screenInfo.screenSize.width < kScreenSizeMobile) {
           text = 'Sign in';
         }
-        return Text(text, style: kFontH5);
+        return Text(text, style: Theme.of(context).textTheme.headline5);
       },
     );
   }
@@ -227,12 +227,12 @@ class _SignInScreenState extends State<SignInScreen> {
           width: double.infinity,
           child: Text(
             'Sign in',
-            style: kFontBody.copyWith(
-              fontWeight: FontWeight.bold,
-              color: emailFormIsValid == true && passwordFormIsValid == true
-                  ? kWhite
-                  : kGrey,
-            ),
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: emailFormIsValid == true && passwordFormIsValid == true
+                      ? kWhite
+                      : kGrey,
+                ),
           ),
           onPressed: emailFormIsValid == true && passwordFormIsValid == true
               ? onSubmit
@@ -246,9 +246,9 @@ class _SignInScreenState extends State<SignInScreen> {
     return Center(
       child: CustomElevatedButton(
         height: null,
-        child: const Text(
+        child: Text(
           'Forgot password?',
-          style: kFontBody,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         onPressed: forgotPassword,
       ),

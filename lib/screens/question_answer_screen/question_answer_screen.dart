@@ -97,9 +97,9 @@ class _QuestionAnswerScreenState extends State<QuestionAnswerScreen> {
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
-      title: const Text(
+      title: Text(
         'Q&A',
-        style: kFontH6,
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }

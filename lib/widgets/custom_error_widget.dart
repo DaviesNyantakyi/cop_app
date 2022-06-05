@@ -18,13 +18,13 @@ class CustomErrorWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Something went wrong,',
-                style: kFontH6,
+                style: Theme.of(context).textTheme.headline6,
               ),
-              const Text(
+              Text(
                 'please try again.',
-                style: kFontH6,
+                style: Theme.of(context).textTheme.headline6,
               ),
               const SizedBox(height: kContentSpacing24),
               CustomElevatedButton(
@@ -33,7 +33,10 @@ class CustomErrorWidget extends StatelessWidget {
                 backgroundColor: kBlue,
                 child: Text(
                   'Try again',
-                  style: kFontBody.copyWith(color: kWhite),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(color: kWhite),
                 ),
                 onPressed: onPressed,
               )

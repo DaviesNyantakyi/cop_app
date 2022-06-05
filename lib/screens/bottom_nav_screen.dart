@@ -1,26 +1,23 @@
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/screens/question_answer_screen/question_answer_screen.dart';
+import 'package:cop_belgium_app/screens/video_player_screen/videos_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class BottomNavigationScreen extends StatefulWidget {
+  const BottomNavigationScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _BottomNavigationScreenState createState() => _BottomNavigationScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
     const PodcastScreen(),
-    const Scaffold(
-      body: Center(
-        child: Text('Videos'),
-      ),
-    ),
+    const VideosScreen(),
     const QuestionAnswerScreen(),
     const MoreScreen(),
   ];
@@ -32,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _screens[_selectedIndex],
       ),
       bottomNavigationBar: _buildBottomNavBar(
+        context: context,
         index: _selectedIndex,
         onTap: (value) {
           if (mounted) {
@@ -45,17 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-Widget _buildBottomNavBar({Function(int)? onTap, required int index}) {
+Widget _buildBottomNavBar({
+  Function(int)? onTap,
+  required int index,
+  required BuildContext context,
+}) {
+  final caption = Theme.of(context).textTheme.caption?.fontSize ?? 14.0;
+  final bodyText2 = Theme.of(context).textTheme.bodyText2;
+
   return BottomNavigationBar(
     backgroundColor: Colors.white,
     selectedItemColor: kBlue,
     unselectedItemColor: kBlack,
-    selectedFontSize: kFontCaption.fontSize ??
-        14.0, // if not set to 0 bottom nav exception bug
-    unselectedFontSize: kFontCaption.fontSize ??
-        14.0, // if not set to 0 bottom nav exception bug
-    selectedLabelStyle: kFontBody2,
-
+    selectedFontSize: caption, // if not set to 0 bottom nav exception bug
+    unselectedFontSize: caption, // if not set to 0 bottom nav exception bug
+    selectedLabelStyle: bodyText2,
+    unselectedLabelStyle: bodyText2,
     currentIndex: index,
     type: BottomNavigationBarType.fixed,
     onTap: onTap,
