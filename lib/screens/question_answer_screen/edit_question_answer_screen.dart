@@ -5,7 +5,7 @@ import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
-import 'package:cop_belgium_app/widgets/textfield.dart';
+import 'package:cop_belgium_app/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';

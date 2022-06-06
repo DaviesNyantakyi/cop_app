@@ -33,7 +33,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   Duration _totalDuration = Duration.zero;
   Duration _currentPosition = Duration.zero;
 
-  final Duration _skipDuration = const Duration(seconds: 3);
+  final Duration _skipDuration = const Duration(seconds: 30);
 
   bool get isPlaying => _isPlaying;
   MediaItem? get currentMediaItem => _curreMediaItem;
@@ -55,8 +55,9 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
 
       await _setMediaItem(item: item);
 
-      _getCurrentPosition();
-      _audioState();
+      _postionStream();
+      _playingStream();
+      _playerStateStream();
 
       await play();
 
@@ -179,7 +180,6 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
     super.seek(newPosition);
   }
 
-  // rewind 30 sec.
   @override
   Future<void> rewind() async {
     // get the disired position
@@ -192,13 +192,13 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   }
 
   //Listen to the just_audio player stream and update the Ui and notication.
-  void _audioState() {
+  void _playerStateStream() {
     _justAudio.playerStateStream.listen((state) {
       // playerStateStream listens to the current state of the button and the audio.
 
       // Listen to the state of the button when pressed this is either true or false.
 
-      // Also listen to the current state of the audio (ProcessingState).
+      // Also listen to the current ProcessingState of the audio.
       // This can be idle, loading, buffering, ready, completed.
 
       _isPlaying = state.playing; // Change the play and pause icon.
@@ -228,8 +228,15 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
     });
   }
 
+  void _playingStream() {
+    _justAudio.playingStream.listen((playing) {
+      _isPlaying = playing;
+      notifyListeners();
+    });
+  }
+
   // Listen to the audio position and set he current postistion.
-  void _getCurrentPosition() {
+  void _postionStream() {
     _justAudio.positionStream.listen((Duration duration) {
       _currentPosition = duration;
 

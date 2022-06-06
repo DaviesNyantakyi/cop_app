@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:cop_belgium_app/models/episodes_model.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -28,7 +27,6 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
   final popupMenuKey = GlobalKey<PopupMenuButtonState>();
 
   late final AudioPlayerNotifier audioPlayerNotifier;
-  late final EpisodeModel episodeModel;
 
   @override
   void initState() {
@@ -37,21 +35,15 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
   }
 
   Future<void> init() async {
-    episodeModel = Provider.of<EpisodeModel>(context, listen: false);
+    MediaItem chosenMediaItem = Provider.of<MediaItem>(context, listen: false);
     audioPlayerNotifier = Provider.of<AudioPlayerNotifier>(
       context,
       listen: false,
     );
 
-    final mediaItem = MediaItem(
-      id: episodeModel.audioURL,
-      title: episodeModel.title,
-      duration: episodeModel.duration,
-      artUri: Uri.parse(episodeModel.imageURL),
-      artist: episodeModel.author,
-    );
-
-    await audioPlayerNotifier.init(item: mediaItem);
+    if (audioPlayerNotifier.currentMediaItem?.id != chosenMediaItem.id) {
+      await audioPlayerNotifier.init(item: chosenMediaItem);
+    }
   }
 
   void showEpisodeInfo() {
@@ -61,17 +53,17 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            episodeModel.title,
+            audioPlayerNotifier.currentMediaItem?.title ?? '',
             style: Theme.of(context).textTheme.headline6,
           ),
           const SizedBox(height: kContentSpacing4),
           Text(
-            episodeModel.author,
+            audioPlayerNotifier.currentMediaItem?.artist ?? '',
             style: Theme.of(context).textTheme.bodyText2,
           ),
           const SizedBox(height: kContentSpacing24),
           Text(
-            episodeModel.description,
+            audioPlayerNotifier.currentMediaItem?.displayDescription ?? '',
             style: Theme.of(context).textTheme.bodyText1,
           ),
         ],
@@ -124,10 +116,10 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
   }
 
   Widget _buildImage() {
-    return Consumer<EpisodeModel>(
-      builder: (context, episodeModel, _) {
+    return Consumer<MediaItem>(
+      builder: (context, mediaItem, _) {
         return PodcastImage(
-          imageUrl: episodeModel.imageURL,
+          imageUrl: mediaItem.artUri.toString(),
           width: 320,
           height: 320,
         );
@@ -136,20 +128,25 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
   }
 
   Widget _buildTitle() {
-    return Consumer2<EpisodeModel, AudioPlayerNotifier>(
-      builder: (context, episodeModel, audioPlayerNotifier, _) {
+    return Consumer2<MediaItem, AudioPlayerNotifier>(
+      builder: (context, mediaItem, audioPlayerNotifier, _) {
+        String author = mediaItem.artist ?? '';
+        if (audioPlayerNotifier.playState == ProcessingState.buffering) {
+          author = 'Buffering...';
+        }
+        if (audioPlayerNotifier.playState == ProcessingState.loading) {
+          author = 'Loading...';
+        }
         return Column(
           children: [
             Text(
-              episodeModel.title,
+              mediaItem.title,
               style: Theme.of(context).textTheme.headline6,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: kContentSpacing4),
+            const SizedBox(height: kContentSpacing8),
             Text(
-              audioPlayerNotifier.playState == ProcessingState.buffering
-                  ? 'Buffering...'
-                  : episodeModel.author,
+              author,
               style: Theme.of(context).textTheme.bodyText2,
             ),
           ],
@@ -209,41 +206,6 @@ class _PlaybackControls extends StatefulWidget {
 }
 
 class _PlaybackControlsState extends State<_PlaybackControls> {
-  late final AudioPlayerNotifier audioPlayerNotifier;
-
-  bool isPlaying = false;
-
-  final popupMenuKey = GlobalKey<PopupMenuButtonState>();
-
-  double selectedPlaybackSpeed = 1.0;
-
-  List<double> playBackOptions = [0.5, 1.0, 1.5, 2.0, 2.5];
-
-  @override
-  void initState() {
-    audioPlayerNotifier = Provider.of<AudioPlayerNotifier>(
-      context,
-      listen: false,
-    );
-    super.initState();
-  }
-
-  Future<void> play() async {
-    if (audioPlayerNotifier.isPlaying == false) {
-      await audioPlayerNotifier.play();
-    } else {
-      await audioPlayerNotifier.pause();
-    }
-  }
-
-  Future<void> fastRewind() async {
-    await audioPlayerNotifier.rewind();
-  }
-
-  Future<void> fastFoward() async {
-    await audioPlayerNotifier.fastForward();
-  }
-
   // final double _iconSize = 32;
   @override
   Widget build(BuildContext context) {
@@ -264,16 +226,22 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
   }
 
   Widget _buildRewindButton() {
-    return Flexible(
-      child: CustomElevatedButton(
-        padding: EdgeInsets.zero,
-        child: const Icon(
-          Icons.replay_30_rounded,
-          size: _iconSize,
-          color: kBlack,
-        ),
-        onPressed: fastRewind,
-      ),
+    return Consumer<AudioPlayerNotifier>(
+      builder: (context, audioPlayerNotifier, _) {
+        return Flexible(
+          child: CustomElevatedButton(
+            padding: EdgeInsets.zero,
+            child: const Icon(
+              Icons.replay_30_rounded,
+              size: _iconSize,
+              color: kBlack,
+            ),
+            onPressed: () async {
+              await audioPlayerNotifier.rewind();
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -291,21 +259,33 @@ class _PlaybackControlsState extends State<_PlaybackControls> {
               color: kBlue,
             ),
           ),
-          onPressed: play,
+          onPressed: () async {
+            if (audioPlayerNotifier.isPlaying == false) {
+              await audioPlayerNotifier.play();
+            } else {
+              await audioPlayerNotifier.pause();
+            }
+          },
         );
       },
     );
   }
 
   Widget _buildFastFowardButton() {
-    return CustomElevatedButton(
-      padding: EdgeInsets.zero,
-      child: const Icon(
-        Icons.forward_30_rounded,
-        size: _iconSize,
-        color: kBlack,
-      ),
-      onPressed: fastFoward,
+    return Consumer<AudioPlayerNotifier>(
+      builder: (context, audioPlayerNotifier, _) {
+        return CustomElevatedButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(
+            Icons.forward_30_rounded,
+            size: _iconSize,
+            color: kBlack,
+          ),
+          onPressed: () async {
+            await audioPlayerNotifier.fastForward();
+          },
+        );
+      },
     );
   }
 }

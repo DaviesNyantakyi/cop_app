@@ -67,7 +67,7 @@ class PodcastService {
         );
       }
       return EpisodeModel(
-        id: rssItem.enclosure?.url ?? _uuid.v4(),
+        id: rssItem.enclosure!.url!,
         title: rssItem.itunes?.title ?? rssItem.title ?? '',
         author: rssFeed.author ?? rssFeed.itunes?.author ?? '',
         imageURL: rssFeed.itunes?.image?.href ?? rssFeed.image?.url ?? '',
@@ -79,7 +79,7 @@ class PodcastService {
     }).toList();
 
     return PodcastModel(
-      id: '',
+      id: _uuid.v4(),
       pageURL: rssFeed.link ?? '',
       imageURL: rssFeed.image?.url ?? rssFeed.itunes?.image?.href ?? 'S',
       title: rssFeed.itunes?.title ?? rssFeed.title ?? '',

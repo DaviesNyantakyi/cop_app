@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:cop_belgium_app/models/episodes_model.dart';
 import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
@@ -24,12 +25,22 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
   void showPlayerScreen({required EpisodeModel episodeModel}) {
     final audioPlayerNotifier =
         Provider.of<AudioPlayerNotifier>(context, listen: false);
+
+    final MediaItem mediaItem = MediaItem(
+      id: episodeModel.id,
+      title: episodeModel.title,
+      duration: episodeModel.duration,
+      artUri: Uri.parse(episodeModel.imageURL),
+      artist: episodeModel.author,
+      displayDescription: episodeModel.description,
+    );
+
     showCustomBottomSheet(
       context: context,
       child: MultiProvider(
         providers: [
-          Provider<EpisodeModel>.value(
-            value: episodeModel,
+          Provider<MediaItem>.value(
+            value: mediaItem,
           ),
           ChangeNotifierProvider<AudioPlayerNotifier>.value(
             value: audioPlayerNotifier,

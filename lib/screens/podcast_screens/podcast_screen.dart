@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
@@ -12,6 +13,7 @@ import 'package:cop_belgium_app/utilities/greeting.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
+import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,15 +33,30 @@ class _PodcastScreenState extends State<PodcastScreen> {
   late final Future<PodcastModel?> getPodcasts;
 
   void showPlayerScreen() {
+    AudioPlayerNotifier audioPlayerNotifier = Provider.of<AudioPlayerNotifier>(
+      context,
+      listen: false,
+    );
     showCustomBottomSheet(
       context: context,
-      child: const PodcastPlayerScreen(),
+      child: MultiProvider(
+        providers: [
+          Provider<MediaItem>.value(
+            value: audioPlayerNotifier.currentMediaItem!,
+          ),
+          ChangeNotifierProvider<AudioPlayerNotifier>.value(
+            value: audioPlayerNotifier,
+          ),
+        ],
+        child: const PodcastPlayerScreen(),
+      ),
     );
   }
 
   @override
   void initState() {
     getPodcasts = podcastNotifier.getPodcasts(context: context);
+
     setState(() {});
     super.initState();
   }
@@ -78,15 +95,23 @@ class _PodcastScreenState extends State<PodcastScreen> {
         style: Theme.of(context).textTheme.headline6,
       ),
       actions: [
-        CustomElevatedButton(
-          splashColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
-          child: Image.asset(
-            'assets/images/playing_wave.gif',
-            width: 32,
-          ),
-          onPressed: showPlayerScreen,
-        ),
+        Consumer<AudioPlayerNotifier>(
+          builder: (context, audioPlayerNotifier, _) {
+            if (audioPlayerNotifier.currentMediaItem == null) {
+              return Container();
+            }
+            return CustomElevatedButton(
+              splashColor: Colors.transparent,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+              child: Image.asset(
+                'assets/images/playing_wave.gif',
+                width: 32,
+              ),
+              onPressed: showPlayerScreen,
+            );
+          },
+        )
       ],
     );
   }
@@ -138,6 +163,14 @@ class _PodcastScreenState extends State<PodcastScreen> {
               isLoading = true;
             } else {
               isLoading = false;
+            }
+
+            if (snapshot.hasError) {
+              return CustomErrorWidget(
+                onPressed: () async {
+                  setState(() {});
+                },
+              );
             }
 
             return Skeleton(
