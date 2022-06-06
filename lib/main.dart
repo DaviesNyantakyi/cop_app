@@ -12,6 +12,9 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 late AudioPlayerNotifier _audioPlayerNotifier;
 
+const String unsplash =
+    'https://images.unsplash.com/photo-1654447398834-4168622aab14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxOHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60';
+
 Future<void> main() async {
   await _init();
   runApp(const MyApp());
@@ -141,7 +144,7 @@ ThemeData _theme({required BuildContext context}) {
       inactiveTrackColor: kGreyLight,
       trackHeight: 4,
       overlayColor: kBlue.withOpacity(0.1),
-      trackShape: CustomTrackShape(),
+      trackShape: CustomSliderTrackShape(),
     ),
   );
 }

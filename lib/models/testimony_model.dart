@@ -31,7 +31,7 @@ class TestimonyModel {
     };
   }
 
-  factory TestimonyModel.fromMap(Map<String, dynamic> map) {
+  factory TestimonyModel.fromMap({required Map<String, dynamic> map}) {
     return TestimonyModel(
       id: map['id'],
       uid: map['uid'],

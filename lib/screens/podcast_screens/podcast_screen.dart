@@ -38,6 +38,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
       listen: false,
     );
     showCustomBottomSheet(
+      height: MediaQuery.of(context).size.height * 0.85,
       context: context,
       child: MultiProvider(
         providers: [
@@ -97,15 +98,22 @@ class _PodcastScreenState extends State<PodcastScreen> {
       actions: [
         Consumer<AudioPlayerNotifier>(
           builder: (context, audioPlayerNotifier, _) {
+            String image;
             if (audioPlayerNotifier.currentMediaItem == null) {
               return Container();
+            }
+            if (audioPlayerNotifier.isPlaying == false &&
+                audioPlayerNotifier.currentMediaItem != null) {
+              image = 'assets/images/audio_wave_static.png';
+            } else {
+              image = 'assets/images/audio_wave_playing.gif';
             }
             return CustomElevatedButton(
               splashColor: Colors.transparent,
               padding:
                   const EdgeInsets.symmetric(horizontal: kContentSpacing16),
               child: Image.asset(
-                'assets/images/playing_wave.gif',
+                image,
                 width: 32,
               ),
               onPressed: showPlayerScreen,

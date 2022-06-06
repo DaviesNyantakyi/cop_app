@@ -3,6 +3,7 @@ import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/create_testmony_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/edit_testimony_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/widgets/testimony_content.dart';
+import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/dialog.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -147,9 +148,19 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
   Widget _buildSocialCard({required TestimonyModel testimonyModel}) {
     return SocialCard(
       socialAvatar: SocialAvatar(
-        createdAt: testimonyModel.createdAt,
-        uid: testimonyModel.uid,
-        displayName: testimonyModel.displayName ?? '',
+        headerText: Text(
+          testimonyModel.displayName ?? '',
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        subheaderText: Text(
+          FormalDates.timeAgo(
+                date: DateTime.fromMillisecondsSinceEpoch(
+                  testimonyModel.createdAt.millisecondsSinceEpoch,
+                ),
+              ) ??
+              '',
+          style: Theme.of(context).textTheme.caption,
+        ),
       ),
       content: TestimonyContent(testimony: testimonyModel),
       menuItems: testimonyModel.uid != _firebaseAuth.currentUser?.uid

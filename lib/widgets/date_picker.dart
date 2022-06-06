@@ -10,6 +10,7 @@ Future<void> showCustomDatePicker({
   required BuildContext context,
   required Function(DateTime) onChanged,
   bool isDismissible = false,
+  double? height,
   DateTime? maxDate,
 }) async {
   FocusScope.of(context).requestFocus(FocusNode());
@@ -17,6 +18,7 @@ Future<void> showCustomDatePicker({
   showCustomBottomSheet(
     isDismissible: isDismissible,
     context: context,
+    height: height,
     child: IntrinsicHeight(
       child: Column(
         mainAxisSize: MainAxisSize.min,

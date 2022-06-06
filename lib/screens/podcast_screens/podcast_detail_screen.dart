@@ -36,6 +36,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
     );
 
     showCustomBottomSheet(
+      height: MediaQuery.of(context).size.height * 0.85,
       context: context,
       child: MultiProvider(
         providers: [

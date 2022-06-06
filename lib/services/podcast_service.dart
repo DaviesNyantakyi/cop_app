@@ -21,11 +21,10 @@ class PodcastService {
   Future<PodcastModel?> getPodcasts({required BuildContext context}) async {
     try {
       // Get podcasts with rssLinks from firestore
-      List<PodcastInfoModel> podcastInfoModel =
-          await cloudFire.getPodcastsFireStore();
+      List<PodcastInfoModel> podcasts = await cloudFire.getPodcastsFireStore();
 
-      // Make http call for and create podcast and add it to the list.
-      for (var podcastInfo in podcastInfoModel) {
+      // Make http call for each podcast in the list.
+      for (var podcastInfo in podcasts) {
         final response = await Dio().getUri(Uri.parse(podcastInfo.rssFeed));
         if (response.statusCode == 200) {
           final rssFeed = RssFeed.parse(response.data);

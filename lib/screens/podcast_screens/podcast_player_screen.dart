@@ -48,6 +48,7 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
 
   void showEpisodeInfo() {
     showCustomBottomSheet(
+      height: MediaQuery.of(context).size.height * 0.85,
       context: context,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,17 +74,18 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildHeader(),
-        const SizedBox(height: kContentSpacing32),
-        _buildImage(),
-        const SizedBox(height: kContentSpacing16),
-        _buildTitle(),
-        _buildSlider(),
-        const _PlaybackControls()
-      ],
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          const SizedBox(height: kContentSpacing32),
+          _buildImage(),
+          const SizedBox(height: kContentSpacing16),
+          _buildTitle(),
+          _buildSlider(),
+          const _PlaybackControls()
+        ],
+      ),
     );
   }
 

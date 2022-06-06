@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/podcast_info_model.dart';
+import 'package:cop_belgium_app/models/teaching_clip_model.dart';
 import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
@@ -76,6 +77,21 @@ class CloudFire {
       debugPrint(e.toString());
     }
     return null;
+  }
+
+  Stream<List<TeachingClipModel>> getTeachingClips() {
+    try {
+      final qSnap = _firebaseFirestore.collection('teaching_clips').snapshots();
+
+      return qSnap.map((qSnap) {
+        return qSnap.docs.map((e) {
+          return TeachingClipModel.fromMap(map: e.data());
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
   }
 
   Future<void> updatePhotoURL({required String? photoURL}) async {
@@ -314,7 +330,7 @@ class CloudFire {
 
       return qSnap.map((qSnap) {
         return qSnap.docs.map((e) {
-          return TestimonyModel.fromMap(e.data());
+          return TestimonyModel.fromMap(map: e.data());
         }).toList();
       });
     } catch (e) {

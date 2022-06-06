@@ -25,9 +25,9 @@ Future<dynamic> showCustomBottomSheet({
     ),
     context: context,
     builder: (context) {
-      return SizedBox(
-        height: height ?? MediaQuery.of(context).size.height * 0.85,
-        child: SafeArea(
+      return SafeArea(
+        child: SizedBox(
+          height: height,
           child: Padding(
             padding: const EdgeInsets.all(kContentSpacing16),
             child: Material(

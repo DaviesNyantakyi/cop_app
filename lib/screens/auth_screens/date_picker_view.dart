@@ -80,6 +80,7 @@ class _DatePickerViewState extends State<DatePickerView> {
 
   Future<void> showDatePicker() async {
     await showCustomDatePicker(
+      height: null,
       initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
       maxDate: DateTime.now(),
       mode: CupertinoDatePickerMode.date,

@@ -1,7 +1,7 @@
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/screens/question_answer_screen/question_answer_screen.dart';
-import 'package:cop_belgium_app/screens/video_player_screen/videos_screen.dart';
+import 'package:cop_belgium_app/screens/teaching_clips_screens/teaching_clips_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +17,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
 
   final List<Widget> _screens = [
     const PodcastScreen(),
-    const VideosScreen(),
+    const TeachingClipScreen(),
     const QuestionAnswerScreen(),
     const MoreScreen(),
   ];

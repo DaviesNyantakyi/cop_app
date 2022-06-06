@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTrackShape extends RoundedRectSliderTrackShape {
+class CustomSliderTrackShape extends RoundedRectSliderTrackShape {
   //From StackOverFlow
   @override
   Rect getPreferredRect({
