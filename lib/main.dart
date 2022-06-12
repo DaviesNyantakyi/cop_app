@@ -79,7 +79,7 @@ ThemeData _theme({required BuildContext context}) {
     ),
     appBarTheme: AppBarTheme(
       elevation: 2,
-      shadowColor: kShadowCOlor,
+      shadowColor: customBoxShadow.color,
       iconTheme: const IconThemeData(
         size: kIconSize,
         color: kBlack,
@@ -88,10 +88,10 @@ ThemeData _theme({required BuildContext context}) {
       titleTextStyle: Theme.of(context).textTheme.headline6,
     ),
     snackBarTheme: const SnackBarThemeData(elevation: kElevation),
-    cardTheme: const CardTheme(
+    cardTheme: CardTheme(
       elevation: 3,
-      shadowColor: kShadowCOlor,
-      shape: RoundedRectangleBorder(
+      shadowColor: customBoxShadow.color,
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(kRadius),
         ),

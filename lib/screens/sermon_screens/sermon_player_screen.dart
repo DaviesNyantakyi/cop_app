@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 
 import 'package:flutter/material.dart';
@@ -14,16 +14,16 @@ import 'package:provider/provider.dart';
 
 const double _iconSize = 32;
 
-class PodcastPlayerScreen extends StatefulWidget {
-  const PodcastPlayerScreen({
+class SermonPlayerScreen extends StatefulWidget {
+  const SermonPlayerScreen({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<PodcastPlayerScreen> createState() => _PodcastPlayerScreenState();
+  State<SermonPlayerScreen> createState() => _SermonPlayerScreenState();
 }
 
-class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
+class _SermonPlayerScreenState extends State<SermonPlayerScreen> {
   final popupMenuKey = GlobalKey<PopupMenuButtonState>();
 
   late final AudioPlayerNotifier audioPlayerNotifier;
@@ -62,7 +62,7 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
             audioPlayerNotifier.currentMediaItem?.artist ?? '',
             style: Theme.of(context).textTheme.bodyText2,
           ),
-          const SizedBox(height: kContentSpacing24),
+          const SizedBox(height: kContentSpacing20),
           Text(
             audioPlayerNotifier.currentMediaItem?.displayDescription ?? '',
             style: Theme.of(context).textTheme.bodyText1,
@@ -120,7 +120,7 @@ class _PodcastPlayerScreenState extends State<PodcastPlayerScreen> {
   Widget _buildImage() {
     return Consumer<MediaItem>(
       builder: (context, mediaItem, _) {
-        return PodcastImage(
+        return SermonImage(
           imageUrl: mediaItem.artUri.toString(),
           width: 320,
           height: 320,

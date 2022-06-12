@@ -26,36 +26,37 @@ class EditTestimonyScreen extends StatefulWidget {
 
 class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
   TextEditingController? titleCntlr;
-  TextEditingController? testimonyCntlr;
+  TextEditingController? descriptionCntlr;
 
   final titleKey = GlobalKey<FormState>();
-  final testimonyKey = GlobalKey<FormState>();
+  final descriptionKey = GlobalKey<FormState>();
 
   final user = FirebaseAuth.instance.currentUser;
 
   Future<void> updateTestimony() async {
     try {
       if (widget.testimonyModel.title.trim() == titleCntlr?.text.trim() &&
-          widget.testimonyModel.testimony.trim() ==
-              testimonyCntlr?.text.trim()) {
+          widget.testimonyModel.description.trim() ==
+              descriptionCntlr?.text.trim()) {
         Navigator.pop(context);
         return;
       }
       final validTitleForm = titleKey.currentState?.validate();
-      final validTestimonyForm = testimonyKey.currentState?.validate();
+      final validTestimonyForm = descriptionKey.currentState?.validate();
 
       if (validTitleForm == true && validTestimonyForm == true) {
         TestimonyModel testimonyModel = widget.testimonyModel.copyWith(
           title: titleCntlr!.text.trim(),
-          testimony: testimonyCntlr!.text.trim(),
+          description: descriptionCntlr!.text.trim(),
         );
 
         EasyLoading.show();
-        await CloudFire().updateTestimony(
+        final result = await CloudFire().updateTestimony(
           testimony: testimonyModel,
         );
-
-        Navigator.pop(context);
+        if (result == true) {
+          Navigator.pop(context);
+        }
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
@@ -76,8 +77,8 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
     titleCntlr = TextEditingController(
       text: widget.testimonyModel.title,
     );
-    testimonyCntlr = TextEditingController(
-      text: widget.testimonyModel.testimony,
+    descriptionCntlr = TextEditingController(
+      text: widget.testimonyModel.description,
     );
 
     if (mounted) {
@@ -112,17 +113,17 @@ class _EditTestimonyScreenState extends State<EditTestimonyScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .headline6
-                        ?.copyWith(fontWeight: kFontWeightMedium),
+                        ?.copyWith(fontWeight: FontWeight.w500),
                     hintStyle: Theme.of(context).textTheme.headline6?.copyWith(
-                          fontWeight: kFontWeightMedium,
+                          fontWeight: FontWeight.w500,
                           color: kGrey,
                         ),
                   ),
                 ),
                 Form(
-                  key: testimonyKey,
+                  key: descriptionKey,
                   child: CustomTextFormField(
-                    controller: testimonyCntlr,
+                    controller: descriptionCntlr,
                     hintText: 'What\'s your story?',
                     validator: Validators.textValidator,
                     border: InputBorder.none,

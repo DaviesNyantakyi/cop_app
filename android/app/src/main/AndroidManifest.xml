@@ -48,17 +48,19 @@
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
 
         <!-- Audio Service Package -->
-        <service android:name="com.ryanheise.audioservice.AudioService">
+        <service android:name="com.ryanheise.audioservice.AudioService"
+            android:exported="true">
           <intent-filter>
             <action android:name="android.media.browse.MediaBrowserService" />
           </intent-filter>
         </service>
         <!-- Audio Service Package -->
-        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver" >
+        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+            android:exported="true">
           <intent-filter>
             <action android:name="android.intent.action.MEDIA_BUTTON" />
           </intent-filter>
-        </receiver>
+        </receiver> 
 
         <meta-data
             android:name="flutterEmbedding"

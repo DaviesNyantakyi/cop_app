@@ -2,33 +2,36 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcasts_skeleton.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/sermon_detail_screen.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/sermon_player_screen.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_card.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_screen_skeleton.dart';
 import 'package:cop_belgium_app/services/podcast_service.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_detail_screen.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_card.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/greeting.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:skeletons/skeletons.dart';
 
-class PodcastScreen extends StatefulWidget {
-  const PodcastScreen({Key? key}) : super(key: key);
+class SermonsScreen extends StatefulWidget {
+  const SermonsScreen({Key? key}) : super(key: key);
 
   @override
-  State<PodcastScreen> createState() => _PodcastScreenState();
+  State<SermonsScreen> createState() => _SermonsScreenState();
 }
 
-class _PodcastScreenState extends State<PodcastScreen> {
-  late final userStream = CloudFire().getUserStream();
+class _SermonsScreenState extends State<SermonsScreen> {
+  late final userStream = CloudFire().getUserStream(
+    uid: FirebaseAuth.instance.currentUser!.uid,
+  );
   PodcastService podcastNotifier = PodcastService();
   late final Future<PodcastModel?> getPodcasts;
 
@@ -49,7 +52,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
             value: audioPlayerNotifier,
           ),
         ],
-        child: const PodcastPlayerScreen(),
+        child: const SermonPlayerScreen(),
       ),
     );
   }
@@ -92,7 +95,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
       title: Text(
-        'Podcasts',
+        'Sermons',
         style: Theme.of(context).textTheme.headline6,
       ),
       actions: [
@@ -183,7 +186,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
 
             return Skeleton(
               isLoading: isLoading,
-              skeleton: const PodcastSkeleton(),
+              skeleton: const SermonScreenSkeleton(),
               child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -194,7 +197,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
                   crossAxisSpacing: gradSpacing(screenInfo),
                 ),
                 itemBuilder: (context, index) {
-                  return PodcastCard(
+                  return SermonCard(
                     title: podcastNotifier.podcasts[index].title,
                     imageUrl: podcastNotifier.podcasts[index].imageURL,
                     onPressed: () {
@@ -215,7 +218,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
                                 value: audioPlayerNotifier,
                               ),
                             ],
-                            child: const PodcastDetailScreen(),
+                            child: const SermonDetailScreen(),
                           ),
                         ),
                       );

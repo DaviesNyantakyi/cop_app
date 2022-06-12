@@ -1,86 +1,79 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/question_answer_model.dart';
-
+import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
+import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-class EditQuestionAnswerScreen extends StatefulWidget {
-  final QuestionAnswerModel questionModel;
-  const EditQuestionAnswerScreen({
-    Key? key,
-    required this.questionModel,
-  }) : super(key: key);
+class CreateQuestionAnswerScreen extends StatefulWidget {
+  const CreateQuestionAnswerScreen({Key? key}) : super(key: key);
 
   @override
-  State<EditQuestionAnswerScreen> createState() =>
-      _EditQuestionAnswerScreenState();
+  State<CreateQuestionAnswerScreen> createState() =>
+      _CreateQuestionAnswerScreenState();
 }
 
-class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
-  TextEditingController? titleCntlr;
-  TextEditingController? testimonyCntlr;
+class _CreateQuestionAnswerScreenState
+    extends State<CreateQuestionAnswerScreen> {
+  TextEditingController titleCntlr = TextEditingController();
+  TextEditingController descriptionCntlr = TextEditingController();
 
   final titleKey = GlobalKey<FormState>();
-  final testimonyKey = GlobalKey<FormState>();
+  final descriptionKey = GlobalKey<FormState>();
 
   final user = FirebaseAuth.instance.currentUser;
 
-  // Future<void> updateTestimony() async {
-  //   try {
-  //     if (widget.questionModel.title.trim() == titleCntlr?.text.trim() &&
-  //         widget.questionModel.testimony.trim() ==
-  //             testimonyCntlr?.text.trim()) {
-  //       Navigator.pop(context);
-  //       return;
-  //     }
-  //     final validTitleForm = titleKey.currentState?.validate();
-  //     final validTestimonyForm = testimonyKey.currentState?.validate();
+  Future<void> createQuestion() async {
+    try {
+      final validTitleForm = titleKey.currentState?.validate();
+      final validTestimonyForm = descriptionKey.currentState?.validate();
 
-  //     if (validTitleForm == true && validTestimonyForm == true) {
-  //       TestimonyModel testimonyModel = widget.questionModel.copyWith(
-  //         title: titleCntlr!.text.trim(),
-  //         testimony: testimonyCntlr!.text.trim(),
-  //       );
+      if (validTitleForm == true &&
+          validTestimonyForm == true &&
+          titleCntlr.text.isNotEmpty &&
+          descriptionCntlr.text.isNotEmpty &&
+          user != null &&
+          user?.uid != null) {
+        QuestionAnswerModel questionAnswerModel = QuestionAnswerModel(
+          userId: user!.uid,
+          title: titleCntlr.text,
+          displayName: user?.displayName,
+          description: descriptionCntlr.text,
+          createdAt: Timestamp.fromDate(DateTime.now()),
+        );
 
-  //       EasyLoading.show();
-  //       await CloudFire().updateTestimony(
-  //         testimony: testimonyModel,
-  //       );
-
-  //       Navigator.pop(context);
-  //     }
-  //   } on FirebaseException catch (e) {
-  //     kShowSnackbar(
-  //       context: context,
-  //       type: SnackBarType.error,
-  //       message: e.message ?? '',
-  //     );
-  //     debugPrint(e.toString());
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //   } finally {
-  //     EasyLoading.dismiss();
-  //   }
-  // }
+        EasyLoading.show();
+        final result = await CloudFire().createQuestionAnwsers(
+          questionAnswerModel: questionAnswerModel,
+        );
+        if (result == true) {
+          Navigator.pop(context);
+        }
+      }
+    } on FirebaseException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
 
   @override
   void initState() {
-    titleCntlr = TextEditingController(
-      text: widget.questionModel.title,
-    );
-    testimonyCntlr = TextEditingController(
-      text: widget.questionModel.description,
-    );
-
-    if (mounted) {
-      setState(() {});
-    }
     super.initState();
   }
 
@@ -105,6 +98,7 @@ class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
                     controller: titleCntlr,
                     hintText: 'Title',
                     border: InputBorder.none,
+                    maxLines: 1,
                     focusedBorder: InputBorder.none,
                     validator: Validators.textValidator,
                     style: Theme.of(context)
@@ -118,10 +112,10 @@ class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
                   ),
                 ),
                 Form(
-                  key: testimonyKey,
+                  key: descriptionKey,
                   child: CustomTextFormField(
-                    controller: testimonyCntlr,
-                    hintText: 'What\'s your story?',
+                    controller: descriptionCntlr,
+                    hintText: 'What\'s your question?',
                     validator: Validators.textValidator,
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -141,10 +135,10 @@ class _EditQuestionAnswerScreenState extends State<EditQuestionAnswerScreen> {
       actions: [
         CustomElevatedButton(
           child: Text(
-            'Update',
+            'Create',
             style: Theme.of(context).textTheme.bodyText1,
           ),
-          onPressed: () {},
+          onPressed: createQuestion,
         )
       ],
     );

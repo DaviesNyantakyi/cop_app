@@ -8,6 +8,7 @@ Future<dynamic> showCustomBottomSheet({
   required BuildContext context,
   bool isDismissible = true,
   double? height,
+  double? width,
   bool enableDrag = true,
   bool isScrollControlled = true,
   Color backgroundColor = kWhite,
@@ -28,6 +29,7 @@ Future<dynamic> showCustomBottomSheet({
       return SafeArea(
         child: SizedBox(
           height: height,
+          width: width,
           child: Padding(
             padding: const EdgeInsets.all(kContentSpacing16),
             child: Material(

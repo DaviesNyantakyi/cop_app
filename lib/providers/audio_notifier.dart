@@ -28,7 +28,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   // The State of the notifcation player
   ProcessingState? _playState;
 
-  MediaItem? _curreMediaItem;
+  MediaItem? _currentMediaItem;
 
   Duration _totalDuration = Duration.zero;
   Duration _currentPosition = Duration.zero;
@@ -36,7 +36,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   final Duration _skipDuration = const Duration(seconds: 30);
 
   bool get isPlaying => _isPlaying;
-  MediaItem? get currentMediaItem => _curreMediaItem;
+  MediaItem? get currentMediaItem => _currentMediaItem;
   Duration get currentPosition => _currentPosition;
   Duration get totalDuration => _totalDuration;
   Duration get skipDuration => _skipDuration;
@@ -89,7 +89,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
 
       // add the episode details to the notifcation
       mediaItem.add(item);
-      _curreMediaItem = item;
+      _currentMediaItem = item;
     } catch (e) {
       debugPrint(e.toString());
 
@@ -242,5 +242,17 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
 
       notifyListeners();
     });
+  }
+
+  Future<void> close() async {
+    await stop();
+    playbackState.add(PlaybackState(
+      playing: false,
+      controls: [],
+      processingState: AudioProcessingState.ready,
+      systemActions: {
+        MediaAction.seek,
+      },
+    ));
   }
 }

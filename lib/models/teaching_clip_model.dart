@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 // Map<String, dynamic> speaker = {
@@ -11,17 +12,20 @@ import 'package:flutter/foundation.dart';
 // };
 
 class TeachingClipModel {
-  String? id;
-  String? title;
-  String? videoURL;
-  String? description;
-  Map<String, dynamic>? speaker;
+  String id;
+  String title;
+  String videoURL;
+  String description;
+  Map<String, dynamic> speaker;
+  Timestamp createdAt;
+
   TeachingClipModel({
-    this.id,
-    this.title,
-    this.videoURL,
-    this.description,
-    this.speaker,
+    required this.id,
+    required this.title,
+    required this.videoURL,
+    required this.description,
+    required this.speaker,
+    required this.createdAt,
   });
 
   TeachingClipModel copyWith({
@@ -30,6 +34,7 @@ class TeachingClipModel {
     String? videoURL,
     String? description,
     Map<String, dynamic>? speaker,
+    Timestamp? createdAt,
   }) {
     return TeachingClipModel(
       id: id ?? this.id,
@@ -37,6 +42,7 @@ class TeachingClipModel {
       videoURL: videoURL ?? this.videoURL,
       description: description ?? this.description,
       speaker: speaker ?? this.speaker,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -47,6 +53,7 @@ class TeachingClipModel {
       'videoURL': videoURL,
       'description': description,
       'speaker': speaker,
+      'createdAt': createdAt,
     };
   }
 
@@ -57,6 +64,7 @@ class TeachingClipModel {
       videoURL: map['videoURL'],
       description: map['description'],
       speaker: map['speaker'],
+      createdAt: map['createdAt'],
     );
   }
 
@@ -69,7 +77,7 @@ class TeachingClipModel {
 
   @override
   String toString() {
-    return 'TeachingClipModel(id: $id, title: $title, videoURL: $videoURL, description: $description, speaker: $speaker)';
+    return 'TeachingClipModel(id: $id, title: $title, videoURL: $videoURL, description: $description, speaker: $speaker, createdAt: $createdAt)';
   }
 
   @override
@@ -81,7 +89,8 @@ class TeachingClipModel {
         other.title == title &&
         other.videoURL == videoURL &&
         other.description == description &&
-        mapEquals(other.speaker, speaker);
+        mapEquals(other.speaker, speaker) &&
+        other.createdAt == createdAt;
   }
 
   @override
@@ -90,6 +99,7 @@ class TeachingClipModel {
         title.hashCode ^
         videoURL.hashCode ^
         description.hashCode ^
-        speaker.hashCode;
+        speaker.hashCode ^
+        createdAt.hashCode;
   }
 }

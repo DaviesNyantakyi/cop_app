@@ -22,35 +22,39 @@ class CreateTestimonyScreen extends StatefulWidget {
 
 class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
   TextEditingController titleCntlr = TextEditingController();
-  TextEditingController testimonyCntlr = TextEditingController();
+  TextEditingController descriptionCntlr = TextEditingController();
 
   final titleKey = GlobalKey<FormState>();
-  final testimonyKey = GlobalKey<FormState>();
+  final descriptionKey = GlobalKey<FormState>();
 
   final user = FirebaseAuth.instance.currentUser;
 
   Future<void> createTestimony() async {
     try {
       final validTitleForm = titleKey.currentState?.validate();
-      final validTestimonyForm = testimonyKey.currentState?.validate();
+      final validTestimonyForm = descriptionKey.currentState?.validate();
 
       if (validTitleForm == true &&
           validTestimonyForm == true &&
           titleCntlr.text.isNotEmpty &&
-          testimonyCntlr.text.isNotEmpty &&
+          descriptionCntlr.text.isNotEmpty &&
           user != null &&
           user?.uid != null) {
         TestimonyModel testimonyModel = TestimonyModel(
-          uid: user!.uid,
+          userId: user!.uid,
           title: titleCntlr.text,
+          description: descriptionCntlr.text,
           displayName: user?.displayName,
-          testimony: testimonyCntlr.text,
           createdAt: Timestamp.fromDate(DateTime.now()),
         );
 
         EasyLoading.show();
-        await CloudFire().createTestimony(testimony: testimonyModel);
-        Navigator.pop(context);
+        final result = await CloudFire().createTestimony(
+          testimony: testimonyModel,
+        );
+        if (result == true) {
+          Navigator.pop(context);
+        }
       }
     } on FirebaseException catch (e) {
       showCustomSnackBar(
@@ -98,17 +102,17 @@ class _CreateTestimonyScreenState extends State<CreateTestimonyScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .headline6
-                        ?.copyWith(fontWeight: kFontWeightMedium),
+                        ?.copyWith(fontWeight: FontWeight.w500),
                     hintStyle: Theme.of(context).textTheme.headline6?.copyWith(
-                          fontWeight: kFontWeightMedium,
+                          fontWeight: FontWeight.w500,
                           color: kGrey,
                         ),
                   ),
                 ),
                 Form(
-                  key: testimonyKey,
+                  key: descriptionKey,
                   child: CustomTextFormField(
-                    controller: testimonyCntlr,
+                    controller: descriptionCntlr,
                     hintText: 'What\'s your story?',
                     validator: Validators.textValidator,
                     border: InputBorder.none,

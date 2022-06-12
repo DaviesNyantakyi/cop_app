@@ -21,12 +21,12 @@ class TestimonyContent extends StatelessWidget {
           style: Theme.of(context)
               .textTheme
               .bodyText1
-              ?.copyWith(fontWeight: kFontWeightMedium),
+              ?.copyWith(fontWeight: FontWeight.w500),
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: kContentSpacing4),
         Text(
-          testimony.testimony,
+          testimony.description,
           maxLines: 3,
           style: Theme.of(context).textTheme.bodyText1,
           overflow: TextOverflow.ellipsis,

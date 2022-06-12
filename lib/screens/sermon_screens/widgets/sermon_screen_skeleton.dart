@@ -3,8 +3,8 @@ import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-class PodcastSkeleton extends StatelessWidget {
-  const PodcastSkeleton({Key? key}) : super(key: key);
+class SermonScreenSkeleton extends StatelessWidget {
+  const SermonScreenSkeleton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class PodcastSkeleton extends StatelessWidget {
               Text(
                 '...',
                 style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                      fontWeight: kFontWeightMedium,
+                      fontWeight: FontWeight.w500,
                     ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

@@ -33,7 +33,7 @@ class _ReadQuestionAnswerScreenState extends State<ReadQuestionAnswerScreen> {
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
-                  ?.copyWith(fontWeight: kFontWeightMedium),
+                  ?.copyWith(fontWeight: FontWeight.w500),
             )
           ],
         ),

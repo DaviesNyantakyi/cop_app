@@ -7,6 +7,12 @@ const double kButtonHeight = 60.0;
 const double kIconSize = 24;
 const double kElevation = 8.0;
 
+BoxShadow customBoxShadow = BoxShadow(
+  color: kGrey.withOpacity(0.2),
+  offset: kBoxShadowOffset,
+  blurRadius: kElevation,
+);
+
 // The angle of the shadow
 const Offset kBoxShadowOffset = Offset(0, 4);
 
@@ -31,7 +37,6 @@ const kBlue = Color(0xFF292FE9);
 const kGreen = Color(0xFF00B86B);
 const kYellow = Color(0xFFFFC145);
 const kRed = Color(0xFFFF3B3B);
-const kShadowCOlor = kGreyWhite;
 
 // Content Spacing
 const double kContentSpacing4 = 4;
@@ -43,6 +48,3 @@ const double kContentSpacing24 = 24;
 const double kContentSpacing32 = 32;
 const double kContentSpacing64 = 64;
 const double kContentSpacing128 = 128;
-
-// Font
-const kFontWeightMedium = FontWeight.w500;

@@ -185,11 +185,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               style: screenInfo.screenSize.width <= kScreenSizeMobile
                   ? Theme.of(context).textTheme.bodyText1?.copyWith(
                         color: kBlue,
-                        fontWeight: kFontWeightMedium,
+                        fontWeight: FontWeight.w500,
                       )
                   : Theme.of(context).textTheme.bodyText1?.copyWith(
                         color: kBlue,
-                        fontWeight: kFontWeightMedium,
+                        fontWeight: FontWeight.w500,
                       ),
             ),
             FittedBox(
@@ -198,11 +198,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 style: screenInfo.screenSize.width <= kScreenSizeMobile
                     ? Theme.of(context).textTheme.bodyText1?.copyWith(
                           color: kBlue,
-                          fontWeight: kFontWeightMedium,
+                          fontWeight: FontWeight.w500,
                         )
                     : Theme.of(context).textTheme.bodyText1?.copyWith(
                           color: kBlue,
-                          fontWeight: kFontWeightMedium,
+                          fontWeight: FontWeight.w500,
                         ),
               ),
             ),

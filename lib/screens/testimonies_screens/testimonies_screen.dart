@@ -1,8 +1,8 @@
+import 'package:cop_belgium_app/main.dart';
 import 'package:cop_belgium_app/models/testimony_model.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
 
 import 'package:cop_belgium_app/screens/testimonies_screens/create_testmony_screen.dart';
-import 'package:cop_belgium_app/screens/testimonies_screens/edit_testimony_screen.dart';
-import 'package:cop_belgium_app/screens/testimonies_screens/widgets/testimony_content.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/dialog.dart';
@@ -12,7 +12,6 @@ import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
-import 'package:cop_belgium_app/widgets/custom_screen_placeholder.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
 import 'package:cop_belgium_app/widgets/social_avatar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,9 +36,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
     try {
       Navigator.pop(context);
       EasyLoading.show();
-      await CloudFire().deleteTestimony(
-        testimonyModel: testimonyModel,
-      );
+      await CloudFire().deleteTestimony(testimonyModel: testimonyModel);
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
@@ -63,7 +60,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
         style: Theme.of(context)
             .textTheme
             .bodyText1
-            ?.copyWith(fontWeight: kFontWeightMedium),
+            ?.copyWith(fontWeight: FontWeight.w500),
       ),
       actions: [
         CustomElevatedButton(
@@ -105,7 +102,15 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
           }
 
           if (snapshot.data != null && testimonies!.isEmpty) {
-            return const CustomScreenPlaceholder();
+            return Center(
+              child: SingleChildScrollView(
+                child: Text(
+                  'Share your testimony',
+                  style: Theme.of(context).textTheme.headline6,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
           }
 
           if (snapshot.hasData) {
@@ -121,7 +126,7 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
     );
   }
 
-  SafeArea _buildBody({List<TestimonyModel>? testimonies}) {
+  SafeArea _buildBody({required List<TestimonyModel>? testimonies}) {
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -146,59 +151,25 @@ class _TestimoniesScreenState extends State<TestimoniesScreen> {
   }
 
   Widget _buildSocialCard({required TestimonyModel testimonyModel}) {
-    return SocialCard(
-      socialAvatar: SocialAvatar(
-        headerText: Text(
-          testimonyModel.displayName ?? '',
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-        subheaderText: Text(
-          FormalDates.timeAgo(
-                date: DateTime.fromMillisecondsSinceEpoch(
-                  testimonyModel.createdAt.millisecondsSinceEpoch,
-                ),
-              ) ??
-              '',
-          style: Theme.of(context).textTheme.caption,
-        ),
-      ),
-      content: TestimonyContent(testimony: testimonyModel),
-      menuItems: testimonyModel.uid != _firebaseAuth.currentUser?.uid
-          ? null
-          : [
-              PopupMenuItem(
-                value: 'edit',
-                child: Text(
-                  'Edit',
-                  style: Theme.of(context).textTheme.bodyText2,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Text(
-                  'Delete',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText2
-                      ?.copyWith(color: kRed),
-                ),
-              )
-            ],
-      onPressedCard: () {},
-      onSelectMenuItem: (selectedItem) {
-        if (selectedItem == 'delete') {
-          showDeleteDialog(testimonyModel: testimonyModel);
-        }
-        if (selectedItem == 'edit') {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(
-              builder: (context) => EditTestimonyScreen(
-                testimonyModel: testimonyModel,
-              ),
+    return StreamBuilder<UserModel?>(
+      stream: CloudFire().getUserStream(uid: testimonyModel.userId),
+      builder: (context, snapshot) {
+        return SocialCard(
+          avatar: SocialAvatar(
+            imageURL: unsplash,
+            headerText: Text(
+              'Davies Nayntakyi',
+              style: Theme.of(context).textTheme.bodyText2,
             ),
-          );
-        }
+            subheaderText: Text(
+              FormalDates.timeAgo(
+                    date: DateTime.now(),
+                  ) ??
+                  '',
+              style: Theme.of(context).textTheme.caption,
+            ),
+          ),
+        );
       },
     );
   }

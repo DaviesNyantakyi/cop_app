@@ -1,12 +1,12 @@
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-class PodcastCard extends StatelessWidget {
+class SermonCard extends StatelessWidget {
   final String title;
   final String imageUrl;
   final VoidCallback? onPressed;
-  const PodcastCard({
+  const SermonCard({
     Key? key,
     required this.title,
     required this.imageUrl,
@@ -20,7 +20,7 @@ class PodcastCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          PodcastImage(
+          SermonImage(
             imageUrl: imageUrl,
             height: 210,
             width: 200,
@@ -29,7 +29,7 @@ class PodcastCard extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  fontWeight: kFontWeightMedium,
+                  fontWeight: FontWeight.w500,
                 ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

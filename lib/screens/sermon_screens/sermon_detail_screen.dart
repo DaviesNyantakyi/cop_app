@@ -2,26 +2,27 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cop_belgium_app/models/episodes_model.dart';
 import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/providers/audio_notifier.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_player_screen.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/episode_card.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/sermon_player_screen.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/episode_card.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_image.dart';
+
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-class PodcastDetailScreen extends StatefulWidget {
-  const PodcastDetailScreen({Key? key}) : super(key: key);
+class SermonDetailScreen extends StatefulWidget {
+  const SermonDetailScreen({Key? key}) : super(key: key);
 
   @override
-  State<PodcastDetailScreen> createState() => _PodcastDetailScreenState();
+  State<SermonDetailScreen> createState() => _SermonDetailScreenState();
 }
 
-class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
+class _SermonDetailScreenState extends State<SermonDetailScreen> {
   void showPlayerScreen({required EpisodeModel episodeModel}) {
     final audioPlayerNotifier =
         Provider.of<AudioPlayerNotifier>(context, listen: false);
@@ -47,7 +48,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
             value: audioPlayerNotifier,
           ),
         ],
-        child: const PodcastPlayerScreen(),
+        child: const SermonPlayerScreen(),
       ),
     );
   }
@@ -70,7 +71,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
               const SizedBox(height: kContentSpacing24),
               _buildDescription(),
               const SizedBox(height: kContentSpacing32),
-              _buildEpisodsList(),
+              _buildEpisodes(),
             ],
           ),
         ),
@@ -99,13 +100,16 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
     );
   }
 
-  Widget _buildEpisodsList() {
+  Widget _buildEpisodes() {
     return Consumer<PodcastModel>(
       builder: (context, podcastModel, _) {
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (context, index) {
+            return const SizedBox(height: kContentSpacing8);
+          },
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: podcastModel.episodes?.length,
+          itemCount: podcastModel.episodes!.length,
           itemBuilder: (context, index) {
             return EpisodeCard(
               episodeModel: podcastModel.episodes![index],
@@ -181,7 +185,7 @@ class _BuildHeaderInfoState extends State<_BuildHeaderInfo> {
     }
     return Consumer<PodcastModel>(
       builder: (context, podcastModel, _) {
-        return PodcastImage(
+        return SermonImage(
           imageUrl: podcastModel.imageURL,
           height: size,
           width: size,
@@ -213,7 +217,7 @@ class _BuildHeaderInfoState extends State<_BuildHeaderInfo> {
                   Text(
                     podcastModel.title,
                     style: Theme.of(context).textTheme.headline5?.copyWith(
-                          fontWeight: kFontWeightMedium,
+                          fontWeight: FontWeight.w500,
                           fontSize: titleFontSize,
                         ),
                   ),

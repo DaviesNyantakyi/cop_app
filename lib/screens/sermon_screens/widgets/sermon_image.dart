@@ -2,13 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
 
-class PodcastImage extends StatelessWidget {
+class SermonImage extends StatelessWidget {
   final String imageUrl;
   final double? width;
   final double? height;
   final EdgeInsets? margin;
 
-  const PodcastImage({
+  const SermonImage({
     Key? key,
     required this.imageUrl,
     this.width,

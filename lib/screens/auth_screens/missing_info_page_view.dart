@@ -8,7 +8,7 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/custom_text_form_field.dart';
@@ -316,7 +316,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
             InkWell(
               child: const Text(
                 'Privacy Policy',
-                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
+                style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
               ),
               onTap: () {
                 loadMdFile(
@@ -331,7 +331,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
             InkWell(
               child: const Text(
                 ' Terms of Conditions.',
-                style: TextStyle(fontWeight: kFontWeightMedium, color: kBlue),
+                style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
               ),
               onTap: () {
                 loadMdFile(

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:app_settings/app_settings.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';

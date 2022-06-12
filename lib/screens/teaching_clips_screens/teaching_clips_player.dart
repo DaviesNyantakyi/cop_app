@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cop_belgium_app/models/teaching_clip_model.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
+import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/progress_indicator.dart';
 import 'package:cop_belgium_app/widgets/social_avatar.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> initVideo() async {
     videoPlayerController =
-        VideoPlayerController.network(widget.teachingClipModel.videoURL!)
+        VideoPlayerController.network(widget.teachingClipModel.videoURL)
           ..initialize().then((value) async {
             await videoPlayerController?.play();
             await videoPlayerController?.setVolume(1);
@@ -59,18 +60,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     hideControls();
     videoPlayerController?.addListener(() {
       currentPostion = videoPlayerController?.value.position;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
       isBuffering = videoPlayerController?.value.isBuffering;
     });
     totalDuration = videoPlayerController?.value.duration;
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> hideControls() async {
     Future.delayed(const Duration(milliseconds: 3500), () {
       visableControls = false;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -114,7 +121,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             } else {
               visableControls = true;
             }
-            setState(() {});
+            if (mounted) {
+              setState(() {});
+            }
           },
         );
       },
@@ -155,28 +164,59 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Expanded _buildAvatar() {
     return Expanded(
-      child: Row(
-        children: [
-          SocialAvatar(
-            circleAvatarRadius: 24,
-            headerText: Text(
-              widget.teachingClipModel.speaker?['name'],
-              style: Theme.of(context)
-                  .textTheme
-                  .caption
-                  ?.copyWith(color: kWhite, fontWeight: FontWeight.normal),
-            ),
-            subheaderText: Text(
-              widget.teachingClipModel.title!,
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                    color: kWhite,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
+      child: GestureDetector(
+        onTap: () async {
+          await showCustomBottomSheet(
+            height: MediaQuery.of(context).size.height * 0.85,
+            width: double.infinity,
+            context: context,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.teachingClipModel.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
+                  const SizedBox(height: kContentSpacing4),
+                  Text(
+                    "By ${widget.teachingClipModel.speaker['name']}",
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                  const SizedBox(height: kContentSpacing20),
+                  Text(
+                    widget.teachingClipModel.description,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ],
+              ),
             ),
-            imageURL: widget.teachingClipModel.speaker?['imageURL'],
-          )
-        ],
+          );
+        },
+        child: Row(
+          children: [
+            SocialAvatar(
+              circleAvatarRadius: 24,
+              headerText: Text(
+                widget.teachingClipModel.speaker['name'],
+                style: Theme.of(context)
+                    .textTheme
+                    .caption
+                    ?.copyWith(color: kWhite, fontWeight: FontWeight.normal),
+              ),
+              subheaderText: Text(
+                widget.teachingClipModel.title,
+                style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                      color: kWhite,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              imageURL: widget.teachingClipModel.speaker['imageURL'],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -194,7 +234,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 await videoPlayerController?.play();
               }
               isPlaying = !isPlaying;
-              setState(() {});
+              if (mounted) {
+                setState(() {});
+              }
             },
             child: isBuffering == true
                 ? const CustomCircularProgressIndicator(
@@ -237,8 +279,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             FormalDates.episodeDuration(
               duration: totalDuration!,
             ),
-            style:
-                Theme.of(context).textTheme.bodyText2?.copyWith(color: kWhite),
+            style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                  color: kWhite,
+                ),
           )
         ],
       ),

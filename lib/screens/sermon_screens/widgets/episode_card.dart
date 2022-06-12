@@ -1,5 +1,5 @@
 import 'package:cop_belgium_app/models/episodes_model.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/widgets/podcast_image.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/widgets/sermon_image.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
@@ -22,24 +22,29 @@ class _EpisodeCardState extends State<EpisodeCard> {
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
-        return SizedBox(
+        return Container(
           height: 170,
-          width: double.infinity,
-          child: Card(
-            child: CustomElevatedButton(
-              padding: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(kContentSpacing8),
-                child: Row(
-                  children: [
-                    _buildImage(screenInfo: screenInfo),
-                    const SizedBox(width: kContentSpacing12),
-                    _buildDetails(),
-                  ],
-                ),
-              ),
-              onPressed: widget.onPressed,
+          decoration: BoxDecoration(
+            color: kWhite,
+            boxShadow: [customBoxShadow],
+            borderRadius: const BorderRadius.all(
+              Radius.circular(kRadius),
             ),
+          ),
+          width: double.infinity,
+          child: CustomElevatedButton(
+            padding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(kContentSpacing8),
+              child: Row(
+                children: [
+                  _buildImage(screenInfo: screenInfo),
+                  const SizedBox(width: kContentSpacing12),
+                  _buildDetails(),
+                ],
+              ),
+            ),
+            onPressed: widget.onPressed,
           ),
         );
       },
@@ -55,7 +60,7 @@ class _EpisodeCardState extends State<EpisodeCard> {
 
     return Flexible(
       flex: 5,
-      child: PodcastImage(
+      child: SermonImage(
         width: size,
         imageUrl: widget.episodeModel.imageURL,
       ),
@@ -67,12 +72,12 @@ class _EpisodeCardState extends State<EpisodeCard> {
       flex: 7,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             widget.episodeModel.title,
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  fontWeight: kFontWeightMedium,
+                  fontWeight: FontWeight.w500,
                 ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

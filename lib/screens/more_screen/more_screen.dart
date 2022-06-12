@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
+import 'package:cop_belgium_app/providers/audio_notifier.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
@@ -25,7 +26,9 @@ class _MoreScreenState extends State<MoreScreen> {
   final firebaseAuth = FirebaseAuth.instance;
 
   late SignUpNotifier signUpNotifier;
-  late final userStream = CloudFire().getUserStream();
+  late final userStream = CloudFire().getUserStream(
+    uid: FirebaseAuth.instance.currentUser!.uid,
+  );
 
   @override
   void initState() {
@@ -40,6 +43,11 @@ class _MoreScreenState extends State<MoreScreen> {
 
   Future<void> logout() async {
     try {
+      final audioPlayerNotifier = Provider.of<AudioPlayerNotifier>(
+        context,
+        listen: false,
+      );
+      await audioPlayerNotifier.close();
       await FireAuth().signOut();
     } on FirebaseAuthException catch (e) {
       showCustomSnackBar(
@@ -144,23 +152,32 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildAvatar() {
-    final user = firebaseAuth.currentUser;
+    // final user = firebaseAuth.currentUser;
 
-    ImageProvider<Object>? backgroundImage;
-    Widget child = const Icon(
-      Icons.person_outline_outlined,
-      color: kBlack,
-    );
+    return StreamBuilder<UserModel?>(
+      stream: userStream,
+      builder: (context, snapshot) {
+        Widget child = const Icon(
+          Icons.person_outline_outlined,
+          color: kBlack,
+        );
+        ImageProvider<Object>? backgroundImage;
 
-    if (user != null && user.photoURL != null) {
-      backgroundImage = CachedNetworkImageProvider(user.photoURL!);
-      child = Container();
-    }
-    return CircleAvatar(
-      radius: 28,
-      backgroundColor: kGreyLight,
-      child: child,
-      backgroundImage: backgroundImage,
+        if (snapshot.hasData &&
+            snapshot.data?.photoURL != null &&
+            snapshot.data?.photoURL?.isEmpty == false) {
+          backgroundImage = CachedNetworkImageProvider(
+            snapshot.data!.photoURL!,
+          );
+          child = Container();
+        }
+        return CircleAvatar(
+          radius: 28,
+          backgroundColor: kGreyLight,
+          child: child,
+          backgroundImage: backgroundImage,
+        );
+      },
     );
   }
 
@@ -176,7 +193,9 @@ class _MoreScreenState extends State<MoreScreen> {
               Text(
                 firebaseAuth.currentUser?.isAnonymous == true
                     ? 'Sign In or Sign Up'
-                    : firebaseAuth.currentUser?.displayName ?? '',
+                    : snapshot.data?.displayName ??
+                        firebaseAuth.currentUser?.displayName ??
+                        'user',
                 style: Theme.of(context).textTheme.bodyText1,
               ),
               firebaseAuth.currentUser?.isAnonymous == true

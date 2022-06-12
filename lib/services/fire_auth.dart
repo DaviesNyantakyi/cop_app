@@ -48,7 +48,7 @@ class FireAuth {
 
           // Update the userModel with the uid
           final updatedUser = userModel.copyWith(
-            uid: _firebaseAuth.currentUser?.uid,
+            id: _firebaseAuth.currentUser?.uid,
           );
 
           // Create a user document in cloud firstore
@@ -221,7 +221,7 @@ class FireAuth {
           // Create a user if in firestore if it does not exists.
           if (userDoc == null) {
             final user = UserModel(
-              uid: _firebaseAuth.currentUser?.uid,
+              id: _firebaseAuth.currentUser?.uid,
               firstName: null,
               dateOfBirth: null,
               lastName: null,

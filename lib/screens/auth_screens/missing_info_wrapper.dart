@@ -16,7 +16,8 @@ class MissingInfoWrapper extends StatefulWidget {
 }
 
 class _MissingInfoWrapperState extends State<MissingInfoWrapper> {
-  final autStream = CloudFire().getUserStream();
+  final autStream =
+      CloudFire().getUserStream(uid: FirebaseAuth.instance.currentUser!.uid);
   final fireAuth = FireAuth();
 
   final firebaseAuth = FirebaseAuth.instance;

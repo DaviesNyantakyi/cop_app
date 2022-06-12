@@ -96,7 +96,7 @@ class SignUpNotifier extends ChangeNotifier {
         final displayName =
             '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
         final user = UserModel(
-          uid: _firebaseAuth.currentUser?.uid,
+          id: _firebaseAuth.currentUser?.uid,
           firstName: firstNameCntlr.text.trim(),
           lastName: lastNameCntlr.text.trim(),
           displayName: _displayName?.trim() ?? displayName,

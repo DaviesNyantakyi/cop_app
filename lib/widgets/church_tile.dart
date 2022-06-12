@@ -99,7 +99,7 @@ class _BuildAddress extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
-                  ?.copyWith(fontWeight: kFontWeightMedium),
+                  ?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: kContentSpacing4),
             Text(

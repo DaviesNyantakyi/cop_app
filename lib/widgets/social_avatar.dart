@@ -141,7 +141,7 @@ class SocialAvatar extends StatelessWidget {
 //           Text(
 //             widget.displayName,
 //             style: Theme.of(context).textTheme.bodyText2?.copyWith(
-//                   fontWeight: kFontWeightMedium,
+//                   fontWeight: FontWeight.w500,
 //                 ),
 //           ),
 //           Text(

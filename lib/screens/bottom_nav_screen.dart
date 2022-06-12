@@ -1,9 +1,11 @@
+import 'package:cop_belgium_app/providers/audio_notifier.dart';
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
-import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/screens/question_answer_screen/question_answer_screen.dart';
+import 'package:cop_belgium_app/screens/sermon_screens/sermon_screen.dart';
 import 'package:cop_belgium_app/screens/teaching_clips_screens/teaching_clips_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({Key? key}) : super(key: key);
@@ -12,29 +14,62 @@ class BottomNavigationScreen extends StatefulWidget {
   _BottomNavigationScreenState createState() => _BottomNavigationScreenState();
 }
 
-class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
-  int _selectedIndex = 0;
+class _BottomNavigationScreenState extends State<BottomNavigationScreen>
+    with WidgetsBindingObserver {
+  int selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const PodcastScreen(),
+  final List<Widget> screens = [
+    const SermonsScreen(),
     const TeachingClipScreen(),
     const QuestionAnswerScreen(),
     const MoreScreen(),
   ];
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        debugPrint('AppLifecycleState Resumed');
+        break;
+      case AppLifecycleState.inactive:
+        debugPrint('AppLifecycleState Inactive');
+        break;
+      case AppLifecycleState.paused:
+        debugPrint('AppLifecycleState Paused');
+        break;
+      case AppLifecycleState.detached:
+        // Stop the audio when the app is closed
+        await Provider.of<AudioPlayerNotifier>(context, listen: false).close();
+        debugPrint('AppLifecycleState Detached');
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: _screens[_selectedIndex],
+        child: screens[selectedIndex],
       ),
       bottomNavigationBar: _buildBottomNavBar(
         context: context,
-        index: _selectedIndex,
+        index: selectedIndex,
         onTap: (value) {
           if (mounted) {
             setState(() {
-              _selectedIndex = value;
+              selectedIndex = value;
             });
           }
         },
@@ -55,8 +90,8 @@ Widget _buildBottomNavBar({
     backgroundColor: Colors.white,
     selectedItemColor: kBlue,
     unselectedItemColor: kBlack,
-    selectedFontSize: caption, // if not set to 0 bottom nav exception bug
-    unselectedFontSize: caption, // if not set to 0 bottom nav exception bug
+    selectedFontSize: caption, // Exception is thrown if not set to 0
+    unselectedFontSize: caption, // Exception is thrown if not set to 0
     selectedLabelStyle: bodyText2,
     unselectedLabelStyle: bodyText2,
     currentIndex: index,
@@ -64,11 +99,11 @@ Widget _buildBottomNavBar({
     onTap: onTap,
     items: [
       _buildBottomNavItem(
-        label: 'Podcasts',
-        icon: Icons.podcasts_outlined,
+        label: 'Sermons',
+        icon: Icons.headphones,
       ),
       _buildBottomNavItem(
-        label: 'Videos',
+        label: 'Clips',
         icon: Icons.video_library_outlined,
       ),
       _buildBottomNavItem(
