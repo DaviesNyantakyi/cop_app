@@ -15,7 +15,6 @@ import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/social_avatar.dart';
 import 'package:cop_belgium_app/widgets/social_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -204,16 +203,31 @@ class _QuestionAnswerScreenState extends State<QuestionAnswerScreen> {
                         icon: liked ? Icons.favorite : Icons.favorite_outline,
                         text: '$likes',
                         iconColor: liked ? kRed : kBlack,
-                        onPressed: () {
-                          FirebaseFirestore.instance
+                        onPressed: () async {
+                          final doc = await FirebaseFirestore.instance
                               .collection('question_answers')
                               .doc(questionAnswers?[index].id)
                               .collection('likes')
                               .doc(FirebaseAuth.instance.currentUser?.uid)
-                              .set({
-                            'id': FirebaseAuth.instance.currentUser?.uid,
-                            'date': DateTime.now().toUtc()
-                          });
+                              .get();
+                          if (doc.exists) {
+                            await FirebaseFirestore.instance
+                                .collection('question_answers')
+                                .doc(questionAnswers?[index].id)
+                                .collection('likes')
+                                .doc(FirebaseAuth.instance.currentUser?.uid)
+                                .delete();
+                          } else {
+                            FirebaseFirestore.instance
+                                .collection('question_answers')
+                                .doc(questionAnswers?[index].id)
+                                .collection('likes')
+                                .doc(FirebaseAuth.instance.currentUser?.uid)
+                                .set({
+                              'id': FirebaseAuth.instance.currentUser?.uid,
+                              'date': DateTime.now().toUtc()
+                            });
+                          }
                         },
                       );
                     },

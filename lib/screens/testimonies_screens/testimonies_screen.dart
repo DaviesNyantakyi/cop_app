@@ -30,8 +30,6 @@ class TestimoniesScreen extends StatefulWidget {
 class _TestimoniesScreenState extends State<TestimoniesScreen> {
   final testimoniesStream = CloudFire().getTestimonies();
 
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
   Future<void> deleteTestimony({required TestimonyModel testimonyModel}) async {
     try {
       Navigator.pop(context);

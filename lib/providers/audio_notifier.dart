@@ -26,7 +26,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   final _justAudio = AudioPlayer();
   bool _isPlaying = false;
   // The State of the notifcation player
-  ProcessingState? _playState;
+  ProcessingState? _processingState;
 
   MediaItem? _currentMediaItem;
 
@@ -40,7 +40,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
   Duration get currentPosition => _currentPosition;
   Duration get totalDuration => _totalDuration;
   Duration get skipDuration => _skipDuration;
-  ProcessingState? get playState => _playState;
+  ProcessingState? get processingState => _processingState;
 
   Future<void> init({required MediaItem item}) async {
     try {
@@ -118,7 +118,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
         MediaAction.seek,
       },
     ));
-    if (_playState == ProcessingState.completed && _isPlaying == false) {
+    if (_processingState == ProcessingState.completed && _isPlaying == false) {
       await seek(Duration.zero);
       await play();
       _isPlaying = true;
@@ -191,7 +191,6 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
     await super.seek(newPosition);
   }
 
-  //Listen to the just_audio player stream and update the Ui and notication.
   void _playerStateStream() {
     _justAudio.playerStateStream.listen((state) {
       // playerStateStream listens to the current state of the button and the audio.
@@ -202,7 +201,7 @@ class AudioPlayerNotifier extends BaseAudioHandler with ChangeNotifier {
       // This can be idle, loading, buffering, ready, completed.
 
       _isPlaying = state.playing; // Change the play and pause icon.
-      _playState = state.processingState; // Change the processing state.
+      _processingState = state.processingState; // Change the processing state.
 
       // When the audio is complete.
       if (state.processingState == ProcessingState.completed) {

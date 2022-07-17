@@ -133,10 +133,10 @@ class _SermonPlayerScreenState extends State<SermonPlayerScreen> {
     return Consumer2<MediaItem, AudioPlayerNotifier>(
       builder: (context, mediaItem, audioPlayerNotifier, _) {
         String author = mediaItem.artist ?? '';
-        if (audioPlayerNotifier.playState == ProcessingState.buffering) {
+        if (audioPlayerNotifier.processingState == ProcessingState.buffering) {
           author = 'Buffering...';
         }
-        if (audioPlayerNotifier.playState == ProcessingState.loading) {
+        if (audioPlayerNotifier.processingState == ProcessingState.loading) {
           author = 'Loading...';
         }
         return Column(
