@@ -8,6 +8,8 @@ import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../services/podcast_service.dart';
+
 class MissingInfoWrapper extends StatefulWidget {
   const MissingInfoWrapper({Key? key}) : super(key: key);
 
@@ -35,6 +37,13 @@ class _MissingInfoWrapperState extends State<MissingInfoWrapper> {
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  @override
+  void initState() {
+    // Get the podcast Subscriptions when the app starts
+    PodcastService().fetchSubScribptionCloudFire();
+    super.initState();
   }
 
   @override

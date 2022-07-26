@@ -18,13 +18,15 @@ class LibraryScreen extends StatefulWidget {
 
 class _LibraryScreenState extends State<LibraryScreen>
     with SingleTickerProviderStateMixin {
-  late final getTrending = PodcastService().fetchTrending(reload: false);
+  late final getTrending =
+      PodcastService().getPodcast(reload: false, context: context);
 
   late TabController tabController;
 
   @override
   void initState() {
     tabController = TabController(vsync: this, length: 2);
+
     super.initState();
   }
 

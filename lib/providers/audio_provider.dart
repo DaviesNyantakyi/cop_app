@@ -23,7 +23,6 @@ Future<AudioProvider> initAudioSerivce() async {
       fastForwardInterval: seekDuration,
       rewindInterval: seekDuration,
       androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
     ),
   );
 }

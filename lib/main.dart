@@ -8,16 +8,12 @@ import 'package:cop_belgium_app/widgets/track_shape.dart';
 import 'package:cop_belgium_app/widgets/circular_progress_indicator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 late AudioProvider _audioProvider;
-
-const String unsplash =
-    'https://images.unsplash.com/photo-1654447398834-4168622aab14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxOHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60';
 
 Future<void> main() async {
   await _init();
@@ -38,7 +34,6 @@ Future<void> _init() async {
   await Hive.openBox<EpisodeModel>('downloads');
 
   _audioProvider = await initAudioSerivce();
-  await dotenv.load(fileName: ".env");
 
   ResponsiveSizingConfig.instance.setCustomBreakpoints(
     const ScreenBreakpoints(

@@ -1,9 +1,8 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
+import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
-
-import 'podcast_screens/podcast_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({Key? key}) : super(key: key);

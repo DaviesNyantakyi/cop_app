@@ -30,7 +30,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
 
   Future<void> getPodcasts() async {
     try {
-      await podcastService.fetchTrending(reload: false);
+      await podcastService.getPodcast(reload: false, context: context);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -40,10 +40,10 @@ class _PodcastScreenState extends State<PodcastScreen> {
   Widget build(BuildContext context) {
     return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
       return RefreshIndicator(
+        color: kBlue,
+        backgroundColor: kWhite,
         onRefresh: () async {
-          await PodcastService().fetchTrending(
-            reload: true,
-          );
+          await PodcastService().getPodcast(reload: true, context: context);
           if (mounted) {
             setState(() {});
           }
@@ -86,6 +86,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
           return ScrollConfiguration(
             behavior: CustomScrollBehavior(),
             child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(kContentSpacing16),
               child: GridView.builder(
                 shrinkWrap: true,

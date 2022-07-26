@@ -89,7 +89,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
-            'Tap this button on any podcast to see',
+            'Tap this button on any episode to see',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
           Text(

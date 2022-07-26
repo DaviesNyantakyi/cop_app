@@ -62,7 +62,6 @@ dependencies:
   image_cropper: ^1.5.0 # Crop selected images
   image_downloader: ^0.31.0 # Download images
   app_settings: ^4.1.1 # Go to the device app settings
-  flutter_dotenv: ^5.0.2
 
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -78,6 +77,8 @@ dependencies:
   sign_in_with_apple: ^4.0.0 # Apple signin flow
   crypto: ^3.0.2
   convert: ^3.0.2
+  change_app_package_name: ^1.1.0
+
 
 
 dev_dependencies:
@@ -106,7 +107,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - .env
     - assets/images/
     - assets/privacy/
 

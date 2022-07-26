@@ -2,26 +2,27 @@ import 'dart:convert';
 
 class PodcastInfoModel {
   final String id;
-  final String rssFeed;
-  final String pageURL;
+  final String rss;
+  final String pageLink;
   final String title;
+
   PodcastInfoModel({
     required this.id,
-    required this.rssFeed,
-    required this.pageURL,
+    required this.rss,
+    required this.pageLink,
     required this.title,
   });
 
   PodcastInfoModel copyWith({
     String? id,
-    String? rssFeed,
-    String? pageURL,
+    String? rss,
+    String? pageLink,
     String? title,
   }) {
     return PodcastInfoModel(
       id: id ?? this.id,
-      rssFeed: rssFeed ?? this.rssFeed,
-      pageURL: pageURL ?? this.pageURL,
+      rss: rss ?? this.rss,
+      pageLink: pageLink ?? this.pageLink,
       title: title ?? this.title,
     );
   }
@@ -29,44 +30,44 @@ class PodcastInfoModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'rssFeed': rssFeed,
-      'pageURL': pageURL,
+      'rss': rss,
+      'pageLink': pageLink,
       'title': title,
     };
   }
 
   factory PodcastInfoModel.fromMap({required Map<String, dynamic> map}) {
     return PodcastInfoModel(
-      id: map['id'],
-      rssFeed: map['rssFeed'],
-      pageURL: map['pageURL'],
-      title: map['title'],
+      id: map['id'] as String,
+      rss: map['rss'] as String,
+      pageLink: map['pageLink'] as String,
+      title: map['title'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory PodcastInfoModel.fromJson({required String source}) =>
-      PodcastInfoModel.fromMap(map: json.decode(source));
+  factory PodcastInfoModel.fromJson(String source) => PodcastInfoModel.fromMap(
+        map: json.decode(source) as Map<String, dynamic>,
+      );
 
   @override
   String toString() {
-    return 'PodcastRssInfo(id: $id, rssFeed: $rssFeed, pageURL: $pageURL, title: $title)';
+    return 'PodcastInfoModel(id: $id, rss: $rss, pageLink: $pageLink, title: $title)';
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(covariant PodcastInfoModel other) {
     if (identical(this, other)) return true;
 
-    return other is PodcastInfoModel &&
-        other.id == id &&
-        other.rssFeed == rssFeed &&
-        other.pageURL == pageURL &&
+    return other.id == id &&
+        other.rss == rss &&
+        other.pageLink == pageLink &&
         other.title == title;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ rssFeed.hashCode ^ pageURL.hashCode ^ title.hashCode;
+    return id.hashCode ^ rss.hashCode ^ pageLink.hashCode ^ title.hashCode;
   }
 }

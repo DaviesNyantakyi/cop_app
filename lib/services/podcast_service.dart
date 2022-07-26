@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:convert/convert.dart';
-import 'package:crypto/crypto.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cop_belgium_app/models/podcast_info_model.dart';
+import 'package:cop_belgium_app/services/cloud_fire.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:webfeed/domain/rss_feed.dart';
 
 import '../models/episode_model.dart';
 import '../models/podcast_model.dart';
@@ -13,161 +15,187 @@ import '../utilities/hive_boxes.dart';
 import '../utilities/parse_html.dart';
 
 class PodcastService {
-  final _podIndexApiKey = dotenv.env['PODCASTINDEXAPIKEY'];
-  final _podIndexSecret = dotenv.env['PODCASTINDEXSECRET'];
-  final String _baseURL = 'https://api.podcastindex.org';
-
   final _dio = Dio();
+  final _cloudFire = CloudFire();
+  final _hiveBoxes = HiveBoxes();
 
-  Map<String, String> _initHeader() {
-    final unixTime = (DateTime.now().toUtc().millisecondsSinceEpoch / 1000)
-        .round()
-        .toString();
-
-    final firstChunk = utf8.encode(_podIndexApiKey.toString());
-    final secondChunk = utf8.encode(_podIndexSecret.toString());
-    final thirdChunk = utf8.encode(unixTime);
-    var output = AccumulatorSink<Digest>();
-    var input = sha1.startChunkedConversion(output);
-    input.add(firstChunk);
-    input.add(secondChunk);
-    input.add(thirdChunk);
-    input.close();
-    var digest = output.events.single;
-
-    var headers = <String, String>{
-      "X-Auth-Date": unixTime,
-      "X-Auth-Key": _podIndexApiKey.toString(),
-      "Authorization": digest.toString(),
-      "User-Agent": "flutter_podcast_player/1.0"
-    };
-    return headers;
-  }
-
-  Future<List<PodcastModel>?> fetchTrending({
-    int? max,
+  Future<void> getPodcast({
+    required BuildContext context,
     required bool reload,
   }) async {
     try {
-      final url =
-          '$_baseURL/api/1.0/podcasts/trending?&max=${Uri.encodeComponent('$max')}&pretty';
-
-      final podBox = HiveBoxes().getPodcasts();
+      final podBox = _hiveBoxes.getPodcasts();
 
       if (reload) {
         await podBox.clear();
       }
-      if (podBox.values.isNotEmpty) {
-        return podBox.values.toList();
-      }
-      final podcasts = await _fetchPodcast(url: url);
 
-      if (podcasts != null) {
-        await Future.wait(
-          podcasts.map(
-            (podcast) => podBox.put(podcast.id, podcast),
-          ),
-        );
+      final podcastsInfoCloudFire = await _cloudFire.getPodcastsFireStore();
+
+      // Make http call for each podcast in the list.
+      for (var podcastInfo in podcastsInfoCloudFire) {
+        final response = await _dio.getUri(Uri.parse(podcastInfo.rss));
+        if (response.statusCode == 200) {
+          final rssFeed = RssFeed.parse(response.data);
+
+          // Create a podcastModel
+          final podcast = _createPodcastModel(
+            podcastInfo: podcastInfo,
+            rssFeed: rssFeed,
+          );
+          await podBox.put(podcast.id, podcast);
+        }
       }
-      return podcasts;
-    } on DioError catch (e) {
-      debugPrint(e.toString());
     } catch (e) {
-      debugPrint(e.toString());
+      rethrow;
     }
-    return null;
   }
 
-  Future<List<PodcastModel>?> _fetchPodcast({required String url}) async {
+  Future<List<PodcastModel>> fetchSubScribptionCloudFire() async {
     try {
-      final header = _initHeader();
+      // Get the subscription box
+      final subBox = _hiveBoxes.getSubScriptions();
+      // Get the Firstore podcastInfo
+      final podInfoCloudFire =
+          await _cloudFire.getPodcastsSubscriptionsFireStore();
 
-      final response = await _dio.get(url, options: Options(headers: header));
+      // Create list
+      final subBoxList = subBox.values.cast<PodcastModel>().toList();
+      final podList = podInfoCloudFire.toList();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.toString());
-        List<dynamic>? feeds = data['feeds'];
+      // if subscriptions box is empty add the subscribed podcast from firebase.
+      if (subBoxList.isEmpty) {
+        for (var podInfo in podList) {
+          final response = await _dio.getUri(Uri.parse(podInfo.rss));
 
-        if (feeds != null) {
-          final podcasts = feeds.map((feed) async {
-            final String id = feed['id'].toString();
-            final episodes = await fetchEpisodes(id: id, feed: feed);
+          if (response.statusCode == 200) {
+            final rssFeed = RssFeed.parse(response.data);
 
-            return PodcastModel(
-              id: id,
-              image: feed['image'],
-              title: feed['title'],
-              description: feed['description'],
-              author: feed['author'],
-              pageLink: feed['link'],
-              rss: feed['url'],
-              episodes: episodes,
+            // Create a podcastModel
+            final podcast = _createPodcastModel(
+              podcastInfo: podInfo,
+              rssFeed: rssFeed,
             );
-          }).toList();
+            await subBox.put(podcast.id, podcast);
+          }
+        }
+      }
 
-          // List<Future<PodcastModel>>  to List<PodcastModels>
-          List<PodcastModel> mappedPodcast = await Future.wait(
-            podcasts.map((podcast) async => await podcast),
+      // Add missing subscription from firstore to the subscription box
+      for (var podcast in subBoxList) {
+        for (var podInfo in podList) {
+          if (podInfo.id != podcast.id) {
+            final response = await _dio.getUri(Uri.parse(podInfo.rss));
+
+            if (response.statusCode == 200) {
+              final rssFeed = RssFeed.parse(response.data);
+
+              // Create a podcastModel
+              final podcast = _createPodcastModel(
+                podcastInfo: podInfo,
+                rssFeed: rssFeed,
+              );
+              await subBox.put(podcast.id, podcast);
+            }
+          }
+        }
+      }
+      return subBoxList;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> savePodcast(
+      {required PodcastModel podcast, required BuildContext context}) async {
+    try {
+      final hasConnection = await ConnectionNotifier().checkConnection();
+      if (hasConnection == true) {
+        final subBox = _hiveBoxes.getSubScriptions();
+        bool subScribed = false;
+
+        // Check if podcast is stored in the subscription box
+        final storedPodcasts = subBox.values.cast<PodcastModel>();
+        for (var podcast in storedPodcasts) {
+          if (podcast.id == podcast.id) {
+            subScribed = true;
+          }
+        }
+
+        if (subScribed) {
+          // If subscribed delete from subscription box
+          subBox.delete(podcast.id);
+
+          // If subscribed delete from firetore subscriptions
+          final subCollection = FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('subscriptions');
+          await subCollection.doc(podcast.id).delete();
+        } else {
+          // New model is created because of HiveError: same instance of object cannot be saved
+          PodcastModel podModel = PodcastModel(
+            id: podcast.id,
+            image: podcast.image,
+            title: podcast.title,
+            description: podcast.description,
+            author: podcast.author,
+            pageLink: podcast.pageLink,
+            rss: podcast.rss,
+            episodes: podcast.episodes,
           );
 
-          return mappedPodcast;
+          final podInfoModel = PodcastInfoModel(
+            id: podcast.id,
+            title: podcast.title ?? '',
+            rss: podcast.rss ?? '',
+            pageLink: podcast.pageLink ?? '',
+          );
+
+          final subCollection = FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('subscriptions');
+
+          await subCollection.doc(podcast.id).set(podInfoModel.toMap());
+          await subBox.put(podModel.id, podModel);
         }
+      } else {
+        throw ConnectionNotifier.connectionException;
       }
     } catch (e) {
       rethrow;
     }
-    return null;
   }
 
-  Future<List<EpisodeModel>?> fetchEpisodes({
-    required String id,
-    required dynamic feed,
-  }) async {
-    try {
-      final url =
-          '$_baseURL/api/1.0/episodes/byfeedid?id=${Uri.encodeComponent(id)}&pretty';
-
-      final header = _initHeader();
-      final response = await _dio.get(
-        url,
-        options: Options(headers: header),
+  PodcastModel _createPodcastModel({
+    required RssFeed rssFeed,
+    required PodcastInfoModel podcastInfo,
+  }) {
+    // Go through each rssitem and create a episodeModel
+    List<EpisodeModel> episodes = rssFeed.items!.map((rssItem) {
+      return EpisodeModel(
+        id: rssItem.enclosure!.url!,
+        title: rssItem.itunes?.title ?? rssItem.title ?? '',
+        author: rssFeed.author ?? rssFeed.itunes?.author ?? '',
+        image: rssFeed.itunes?.image?.href ?? rssFeed.image?.url ?? '',
+        duration: rssItem.itunes?.duration?.inSeconds,
+        pubDate: rssItem.pubDate ?? DateTime.now(),
+        audio: rssItem.enclosure?.url ?? '',
+        description: parseHtml(item: rssItem.description ?? ''),
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.toString());
-        List<dynamic>? feedsItems = data['items'];
+    }).toList();
 
-        if (feedsItems != null) {
-          final episodes = feedsItems.map((item) {
-            return EpisodeModel(
-              id: item['id'].toString(),
-              image: feed['image'],
-              title: item['title'],
-              description: parseHtml(item: item['description']),
-              audio: item['enclosureUrl'],
-              author: feed['author'],
-              pageLink: item['link'],
-              duration: item['duration'],
-              pubDate: DateTime.fromMillisecondsSinceEpoch(
-                item['datePublished'] * 1000,
-              ),
-            );
-          }).toList();
-
-          return episodes;
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-    return null;
-  }
-
-  Future<void> savePodcast({required PodcastModel podcast}) async {
-    try {
-      final subBox = HiveBoxes().getSubScriptions();
-      await subBox.put(podcast.id, podcast);
-    } catch (e) {
-      rethrow;
-    }
+    return PodcastModel(
+      id: podcastInfo.id,
+      pageLink: rssFeed.link ?? '',
+      rss: podcastInfo.rss,
+      image: rssFeed.image?.url ?? rssFeed.itunes?.image?.href ?? 'S',
+      title: rssFeed.itunes?.title ?? rssFeed.title ?? '',
+      description:
+          parseHtml(item: rssFeed.description ?? rssFeed.itunes?.summary ?? ''),
+      author: rssFeed.author ?? rssFeed.itunes?.author ?? '',
+      episodes: episodes,
+    );
   }
 }

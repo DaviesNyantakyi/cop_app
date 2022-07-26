@@ -12,7 +12,8 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late final getTrending = PodcastService().fetchTrending(reload: false);
+  late final getTrending =
+      PodcastService().getPodcast(reload: false, context: context);
 
   @override
   Widget build(BuildContext context) {

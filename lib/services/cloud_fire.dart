@@ -314,4 +314,48 @@ class CloudFire {
       rethrow;
     }
   }
+
+  // Podcasts
+  Future<List<PodcastInfoModel>> getPodcastsSubscriptionsFireStore() async {
+    // get the podcast rss link and page link from firestore.
+    try {
+      final hasConnection = await _connectionChecker.checkConnection();
+      if (hasConnection) {
+        QuerySnapshot<Map<String, dynamic>>? qSnap;
+
+        qSnap = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_firebaseAuth.currentUser?.uid)
+            .collection('subscriptions')
+            .get();
+
+        final listQDocSnap = qSnap.docs;
+
+        List<PodcastInfoModel> listPodRssInfo = listQDocSnap.map((doc) {
+          return PodcastInfoModel.fromMap(map: doc.data());
+        }).toList();
+
+        return listPodRssInfo;
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>>? getPodcastStream() {
+    try {
+      return _firebaseFirestore.collection('podcasts').snapshots();
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
+  }
 }
