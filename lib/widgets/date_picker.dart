@@ -1,5 +1,5 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -40,20 +40,20 @@ dependencies:
   dart_date: ^1.1.0 # Formating dates
   timeago: ^3.2.2 # Date in time ago
 
-  font_awesome_flutter: ^10.1.0 # Icons
+  bootstrap_icons: ^1.8.1 # Icons
   flutter_easyloading: ^3.0.3 # Loading indicator
   flutter_markdown: ^0.6.10  # For reading markdown files
   responsive_builder: ^0.4.2 # For screen sizes
   expandable_text: ^2.3.0 # Show more text button
   enum_to_string: ^2.0.1 # For turning enums into String
-  skeletons: ^0.0.3 # For showing shimmer effect
+  fancy_shimmer_image: ^2.0.2 
 
   dio: ^4.0.6 # Make http request
+  url_launcher: ^6.1.5 
   internet_connection_checker: ^0.0.1+3  # Check for actual internet connection
   webfeed: ^0.7.0 # For reading rssFeeds
   html: ^0.15.0 # For pasring html tags
 
-  video_player: ^2.4.2 # Play videos
   just_audio: ^0.9.24 # For playing audio
   audio_service: ^0.18.4 # For notifcation and playing background audio 
 
@@ -61,8 +61,13 @@ dependencies:
   image_picker: ^0.8.4+4 # Pick image from camera or gallery
   image_cropper: ^1.5.0 # Crop selected images
   image_downloader: ^0.31.0 # Download images
-  permission_handler: ^9.1.0 # Ask for permission
   app_settings: ^4.1.1 # Go to the device app settings
+  flutter_dotenv: ^5.0.2
+
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.0.11
+  permission_handler: ^9.1.0 # Ask for permission
 
   uuid: ^3.0.6 # Generate unique id
   firebase_core: ^1.10.6 # Initialize firebase functionalities
@@ -71,6 +76,8 @@ dependencies:
   cloud_firestore: ^3.1.5 # Store date in firestore
   google_sign_in: ^5.2.4 # Google signin flow 
   sign_in_with_apple: ^4.0.0 # Apple signin flow
+  crypto: ^3.0.2
+  convert: ^3.0.2
 
 
 dev_dependencies:
@@ -83,6 +90,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
+  hive_generator: ^1.1.3
+  build_runner: ^2.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -97,6 +106,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/images/
     - assets/privacy/
 

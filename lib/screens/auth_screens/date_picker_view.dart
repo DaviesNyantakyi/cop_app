@@ -1,7 +1,7 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/formal_date_format.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
@@ -12,6 +12,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../utilities/formal_dates.dart';
 
 class DatePickerView extends StatefulWidget {
   final PageController pageController;
@@ -80,7 +82,7 @@ class _DatePickerViewState extends State<DatePickerView> {
 
   Future<void> showDatePicker() async {
     await showCustomDatePicker(
-      height: null,
+      height: MediaQuery.of(context).size.height * 0.33,
       initialDateTime: signUpNotifier.dateOfBirth ?? DateTime.now(),
       maxDate: DateTime.now(),
       mode: CupertinoDatePickerMode.date,
@@ -148,7 +150,7 @@ class _DatePickerViewState extends State<DatePickerView> {
         Widget? displayName;
 
         if (signUpNotifier.displayName != null) {
-          question = 'What\'s your date of birth?';
+          question = 'What\'s your date of birth,';
           displayName = Text(
             '${signUpNotifier.displayName?.trim() ?? signUpNotifier.firstNameCntlr.text.trim()}?',
             style: Theme.of(context).textTheme.headline5,
@@ -190,27 +192,23 @@ class _DatePickerViewState extends State<DatePickerView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: kContentSpacing8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          color: kBlack,
-                          size: kIconSize,
-                        ),
-                        const SizedBox(width: kContentSpacing8),
-                        Text(
+                    const Icon(
+                      BootstrapIcons.calendar,
+                      color: kBlack,
+                      size: kIconSize,
+                    ),
+                    const SizedBox(width: kContentSpacing8),
+                    Text(
+                      FormalDates.formatDmyyyy(
+                            date: signUpNotifier.dateOfBirth?.toLocal(),
+                          ) ??
                           FormalDates.formatDmyyyy(
-                                date: signUpNotifier.dateOfBirth?.toLocal(),
-                              ) ??
-                              FormalDates.formatDmyyyy(
-                                date: DateTime.now().toLocal(),
-                              ) ??
-                              '',
-                          style: Theme.of(context).textTheme.bodyText1,
-                        ),
-                      ],
+                            date: DateTime.now().toLocal(),
+                          ) ??
+                          '',
+                      style: Theme.of(context).textTheme.bodyText1,
                     ),
                   ],
                 ),

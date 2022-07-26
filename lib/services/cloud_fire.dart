@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/podcast_info_model.dart';
-import 'package:cop_belgium_app/models/question_answer_model.dart';
-import 'package:cop_belgium_app/models/teaching_clip_model.dart';
-import 'package:cop_belgium_app/models/testimony_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
@@ -76,21 +73,6 @@ class CloudFire {
       debugPrint(e.toString());
     }
     return null;
-  }
-
-  Stream<List<TeachingClipModel>> getTeachingClips() {
-    try {
-      final qSnap = _firebaseFirestore.collection('teaching_clips').snapshots();
-
-      return qSnap.map((qSnap) {
-        return qSnap.docs.map((e) {
-          return TeachingClipModel.fromMap(map: e.data());
-        }).toList();
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
   }
 
   Future<void> updatePhotoURL({required String? photoURL}) async {
@@ -292,156 +274,6 @@ class CloudFire {
               .delete();
           await FireStorage().deleteUser();
         }
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  // Testimonies
-  Future<bool?> createTestimony({required TestimonyModel testimony}) async {
-    try {
-      bool hasConnection = await _connectionChecker.checkConnection();
-
-      if (hasConnection) {
-        final docRef = await _firebaseFirestore.collection('testimonies').add(
-              testimony.toMap(),
-            );
-        docRef.update({'id': docRef.id});
-        return true;
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Stream<List<TestimonyModel>> getTestimonies() {
-    try {
-      final qSnap = _firebaseFirestore.collection('testimonies').snapshots();
-
-      return qSnap.map((qSnap) {
-        return qSnap.docs.map((e) {
-          return TestimonyModel.fromMap(map: e.data());
-        }).toList();
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<bool?> updateTestimony({required TestimonyModel testimony}) async {
-    try {
-      bool hasConnection = await _connectionChecker.checkConnection();
-
-      if (hasConnection) {
-        await _firebaseFirestore
-            .collection('testimonies')
-            .doc(testimony.id)
-            .update(
-              testimony.toMap(),
-            );
-        await _firebaseFirestore
-            .collection('testimonies')
-            .doc(testimony.id)
-            .update({
-          'updatedAt': DateTime.now(),
-        });
-        return true;
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<bool?> deleteTestimony(
-      {required TestimonyModel testimonyModel}) async {
-    try {
-      bool hasConnection = await _connectionChecker.checkConnection();
-
-      if (hasConnection) {
-        // delete doc
-        await _firebaseFirestore
-            .collection('testimonies')
-            .doc(testimonyModel.id)
-            .delete();
-        return true;
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  // QuestionAnswer
-
-  Stream<List<QuestionAnswerModel>> getQuestionAnswersStream() {
-    try {
-      final qSnap =
-          _firebaseFirestore.collection('question_answers').snapshots();
-
-      return qSnap.map((qSnap) {
-        return qSnap.docs.map((e) {
-          return QuestionAnswerModel.fromMap(map: e.data());
-        }).toList();
-      });
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<bool?> createQuestionAnwsers({
-    required QuestionAnswerModel questionAnswerModel,
-  }) async {
-    try {
-      bool hasConnection = await _connectionChecker.checkConnection();
-
-      if (hasConnection) {
-        final docRef =
-            await _firebaseFirestore.collection('question_answers').add(
-                  questionAnswerModel.toMap(),
-                );
-        docRef.update({'id': docRef.id});
-        return true;
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
-  Future<bool?> deleteQuestion({
-    required QuestionAnswerModel questionAnswerModel,
-  }) async {
-    try {
-      bool hasConnection = await _connectionChecker.checkConnection();
-
-      if (hasConnection) {
-        await _firebaseFirestore
-            .collection('question_answers')
-            .doc(questionAnswerModel.id)
-            .delete();
-        return true;
       } else {
         throw ConnectionNotifier.connectionException;
       }

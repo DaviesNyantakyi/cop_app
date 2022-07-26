@@ -1,3 +1,4 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/sign_in_screen.dart';
 import 'package:cop_belgium_app/screens/auth_screens/signup_page_view.dart';
@@ -12,7 +13,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
@@ -116,7 +116,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Center(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenInfo.screenSize.width >= kScreenSizeTablet
+                  horizontal: screenInfo.screenSize.width >= kScreenTablet
                       ? kContentSpacing64
                       : kContentSpacing16,
                 ),
@@ -171,18 +171,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       builder: (context, screenInfo) {
         return Column(
           children: [
-            screenInfo.screenSize.width < kScreenSizeMobile
+            screenInfo.screenSize.width < kScreenMoible
                 ? Container()
                 : const CopLogo(
                     width: 100,
                     height: 100,
                   ),
-            screenInfo.screenSize.width < kScreenSizeMobile
+            screenInfo.screenSize.width < kScreenMoible
                 ? Container()
                 : const SizedBox(height: kContentSpacing20),
             Text(
               'Church of Pentecost Belgium',
-              style: screenInfo.screenSize.width <= kScreenSizeMobile
+              style: screenInfo.screenSize.width <= kScreenMoible
                   ? Theme.of(context).textTheme.bodyText1?.copyWith(
                         color: kBlue,
                         fontWeight: FontWeight.w500,
@@ -195,7 +195,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             FittedBox(
               child: Text(
                 'Welcome',
-                style: screenInfo.screenSize.width <= kScreenSizeMobile
+                style: screenInfo.screenSize.width <= kScreenMoible
                     ? Theme.of(context).textTheme.bodyText1?.copyWith(
                           color: kBlue,
                           fontWeight: FontWeight.w500,
@@ -217,10 +217,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       builder: (context, screenInfo) {
         return CustomIconButton(
           height: kButtonHeight,
-          leading: screenInfo.screenSize.width <= kScreenSizeMobile
+          leading: screenInfo.screenSize.width <= kScreenMoible
               ? Container()
               : const Icon(
-                  FontAwesomeIcons.google,
+                  BootstrapIcons.google,
                   size: 30,
                   color: kWhite,
                 ),
@@ -240,37 +240,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildAppleButton() {
-    return ResponsiveBuilder(
-      builder: (context, screenInfo) {
-        return CustomIconButton(
-          height: kButtonHeight,
-          backgroundColor: kBlack,
-          leading: screenInfo.screenSize.width <= kScreenSizeMobile
-              ? Container()
-              : const Icon(
-                  FontAwesomeIcons.apple,
-                  size: 32,
-                  color: kWhite,
-                ),
-          label: FittedBox(
-            child: Text(
-              'Continue with Apple',
-              style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: kWhite,
-                  ),
-            ),
-          ),
-          onPressed: continueWithApple,
-        );
-      },
+    return CustomIconButton(
+      height: kButtonHeight,
+      backgroundColor: kBlack,
+      leading: const Icon(
+        BootstrapIcons.apple,
+        size: 32,
+        color: kWhite,
+      ),
+      label: FittedBox(
+        child: Text(
+          'Continue with Apple',
+          style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: kWhite,
+              ),
+        ),
+      ),
+      onPressed: continueWithApple,
     );
   }
 
   Widget _buildEmailButton({required BuildContext context}) {
     return CustomElevatedButton(
       height: kButtonHeight,
-      side: const BorderSide(width: kBoderWidth, color: kBlack),
+      side: const BorderSide(),
+      backgroundColor: kWhite,
       child: FittedBox(
         child: Text(
           'Continue with Email',

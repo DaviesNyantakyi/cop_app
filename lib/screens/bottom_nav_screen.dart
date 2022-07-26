@@ -1,11 +1,9 @@
-import 'package:cop_belgium_app/providers/audio_notifier.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
-import 'package:cop_belgium_app/screens/question_answer_screen/question_answer_screen.dart';
-import 'package:cop_belgium_app/screens/sermon_screens/sermon_screen.dart';
-import 'package:cop_belgium_app/screens/teaching_clips_screens/teaching_clips_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+import 'podcast_screens/podcast_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   const BottomNavigationScreen({Key? key}) : super(key: key);
@@ -19,43 +17,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
   int selectedIndex = 0;
 
   final List<Widget> screens = [
-    const SermonsScreen(),
-    const TeachingClipScreen(),
-    const QuestionAnswerScreen(),
+    const PodcastScreen(),
     const MoreScreen(),
   ];
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        debugPrint('AppLifecycleState Resumed');
-        break;
-      case AppLifecycleState.inactive:
-        debugPrint('AppLifecycleState Inactive');
-        break;
-      case AppLifecycleState.paused:
-        debugPrint('AppLifecycleState Paused');
-        break;
-      case AppLifecycleState.detached:
-        // Stop the audio when the app is closed
-        await Provider.of<AudioPlayerNotifier>(context, listen: false).close();
-        debugPrint('AppLifecycleState Detached');
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,20 +63,12 @@ Widget _buildBottomNavBar({
     onTap: onTap,
     items: [
       _buildBottomNavItem(
-        label: 'Sermons',
-        icon: Icons.headphones,
-      ),
-      _buildBottomNavItem(
-        label: 'Clips',
-        icon: Icons.video_library_outlined,
-      ),
-      _buildBottomNavItem(
-        label: 'Q&A',
-        icon: Icons.question_answer_outlined,
+        label: 'Podcasts',
+        icon: BootstrapIcons.headphones,
       ),
       _buildBottomNavItem(
         label: 'More',
-        icon: Icons.menu_outlined,
+        icon: BootstrapIcons.list,
       ),
     ],
   );

@@ -1,16 +1,20 @@
-import 'package:cop_belgium_app/providers/audio_notifier.dart';
+import 'package:cop_belgium_app/models/episode_model.dart';
+import 'package:cop_belgium_app/models/podcast_model.dart';
+import 'package:cop_belgium_app/providers/audio_provider.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/auth_wrapper.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/custom_track_shape.dart';
-import 'package:cop_belgium_app/widgets/progress_indicator.dart';
+import 'package:cop_belgium_app/widgets/track_shape.dart';
+import 'package:cop_belgium_app/widgets/circular_progress_indicator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-late AudioPlayerNotifier _audioPlayerNotifier;
+late AudioProvider _audioProvider;
 
 const String unsplash =
     'https://images.unsplash.com/photo-1654447398834-4168622aab14?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxOHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60';
@@ -23,7 +27,19 @@ Future<void> main() async {
 Future<void> _init() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  _audioPlayerNotifier = await initAudioSerivce();
+
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(PodcastModelAdapter());
+  Hive.registerAdapter(EpisodeModelAdapter());
+
+  await Hive.openBox<PodcastModel>('podcasts');
+  await Hive.openBox<PodcastModel>('subscriptions');
+  await Hive.openBox<EpisodeModel>('downloads');
+
+  _audioProvider = await initAudioSerivce();
+  await dotenv.load(fileName: ".env");
+
   ResponsiveSizingConfig.instance.setCustomBreakpoints(
     const ScreenBreakpoints(
       desktop: 860,
@@ -56,8 +72,8 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider<SignUpNotifier>(
             create: (conext) => SignUpNotifier(),
           ),
-          ChangeNotifierProvider<AudioPlayerNotifier>.value(
-            value: _audioPlayerNotifier,
+          ChangeNotifierProvider<AudioProvider>.value(
+            value: _audioProvider,
           ),
         ],
         child: const AuthWrapper(),
@@ -76,6 +92,12 @@ ThemeData _theme({required BuildContext context}) {
     iconTheme: const IconThemeData(
       color: kBlack,
       size: kIconSize,
+    ),
+    tabBarTheme: TabBarTheme(
+      labelColor: kBlue,
+      unselectedLabelColor: kBlack,
+      labelStyle: Theme.of(context).textTheme.bodyText2,
+      unselectedLabelStyle: Theme.of(context).textTheme.bodyText2,
     ),
     appBarTheme: AppBarTheme(
       elevation: 2,

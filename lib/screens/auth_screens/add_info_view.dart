@@ -1,13 +1,14 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
-import 'package:cop_belgium_app/widgets/custom_bottomsheet.dart';
+import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
-import 'package:cop_belgium_app/widgets/custom_text_form_field.dart';
+import 'package:cop_belgium_app/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,6 @@ class _AddInfoViewState extends State<AddInfoView> {
 
   Future<void> onSubmit() async {
     // Hide keyboard
-
     FocusScope.of(context).unfocus();
     try {
       bool hasConnection = await ConnectionNotifier().checkConnection();
@@ -226,7 +226,7 @@ class _AddInfoViewState extends State<AddInfoView> {
           maxLines: 1,
           suffixIcon: GestureDetector(
             child: Icon(
-              obscureText ? Icons.visibility_off : Icons.visibility,
+              obscureText ? BootstrapIcons.eye_slash : BootstrapIcons.eye,
               color: kBlack,
             ),
             onTap: () {

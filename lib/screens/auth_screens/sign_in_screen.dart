@@ -7,7 +7,7 @@ import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
-import 'package:cop_belgium_app/widgets/custom_text_form_field.dart';
+import 'package:cop_belgium_app/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +112,7 @@ class _SignInScreenState extends State<SignInScreen> {
             body: SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenInfo.screenSize.width >= kScreenSizeTablet
+                  horizontal: screenInfo.screenSize.width >= kScreenTablet
                       ? kContentSpacing24
                       : kContentSpacing16,
                   vertical: kContentSpacing24,
@@ -150,7 +150,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
         String text = 'Sign in with email and password';
-        if (screenInfo.screenSize.width < kScreenSizeMobile) {
+        if (screenInfo.screenSize.width < kScreenMoible) {
           text = 'Sign in';
         }
         return Text(text, style: Theme.of(context).textTheme.headline5);

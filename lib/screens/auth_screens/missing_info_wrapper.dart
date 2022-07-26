@@ -3,7 +3,7 @@ import 'package:cop_belgium_app/screens/auth_screens/missing_info_page_view.dart
 import 'package:cop_belgium_app/screens/bottom_nav_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
-import 'package:cop_belgium_app/widgets/custom_error_widget.dart';
+import 'package:cop_belgium_app/widgets/error_widget.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -1,100 +1,173 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cop_belgium_app/models/episodes_model.dart';
-import 'package:cop_belgium_app/models/podcast_info_model.dart';
-import 'package:cop_belgium_app/models/podcast_model.dart';
-import 'package:cop_belgium_app/services/cloud_fire.dart';
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:html/parser.dart' show parse;
-import 'package:uuid/uuid.dart';
-import 'package:webfeed/domain/rss_feed.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import '../models/episode_model.dart';
+import '../models/podcast_model.dart';
+import '../utilities/hive_boxes.dart';
+import '../utilities/parse_html.dart';
 
 class PodcastService {
-  final CloudFire cloudFire = CloudFire();
+  final _podIndexApiKey = dotenv.env['PODCASTINDEXAPIKEY'];
+  final _podIndexSecret = dotenv.env['PODCASTINDEXSECRET'];
+  final String _baseURL = 'https://api.podcastindex.org';
 
-  final List<PodcastModel> _podcasts = [];
+  final _dio = Dio();
 
-  List<PodcastModel> get podcasts => _podcasts;
-  final _uuid = const Uuid();
+  Map<String, String> _initHeader() {
+    final unixTime = (DateTime.now().toUtc().millisecondsSinceEpoch / 1000)
+        .round()
+        .toString();
 
-  Future<PodcastModel?> getPodcasts({required BuildContext context}) async {
-    try {
-      // Get podcasts with rssLinks from firestore
-      List<PodcastInfoModel> podcasts = await cloudFire.getPodcastsFireStore();
+    final firstChunk = utf8.encode(_podIndexApiKey.toString());
+    final secondChunk = utf8.encode(_podIndexSecret.toString());
+    final thirdChunk = utf8.encode(unixTime);
+    var output = AccumulatorSink<Digest>();
+    var input = sha1.startChunkedConversion(output);
+    input.add(firstChunk);
+    input.add(secondChunk);
+    input.add(thirdChunk);
+    input.close();
+    var digest = output.events.single;
 
-      // Make http call for each podcast in the list.
-      for (var podcastInfo in podcasts) {
-        final response = await Dio().getUri(Uri.parse(podcastInfo.rssFeed));
-        if (response.statusCode == 200) {
-          final rssFeed = RssFeed.parse(response.data);
-
-          // Create a podcastModel
-          final podcast = createPodcast(rssFeed: rssFeed, context: context);
-          _podcasts.add(podcast);
-        }
-      }
-      return null;
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
+    var headers = <String, String>{
+      "X-Auth-Date": unixTime,
+      "X-Auth-Key": _podIndexApiKey.toString(),
+      "Authorization": digest.toString(),
+      "User-Agent": "flutter_podcast_player/1.0"
+    };
+    return headers;
   }
 
-  PodcastModel createPodcast({
-    required RssFeed rssFeed,
-    required BuildContext context,
-  }) {
-    // Precache the podcast images
-    if (rssFeed.image?.url != null) {
-      precacheImage(
-        CachedNetworkImageProvider(rssFeed.image!.url!),
-        context,
-      );
-    }
+  Future<List<PodcastModel>?> fetchTrending({
+    int? max,
+    required bool reload,
+  }) async {
+    try {
+      final url =
+          '$_baseURL/api/1.0/podcasts/trending?&max=${Uri.encodeComponent('$max')}&pretty';
 
-    // Go through each rssitem and create a episodeModel
-    List<EpisodeModel> episodes = rssFeed.items!.map((rssItem) {
-      //  Precache the episode images
-      if (rssItem.itunes?.image?.href != null) {
-        precacheImage(
-          CachedNetworkImageProvider(rssFeed.itunes!.image!.href!),
-          context,
+      final podBox = HiveBoxes().getPodcasts();
+
+      if (reload) {
+        await podBox.clear();
+      }
+      if (podBox.values.isNotEmpty) {
+        return podBox.values.toList();
+      }
+      final podcasts = await _fetchPodcast(url: url);
+
+      if (podcasts != null) {
+        await Future.wait(
+          podcasts.map(
+            (podcast) => podBox.put(podcast.id, podcast),
+          ),
         );
       }
-      return EpisodeModel(
-        id: rssItem.enclosure!.url!,
-        title: rssItem.itunes?.title ?? rssItem.title ?? '',
-        author: rssFeed.author ?? rssFeed.itunes?.author ?? '',
-        imageURL: rssFeed.itunes?.image?.href ?? rssFeed.image?.url ?? '',
-        duration: Duration(seconds: rssItem.itunes?.duration?.inSeconds ?? 0),
-        date: rssItem.pubDate ?? DateTime.now(),
-        audioURL: rssItem.enclosure?.url ?? '',
-        description: _parseHtml(item: rssItem.description ?? ''),
-      );
-    }).toList();
-
-    return PodcastModel(
-      id: _uuid.v4(),
-      pageURL: rssFeed.link ?? '',
-      imageURL: rssFeed.image?.url ?? rssFeed.itunes?.image?.href ?? 'S',
-      title: rssFeed.itunes?.title ?? rssFeed.title ?? '',
-      description: _parseHtml(
-          item: rssFeed.description ?? rssFeed.itunes?.summary ?? ''),
-      author: rssFeed.author ?? rssFeed.itunes?.author ?? '',
-      episodes: episodes,
-    );
+      return podcasts;
+    } on DioError catch (e) {
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return null;
   }
 
-  static String _parseHtml({required String item}) {
-    //Returns a rss description without the p tag.
+  Future<List<PodcastModel>?> _fetchPodcast({required String url}) async {
+    try {
+      final header = _initHeader();
 
-    final doc = parse(item);
-    String newText = doc.body!.text;
+      final response = await _dio.get(url, options: Options(headers: header));
 
-    return newText;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.toString());
+        List<dynamic>? feeds = data['feeds'];
+
+        if (feeds != null) {
+          final podcasts = feeds.map((feed) async {
+            final String id = feed['id'].toString();
+            final episodes = await fetchEpisodes(id: id, feed: feed);
+
+            return PodcastModel(
+              id: id,
+              image: feed['image'],
+              title: feed['title'],
+              description: feed['description'],
+              author: feed['author'],
+              pageLink: feed['link'],
+              rss: feed['url'],
+              episodes: episodes,
+            );
+          }).toList();
+
+          // List<Future<PodcastModel>>  to List<PodcastModels>
+          List<PodcastModel> mappedPodcast = await Future.wait(
+            podcasts.map((podcast) async => await podcast),
+          );
+
+          return mappedPodcast;
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return null;
+  }
+
+  Future<List<EpisodeModel>?> fetchEpisodes({
+    required String id,
+    required dynamic feed,
+  }) async {
+    try {
+      final url =
+          '$_baseURL/api/1.0/episodes/byfeedid?id=${Uri.encodeComponent(id)}&pretty';
+
+      final header = _initHeader();
+      final response = await _dio.get(
+        url,
+        options: Options(headers: header),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.toString());
+        List<dynamic>? feedsItems = data['items'];
+
+        if (feedsItems != null) {
+          final episodes = feedsItems.map((item) {
+            return EpisodeModel(
+              id: item['id'].toString(),
+              image: feed['image'],
+              title: item['title'],
+              description: parseHtml(item: item['description']),
+              audio: item['enclosureUrl'],
+              author: feed['author'],
+              pageLink: item['link'],
+              duration: item['duration'],
+              pubDate: DateTime.fromMillisecondsSinceEpoch(
+                item['datePublished'] * 1000,
+              ),
+            );
+          }).toList();
+
+          return episodes;
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return null;
+  }
+
+  Future<void> savePodcast({required PodcastModel podcast}) async {
+    try {
+      final subBox = HiveBoxes().getSubScriptions();
+      await subBox.put(podcast.id, podcast);
+    } catch (e) {
+      rethrow;
+    }
   }
 }

@@ -1,19 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
-import 'package:cop_belgium_app/providers/audio_notifier.dart';
+import 'package:cop_belgium_app/providers/audio_provider.dart';
 import 'package:cop_belgium_app/providers/signup_notifier.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
-import 'package:cop_belgium_app/screens/testimonies_screens/testimonies_screen.dart';
+import 'package:cop_belgium_app/screens/library_screen/library_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../profile_screen/profile_screen.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({Key? key}) : super(key: key);
@@ -25,7 +26,6 @@ class MoreScreen extends StatefulWidget {
 class _MoreScreenState extends State<MoreScreen> {
   final firebaseAuth = FirebaseAuth.instance;
 
-  late SignUpNotifier signUpNotifier;
   late final userStream = CloudFire().getUserStream(
     uid: FirebaseAuth.instance.currentUser!.uid,
   );
@@ -37,17 +37,11 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   void init() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     setState(() {});
   }
 
   Future<void> logout() async {
     try {
-      final audioPlayerNotifier = Provider.of<AudioPlayerNotifier>(
-        context,
-        listen: false,
-      );
-      await audioPlayerNotifier.close();
       await FireAuth().signOut();
     } on FirebaseAuthException catch (e) {
       showCustomSnackBar(
@@ -61,9 +55,10 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
-  void navigateToScreen({required Widget screen}) {
+  Future<void> navigateToScreen() async {
+    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
     if (firebaseAuth.currentUser?.isAnonymous == true) {
-      Navigator.push(
+      await Navigator.push(
         context,
         CupertinoPageRoute(
           builder: (context) => ChangeNotifierProvider<SignUpNotifier>.value(
@@ -76,7 +71,14 @@ class _MoreScreenState extends State<MoreScreen> {
       Navigator.push(
         context,
         CupertinoPageRoute(
-          builder: (context) => screen,
+          builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider<SignUpNotifier>.value(
+                value: signUpNotifier,
+              ),
+            ],
+            child: const ProfileScreen(),
+          ),
         ),
       );
     }
@@ -84,50 +86,62 @@ class _MoreScreenState extends State<MoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          vertical: kContentSpacing24,
-          horizontal: kContentSpacing24,
+    return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
+      return Scaffold(
+        appBar: _buildAppBar(),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            vertical: kContentSpacing24,
+            horizontal: kContentSpacing24,
+          ),
+          child: Column(
+            children: [
+              _buildProfileTile(),
+              const Divider(),
+              _buildTile(
+                title: 'Library',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => MultiProvider(
+                        providers: [
+                          ChangeNotifierProvider<AudioProvider>.value(
+                            value: audioProvider,
+                          )
+                        ],
+                        child: const LibraryScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildTile(
+                title: 'About Church',
+                onTap: () {},
+              ),
+              _buildTile(
+                title: 'Settings',
+                onTap: () {},
+              ),
+              _buildTile(
+                title: 'Logout',
+                onTap: logout,
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          children: [
-            _buildProfileTile(),
-            const SizedBox(height: kContentSpacing24),
-            const Divider(),
-            _buildTile(
-              title: 'Testimonies',
-              onTap: () => navigateToScreen(screen: const TestimoniesScreen()),
-            ),
-            _buildTile(
-              title: 'Request Baptism',
-              onTap: () {},
-            ),
-            const Divider(),
-            _buildTile(
-              title: 'About Church',
-              onTap: () {},
-            ),
-            _buildTile(
-              title: 'Settings',
-              onTap: () {},
-            ),
-            _buildTile(
-              title: 'Logout',
-              onTap: logout,
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    });
   }
 
   PreferredSizeWidget? _buildAppBar() {
     return AppBar(
       title: Text(
         'More',
-        style: Theme.of(context).textTheme.headline6,
+        style: Theme.of(context).textTheme.headline6?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
       ),
     );
   }
@@ -152,8 +166,6 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildAvatar() {
-    // final user = firebaseAuth.currentUser;
-
     return StreamBuilder<UserModel?>(
       stream: userStream,
       builder: (context, snapshot) {
@@ -196,7 +208,10 @@ class _MoreScreenState extends State<MoreScreen> {
                     : snapshot.data?.displayName ??
                         firebaseAuth.currentUser?.displayName ??
                         'user',
-                style: Theme.of(context).textTheme.bodyText1,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.copyWith(color: kBlack),
               ),
               firebaseAuth.currentUser?.isAnonymous == true
                   ? Container()
@@ -205,7 +220,10 @@ class _MoreScreenState extends State<MoreScreen> {
                   ? Container()
                   : Text(
                       snapshot.data?.church?['churchName'] ?? '',
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText2
+                          ?.copyWith(color: kBlack),
                     ),
             ],
           );
@@ -216,10 +234,12 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Widget _buildProfileTile() {
-    return GestureDetector(
+    return CustomElevatedButton(
       child: SizedBox(
         height: 100,
+        width: double.infinity,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildAvatar(),
             const SizedBox(width: kContentSpacing12),
@@ -227,42 +247,7 @@ class _MoreScreenState extends State<MoreScreen> {
           ],
         ),
       ),
-      onTap: () => navigateToScreen(screen: const ProfileScreen()),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: _buildAppBar(context: context),
-        body: SingleChildScrollView(
-          child: Container(),
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget? _buildAppBar({required BuildContext context}) {
-    return AppBar(
-      leading: const CustomBackButton(),
-      title: Text(
-        'Profile',
-        style: Theme.of(context).textTheme.headline6,
-      ),
-      actions: [
-        CustomElevatedButton(
-          child: Text(
-            'Edit profile',
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-          onPressed: () {},
-        )
-      ],
+      onPressed: () => navigateToScreen(),
     );
   }
 }

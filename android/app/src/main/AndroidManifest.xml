@@ -16,6 +16,7 @@
         android:label="COP Belgium"
         android:requestLegacyExternalStorage="true"
         android:name="${applicationName}"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
          <!-- Audio Service Package: android:name="com.ryanheise.audioservice.AudioServiceActivity -->
         <activity

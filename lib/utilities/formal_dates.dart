@@ -47,7 +47,7 @@ class FormalDates {
     return null;
   }
 
-  static String episodeDuration({required Duration duration}) {
+  static String playerDuration({required Duration duration}) {
     // formats the episode duration in hh:mm:ss
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final hours = twoDigits(duration.inHours);

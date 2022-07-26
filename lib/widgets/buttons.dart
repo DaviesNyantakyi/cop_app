@@ -76,6 +76,7 @@ class CustomIconButton extends StatelessWidget {
   final double? width;
   final double? radius;
   final Color backgroundColor;
+  final BorderSide? side;
 
   const CustomIconButton({
     Key? key,
@@ -86,6 +87,7 @@ class CustomIconButton extends StatelessWidget {
     this.width,
     this.radius = kRadius,
     this.backgroundColor = kBlue,
+    this.side,
   }) : super(key: key);
 
   @override
@@ -94,6 +96,7 @@ class CustomIconButton extends StatelessWidget {
       height: height,
       width: width,
       child: CustomElevatedButton(
+        side: side,
         backgroundColor: backgroundColor,
         child: Stack(
           children: <Widget>[
@@ -106,47 +109,6 @@ class CustomIconButton extends StatelessWidget {
         ),
         onPressed: onPressed,
       ),
-    );
-  }
-}
-
-class SocialRatingButton extends StatelessWidget {
-  final IconData leading;
-  final String label;
-  final VoidCallback? onPressed;
-
-  const SocialRatingButton({
-    Key? key,
-    required this.leading,
-    required this.label,
-    this.onPressed,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomElevatedButton(
-      padding: EdgeInsets.zero,
-      width: null,
-      child: Row(
-        children: [
-          Row(
-            children: [
-              Icon(
-                leading,
-                color: Colors.black,
-                size: 18,
-              ),
-              const SizedBox(width: kContentSpacing4),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodyText2,
-              )
-            ],
-          ),
-          const SizedBox(width: kContentSpacing12),
-        ],
-      ),
-      onPressed: onPressed,
     );
   }
 }
