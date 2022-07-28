@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/add_info_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
@@ -25,27 +24,27 @@ class SignUpPageView extends StatefulWidget {
 }
 
 class _SignUpPageViewState extends State<SignUpPageView> {
-  late final SignUpNotifier signUpNotifier;
+  late final SignUpProvider signUpProvider;
   PageController pageController = PageController();
 
   @override
   void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     precacheChurchImages(context: context);
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpNotifier.close();
+    signUpProvider.close();
     super.dispose();
   }
 
   Future<void> signUp() async {
-    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     try {
       EasyLoading.show();
-      final result = await signUpNotifier.signUp();
+      final result = await signUpProvider.signUp();
       if (result == true) {
         Navigator.pop(context);
       }
@@ -93,6 +92,7 @@ class _SignUpPageViewState extends State<SignUpPageView> {
 
   Widget _churchSelectionView() {
     return ChurchSelectionScreen(
+      title: 'Select your church',
       appBar: AppBar(
         leading: CustomBackButton(
           onPressed: () {
@@ -105,8 +105,10 @@ class _SignUpPageViewState extends State<SignUpPageView> {
         return false;
       },
       onTap: (selectedChurch) {
+        FirebaseAuth.instance.signOut();
+
         if (selectedChurch != null) {
-          signUpNotifier.setSelectedChurch(value: selectedChurch);
+          signUpProvider.setSelectedChurch(value: selectedChurch);
           signUp();
         }
       },

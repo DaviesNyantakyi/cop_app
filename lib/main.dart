@@ -1,7 +1,7 @@
 import 'package:cop_belgium_app/models/episode_model.dart';
 import 'package:cop_belgium_app/models/podcast_model.dart';
 import 'package:cop_belgium_app/providers/audio_provider.dart';
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/auth_wrapper.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/track_shape.dart';
@@ -12,8 +12,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
-late AudioProvider _audioProvider;
 
 Future<void> main() async {
   await _init();
@@ -33,7 +31,7 @@ Future<void> _init() async {
   await Hive.openBox<PodcastModel>('subscriptions');
   await Hive.openBox<EpisodeModel>('downloads');
 
-  _audioProvider = await initAudioSerivce();
+  await initAudioSerivce();
 
   ResponsiveSizingConfig.instance.setCustomBreakpoints(
     const ScreenBreakpoints(
@@ -58,17 +56,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cop Belgium',
+      title: 'COP Belgium',
       theme: _theme(context: context),
       builder: EasyLoading.init(),
       debugShowCheckedModeBanner: false,
       home: MultiProvider(
         providers: [
-          ChangeNotifierProvider<SignUpNotifier>(
-            create: (conext) => SignUpNotifier(),
+          ChangeNotifierProvider<SignUpProvider>(
+            create: (conext) => SignUpProvider(),
           ),
           ChangeNotifierProvider<AudioProvider>.value(
-            value: _audioProvider,
+            value: AudioProvider(),
           ),
         ],
         child: const AuthWrapper(),

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../utilities/constant.dart';
 
@@ -105,31 +103,5 @@ Future<dynamic> showCustomBottomSheet({
         ),
       );
     },
-  );
-}
-
-void loadMdFile({required BuildContext context, required String mdFile}) {
-  FocusScope.of(context).unfocus();
-
-  showCustomBottomSheet(
-    height: MediaQuery.of(context).size.height * kBottomsheetHeight,
-    context: context,
-    child: FutureBuilder(
-      future: rootBundle.loadString(mdFile),
-      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-        if (snapshot.hasData) {
-          return MarkdownBody(
-            styleSheet: MarkdownStyleSheet(
-              p: Theme.of(context).textTheme.bodyText1,
-            ),
-            data: snapshot.data!,
-          );
-        }
-
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    ),
   );
 }

@@ -1,9 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/audio_provider.dart';
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/library_screen/library_screen.dart';
+import 'package:cop_belgium_app/screens/more_screen/about_church_screen.dart';
+import 'package:cop_belgium_app/screens/more_screen/settings_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/avatar.dart';
 import '../profile_screen/profile_screen.dart';
 
 class MoreScreen extends StatefulWidget {
@@ -56,13 +58,14 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   Future<void> navigateToScreen() async {
-    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    // Go to the welcome screen if the user is anonymous
+    final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     if (firebaseAuth.currentUser?.isAnonymous == true) {
       await Navigator.push(
         context,
         CupertinoPageRoute(
-          builder: (context) => ChangeNotifierProvider<SignUpNotifier>.value(
-            value: signUpNotifier,
+          builder: (context) => ChangeNotifierProvider<SignUpProvider>.value(
+            value: signUpProvider,
             child: const WelcomeScreen(),
           ),
         ),
@@ -73,8 +76,8 @@ class _MoreScreenState extends State<MoreScreen> {
         CupertinoPageRoute(
           builder: (context) => MultiProvider(
             providers: [
-              ChangeNotifierProvider<SignUpNotifier>.value(
-                value: signUpNotifier,
+              ChangeNotifierProvider<SignUpProvider>.value(
+                value: signUpProvider,
               ),
             ],
             child: const ProfileScreen(),
@@ -91,42 +94,59 @@ class _MoreScreenState extends State<MoreScreen> {
         appBar: _buildAppBar(),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
-            vertical: kContentSpacing24,
-            horizontal: kContentSpacing24,
+            vertical: kContentSpacing16,
           ),
           child: Column(
             children: [
               _buildProfileTile(),
               const Divider(),
-              _buildTile(
-                title: 'Library',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => MultiProvider(
-                        providers: [
-                          ChangeNotifierProvider<AudioProvider>.value(
-                            value: audioProvider,
-                          )
-                        ],
-                        child: const LibraryScreen(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              _buildTile(
-                title: 'About Church',
-                onTap: () {},
-              ),
-              _buildTile(
-                title: 'Settings',
-                onTap: () {},
-              ),
-              _buildTile(
-                title: 'Logout',
-                onTap: logout,
+              Column(
+                children: [
+                  _buildTile(
+                    title: 'Library',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => MultiProvider(
+                            providers: [
+                              ChangeNotifierProvider<AudioProvider>.value(
+                                value: audioProvider,
+                              )
+                            ],
+                            child: const LibraryScreen(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    title: 'About Church',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const AboutChruchScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    title: 'Settings',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const SettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildTile(
+                    title: 'Logout',
+                    onTap: logout,
+                  ),
+                ],
               ),
             ],
           ),
@@ -150,12 +170,13 @@ class _MoreScreenState extends State<MoreScreen> {
     return SizedBox(
       height: kButtonHeight,
       child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(kRadius),
-          ),
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+        // shape: const RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.all(
+        //     Radius.circular(kRadius),
+        //   ),
+        // ),
         title: Text(
           title,
           style: Theme.of(context).textTheme.bodyText1,
@@ -165,31 +186,22 @@ class _MoreScreenState extends State<MoreScreen> {
     );
   }
 
-  Widget _buildAvatar() {
-    return StreamBuilder<UserModel?>(
-      stream: userStream,
-      builder: (context, snapshot) {
-        Widget child = const Icon(
-          Icons.person_outline_outlined,
-          color: kBlack,
-        );
-        ImageProvider<Object>? backgroundImage;
-
-        if (snapshot.hasData &&
-            snapshot.data?.photoURL != null &&
-            snapshot.data?.photoURL?.isEmpty == false) {
-          backgroundImage = CachedNetworkImageProvider(
-            snapshot.data!.photoURL!,
-          );
-          child = Container();
-        }
-        return CircleAvatar(
-          radius: 28,
-          backgroundColor: kGreyLight,
-          child: child,
-          backgroundImage: backgroundImage,
-        );
-      },
+  Widget _buildProfileTile() {
+    return CustomElevatedButton(
+      padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+      child: SizedBox(
+        height: 100,
+        width: double.infinity,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CustomAvatar(radius: 30),
+            const SizedBox(width: kContentSpacing12),
+            _buildUserInfo(),
+          ],
+        ),
+      ),
+      onPressed: () => navigateToScreen(),
     );
   }
 
@@ -230,24 +242,6 @@ class _MoreScreenState extends State<MoreScreen> {
         }
         return Container();
       },
-    );
-  }
-
-  Widget _buildProfileTile() {
-    return CustomElevatedButton(
-      child: SizedBox(
-        height: 100,
-        width: double.infinity,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildAvatar(),
-            const SizedBox(width: kContentSpacing12),
-            _buildUserInfo(),
-          ],
-        ),
-      ),
-      onPressed: () => navigateToScreen(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/screens/library_screen/downloads_screen.dart';
 import 'package:cop_belgium_app/screens/library_screen/subscriptions_screen.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -50,6 +51,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   dynamic _buildAppBar() {
     return AppBar(
+      leading: const CustomBackButton(),
       title: Text(
         'Library',
         style: Theme.of(context).textTheme.headline6?.copyWith(

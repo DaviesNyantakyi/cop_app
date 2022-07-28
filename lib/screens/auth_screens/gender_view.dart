@@ -1,4 +1,4 @@
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
@@ -84,17 +84,17 @@ class _GenderViewState extends State<GenderView> {
   }
 
   Widget _headerText() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         String question;
         String? displayName;
 
-        if (signUpNotifier.displayName != null) {
+        if (signUpProvider.displayName != null) {
           question = 'What\'s your gender,';
           displayName =
-              '${signUpNotifier.displayName?.trim() ?? signUpNotifier.firstNameCntlr.text.trim()}?';
+              '${signUpProvider.displayName?.trim() ?? signUpProvider.firstNameCntlr.text.trim()}?';
         } else {
-          question = 'What\'s your date of birth?';
+          question = 'What\'s your gender?';
           displayName = '';
         }
 
@@ -116,18 +116,18 @@ class _GenderViewState extends State<GenderView> {
   }
 
   Widget _genderButtons() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return Row(
           children: [
             Expanded(
               child: GenderContianer(
                 value: Gender.male,
-                groupsValue: signUpNotifier.selectedGender,
+                groupsValue: signUpProvider.selectedGender,
                 title: 'Male',
                 image: 'assets/images/male.png',
                 onChanged: (value) {
-                  signUpNotifier.setGender(value: value);
+                  signUpProvider.setGender(value: value);
                 },
               ),
             ),
@@ -135,11 +135,11 @@ class _GenderViewState extends State<GenderView> {
             Expanded(
               child: GenderContianer(
                 value: Gender.female,
-                groupsValue: signUpNotifier.selectedGender,
+                groupsValue: signUpProvider.selectedGender,
                 title: 'Female',
                 image: 'assets/images/female.png',
                 onChanged: (value) {
-                  signUpNotifier.setGender(value: value);
+                  signUpProvider.setGender(value: value);
                 },
               ),
             ),
@@ -150,9 +150,9 @@ class _GenderViewState extends State<GenderView> {
   }
 
   Widget _continueButton() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
-        final gender = signUpNotifier.selectedGender;
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
+        final gender = signUpProvider.selectedGender;
         return CustomElevatedButton(
           height: kButtonHeight,
           width: double.infinity,

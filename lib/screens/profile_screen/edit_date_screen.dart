@@ -1,44 +1,66 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
-import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/date_picker.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/cloud_fire.dart';
 import '../../utilities/formal_dates.dart';
 
-class DatePickerView extends StatefulWidget {
-  final PageController pageController;
-
-  const DatePickerView({
+class EditDateScreen extends StatefulWidget {
+  const EditDateScreen({
     Key? key,
-    required this.pageController,
   }) : super(key: key);
 
   @override
-  State<DatePickerView> createState() => _DatePickerViewState();
+  State<EditDateScreen> createState() => _EditDateScreenState();
 }
 
-class _DatePickerViewState extends State<DatePickerView> {
+class _EditDateScreenState extends State<EditDateScreen> {
+  final _cloudFire = CloudFire();
+  final firebaseAuth = FirebaseAuth.instance;
+
   final currentDate = DateTime.now();
   late SignUpProvider signUpProvider;
+  UserModel? user;
   String? dateOfBirthErrorText;
 
   @override
   void initState() {
     signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
+
+    init();
+
     super.initState();
   }
 
-  Future<void> onSubmit() async {
+  @override
+  void dispose() {
+    signUpProvider.close();
+    super.dispose();
+  }
+
+  Future<void> init() async {
+    user = await CloudFire().getUser(id: firebaseAuth.currentUser?.uid);
+    if (user?.dateOfBirth?.toDate() != null) {
+      signUpProvider.setDateOfBirth(value: user!.dateOfBirth!.toDate());
+    }
+
+    setState(() {});
+  }
+
+  Future<void> update() async {
     try {
       signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
 
@@ -46,12 +68,16 @@ class _DatePickerViewState extends State<DatePickerView> {
 
       if (signUpProvider.dateOfBirth?.year != null &&
           signUpProvider.dateOfBirth!.year < currentDate.year) {
+        EasyLoading.show();
+
+        await _cloudFire.updateUserDateOfBirth(
+            dateOfBirth: Timestamp.fromDate(signUpProvider.dateOfBirth!));
         if (hasConnection) {
-          nextPage(controller: widget.pageController);
         } else {
           throw ConnectionNotifier.connectionException;
         }
       }
+      Navigator.pop(context);
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
 
@@ -62,6 +88,8 @@ class _DatePickerViewState extends State<DatePickerView> {
       );
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
     }
   }
 
@@ -105,72 +133,66 @@ class _DatePickerViewState extends State<DatePickerView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        previousPage(pageContoller: widget.pageController);
-
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: CustomBackButton(
-            onPressed: () {
-              previousPage(pageContoller: widget.pageController);
-            },
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kContentSpacing16,
+            vertical: kContentSpacing24,
           ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kContentSpacing16,
-              vertical: kContentSpacing24,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _headerText(),
-                const SizedBox(height: kContentSpacing24),
-                _datePicker(),
-                const SizedBox(height: kContentSpacing32),
-                _continueButton()
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeaderText(),
+              const SizedBox(height: kContentSpacing24),
+              _datePicker(),
+              const SizedBox(height: kContentSpacing32),
+              _buildContinueButton()
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _headerText() {
+  dynamic _buildAppBar() {
+    return AppBar(
+      leading: const CustomBackButton(),
+      title: Text('Date of birth',
+          style: Theme.of(context)
+              .textTheme
+              .headline6
+              ?.copyWith(fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildHeaderText() {
     final headerStyle = Theme.of(context).textTheme.headline5;
 
-    return Consumer<SignUpProvider>(
-      builder: (context, signUpProvider, _) {
-        String question;
-        Widget? displayName;
+    String question;
+    Widget? displayName;
 
-        if (signUpProvider.displayName != null) {
-          question = 'What\'s your date of birth,';
-          displayName = Text(
-            '${signUpProvider.displayName?.trim() ?? signUpProvider.firstNameCntlr.text.trim()}?',
-            style: Theme.of(context).textTheme.headline5,
-          );
-        } else {
-          question = 'What\'s your date of birth?';
-          displayName = Container();
-        }
+    if (user?.displayName != null) {
+      question = 'What\'s your date of birth,';
+      displayName = Text(
+        '${user?.displayName?.trim() ?? firebaseAuth.currentUser?.displayName}?',
+        style: Theme.of(context).textTheme.headline5,
+      );
+    } else {
+      question = 'What\'s your date of birth?';
+      displayName = Container();
+    }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              question,
-              style: headerStyle,
-            ),
-            displayName
-          ],
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          question,
+          style: headerStyle,
+        ),
+        displayName
+      ],
     );
   }
 
@@ -225,7 +247,7 @@ class _DatePickerViewState extends State<DatePickerView> {
     );
   }
 
-  Widget _continueButton() {
+  Widget _buildContinueButton() {
     return Consumer<SignUpProvider>(
       builder: (context, signUpProvider, _) {
         return CustomElevatedButton(
@@ -236,7 +258,7 @@ class _DatePickerViewState extends State<DatePickerView> {
               ? kBlue
               : kGreyLight,
           child: Text(
-            'Continue',
+            'Update',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   color: signUpProvider.dateOfBirth != null &&
                           signUpProvider.dateOfBirthIsValid == true
@@ -246,7 +268,7 @@ class _DatePickerViewState extends State<DatePickerView> {
           ),
           onPressed: signUpProvider.dateOfBirth != null &&
                   signUpProvider.dateOfBirthIsValid == true
-              ? onSubmit
+              ? update
               : null,
         );
       },

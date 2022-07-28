@@ -1,4 +1,4 @@
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/date_picker_view.dart';
 import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
 
@@ -8,7 +8,6 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/utilities/validators.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
-import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/text_form_field.dart';
@@ -16,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+
+import '../../utilities/load_markdown.dart';
 
 class MissingInfoPageView extends StatefulWidget {
   static String signUpScreen = 'signUpScreen';
@@ -28,28 +29,28 @@ class MissingInfoPageView extends StatefulWidget {
 }
 
 class _MissingInfoPageViewState extends State<MissingInfoPageView> {
-  late final SignUpNotifier signUpNotifier;
+  late final SignUpProvider signUpProvider;
   PageController pageController = PageController();
 
   @override
   void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     precacheChurchImages(context: context);
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpNotifier.close();
+    signUpProvider.close();
     super.dispose();
   }
 
   Future<void> updateInfo() async {
-    final signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     try {
       EasyLoading.show();
 
-      await signUpNotifier.updateUpdateInfo();
+      await signUpProvider.updateUpdateInfo();
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
@@ -94,6 +95,7 @@ class _MissingInfoPageViewState extends State<MissingInfoPageView> {
 
   Widget _churchSelectionView() {
     return ChurchSelectionScreen(
+      title: "Select your church",
       appBar: AppBar(
         leading: CustomBackButton(
           onPressed: () {
@@ -107,7 +109,7 @@ class _MissingInfoPageViewState extends State<MissingInfoPageView> {
       },
       onTap: (setSelectedChurch) {
         if (setSelectedChurch != null) {
-          signUpNotifier.setSelectedChurch(value: setSelectedChurch);
+          signUpProvider.setSelectedChurch(value: setSelectedChurch);
           updateInfo();
         }
       },
@@ -128,7 +130,7 @@ class _AddInfoView extends StatefulWidget {
 
 class _AddInfoViewState extends State<_AddInfoView> {
   final user = FirebaseAuth.instance.currentUser;
-  late final SignUpNotifier signUpNotifier;
+  late final SignUpProvider signUpProvider;
 
   bool? firstNameFormIsValid;
   bool? lastNameFormIsValid;
@@ -151,11 +153,11 @@ class _AddInfoViewState extends State<_AddInfoView> {
       bool hasConnection = await ConnectionNotifier().checkConnection();
 
       if (hasConnection) {
-        if (signUpNotifier.formIsValid == true &&
+        if (signUpProvider.formIsValid == true &&
             user != null &&
             user?.email != null) {
-          signUpNotifier.setDisplayName();
-          signUpNotifier.setEmail(email: user!.email!);
+          signUpProvider.setDisplayName();
+          signUpProvider.setEmail(email: user!.email!);
 
           await nextPage(controller: widget.pageController);
         }
@@ -175,9 +177,9 @@ class _AddInfoViewState extends State<_AddInfoView> {
   // Validate if all the form fields are filled in
   void validForm() {
     if (firstNameFormIsValid == true && lastNameFormIsValid == true) {
-      signUpNotifier.validateForm(value: true);
+      signUpProvider.validateForm(value: true);
     } else {
-      signUpNotifier.validateForm(value: false);
+      signUpProvider.validateForm(value: false);
     }
   }
 
@@ -185,11 +187,11 @@ class _AddInfoViewState extends State<_AddInfoView> {
     // The form state remains valid when coming back from the orther screen.
     // So we validated again.
 
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
-    if (signUpNotifier.formIsValid == true) {
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
+    if (signUpProvider.formIsValid == true) {
       firstNameFormIsValid =
-          signUpNotifier.firstNameKey.currentState?.validate();
-      lastNameFormIsValid = signUpNotifier.lastNameKey.currentState?.validate();
+          signUpProvider.firstNameKey.currentState?.validate();
+      lastNameFormIsValid = signUpProvider.lastNameKey.currentState?.validate();
       validForm();
     }
     if (mounted) {
@@ -239,19 +241,19 @@ class _AddInfoViewState extends State<_AddInfoView> {
   }
 
   Widget _buildFirstNameField() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return Form(
-          key: signUpNotifier.firstNameKey,
+          key: signUpProvider.firstNameKey,
           child: CustomTextFormField(
-            controller: signUpNotifier.firstNameCntlr,
+            controller: signUpProvider.firstNameCntlr,
             hintText: 'First name',
             textInputAction: TextInputAction.next,
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
               firstNameFormIsValid =
-                  signUpNotifier.firstNameKey.currentState?.validate();
+                  signUpProvider.firstNameKey.currentState?.validate();
               setState(() {});
               validForm();
             },
@@ -262,19 +264,19 @@ class _AddInfoViewState extends State<_AddInfoView> {
   }
 
   Widget _buildLastNameField() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return Form(
-          key: signUpNotifier.lastNameKey,
+          key: signUpProvider.lastNameKey,
           child: CustomTextFormField(
-            controller: signUpNotifier.lastNameCntlr,
+            controller: signUpProvider.lastNameCntlr,
             hintText: 'Last name',
             textInputAction: TextInputAction.next,
             maxLines: 1,
             validator: Validators.nameValidator,
             onChanged: (value) {
               lastNameFormIsValid =
-                  signUpNotifier.lastNameKey.currentState?.validate();
+                  signUpProvider.lastNameKey.currentState?.validate();
               validForm();
               setState(() {});
             },
@@ -285,20 +287,20 @@ class _AddInfoViewState extends State<_AddInfoView> {
   }
 
   Widget _buildContinueButton() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
-          backgroundColor: signUpNotifier.formIsValid ? kBlue : kGreyLight,
+          backgroundColor: signUpProvider.formIsValid ? kBlue : kGreyLight,
           width: double.infinity,
           child: Text(
             'Continue',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: signUpNotifier.formIsValid ? kWhite : kGrey,
+                  color: signUpProvider.formIsValid ? kWhite : kGrey,
                 ),
           ),
-          onPressed: signUpNotifier.formIsValid ? onSubmit : null,
+          onPressed: signUpProvider.formIsValid ? onSubmit : null,
         );
       },
     );
@@ -319,7 +321,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
                 style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
               ),
               onTap: () {
-                loadMdFile(
+                loadMarkdownFile(
                   context: context,
                   mdFile: 'assets/privacy/privacy_policy.md',
                 );
@@ -334,7 +336,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
                 style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
               ),
               onTap: () {
-                loadMdFile(
+                loadMarkdownFile(
                   context: context,
                   mdFile: 'assets/privacy/terms_of_service.md',
                 );

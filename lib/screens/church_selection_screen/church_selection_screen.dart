@@ -22,6 +22,8 @@ Future<void> precacheChurchImages({required BuildContext context}) async {
 class ChurchSelectionScreen extends StatefulWidget {
   final Function(ChurchModel?)? onTap;
 
+  final String? title;
+
   final PreferredSizeWidget? appBar;
 
   final Future<bool> Function()? onWillPop;
@@ -29,6 +31,7 @@ class ChurchSelectionScreen extends StatefulWidget {
     Key? key,
     this.onTap,
     this.appBar,
+    this.title,
     this.onWillPop,
   }) : super(key: key);
 
@@ -82,11 +85,15 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Select your church',
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                          const SizedBox(height: kContentSpacing24),
+                          widget.title != null
+                              ? Text(
+                                  widget.title!,
+                                  style: Theme.of(context).textTheme.headline5,
+                                )
+                              : Container(),
+                          widget.title != null
+                              ? const SizedBox(height: kContentSpacing24)
+                              : Container(),
                           ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),

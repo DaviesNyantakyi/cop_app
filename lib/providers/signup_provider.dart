@@ -17,7 +17,7 @@ enum FormType {
 
 enum Gender { male, female }
 
-class SignUpNotifier extends ChangeNotifier {
+class SignUpProvider extends ChangeNotifier {
   final FireAuth _fireAuth = FireAuth();
   final CloudFire _cloudFire = CloudFire();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -131,14 +131,11 @@ class SignUpNotifier extends ChangeNotifier {
           _selectedGender != null &&
           selectedChurch != null &&
           _dateOfBirth != null) {
-        final displayName =
-            '${firstNameCntlr.text.trim()} ${lastNameCntlr.text.trim()}';
-
-        await _fireAuth.updateDisplayName(displayName: displayName);
-        await _cloudFire.updateUsername(
+        await _fireAuth.updateDisplayName(
           firstName: firstNameCntlr.text,
           lastName: lastNameCntlr.text,
         );
+
         await _cloudFire.updateUserDateOfBirth(
           dateOfBirth: Timestamp.fromDate(_dateOfBirth!),
         );

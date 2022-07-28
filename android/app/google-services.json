@@ -14,39 +14,10 @@
       },
       "oauth_client": [
         {
-          "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyChUoTecFYVOm4mEcxOa198yWar40vt1wY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:28966762484:android:de1960a8632b407ec5eba1",
-        "android_client_info": {
-          "package_name": "com.copbelgium.copbelgiumapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "28966762484-hfmo5c1dgefbpurlaklp9bqg284b2d2k.apps.googleusercontent.com",
+          "client_id": "28966762484-q4q2t70j5581jd8k0obf7mg7ltqdf9f3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.copbelgium.copbelgiumapp",
+            "package_name": "com.copbelgium.app",
             "certificate_hash": "1cdb65d9741595ff9d19725fc7ef45171af17304"
           }
         },

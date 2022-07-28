@@ -6,6 +6,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/player_screen/player_screen.dart';
@@ -14,17 +15,21 @@ import '../utilities/formal_dates.dart';
 import '../widgets/bottomsheet.dart';
 
 const seekDuration = Duration(seconds: 30);
-Future<AudioProvider> initAudioSerivce() async {
-  return await AudioService.init(
-    builder: () => AudioProvider(),
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.copBelgium.copbelgiumapp.channel',
-      androidNotificationChannelName: 'COP Belgium',
-      fastForwardInterval: seekDuration,
-      rewindInterval: seekDuration,
-      androidNotificationOngoing: true,
-    ),
+Future<void> initAudioSerivce() async {
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.copbelgium.app.channel.audio',
+    androidNotificationChannelName: 'COP Belgium',
+    androidNotificationOngoing: true,
+    fastForwardInterval: seekDuration,
+    rewindInterval: seekDuration,
   );
+  // await AudioService.init(
+  //   builder: () => AudioProvider(),
+  //   config: const AudioServiceConfig(
+  //     androidNotificationChannelId: 'com.copBelgium.app.channel.audio',
+  //     androidNotificationChannelName: 'COP Belgium',
+  //   ),
+  // );
 }
 
 class AudioProvider extends BaseAudioHandler with ChangeNotifier {
@@ -51,18 +56,40 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
   Future<void> initPlayer({required MediaItem mediaItem}) async {
     if (mediaItem.extras?['downloadPath'] != null) {
       final file = File(mediaItem.extras?['downloadPath']);
-      await _justAudio.setAudioSource(AudioSource.uri(file.uri));
+      await _justAudio.setAudioSource(
+        AudioSource.uri(
+          file.uri,
+          tag: MediaItem(
+            id: mediaItem.id,
+            title: mediaItem.title,
+            artUri: mediaItem.artUri,
+            artist: mediaItem.artist,
+            duration: mediaItem.duration,
+          ),
+        ),
+      );
     } else {
       if (mediaItem.extras?['audio'] != null) {
-        await _justAudio.setUrl(mediaItem.extras!['audio']);
+        await _justAudio.setAudioSource(
+          AudioSource.uri(
+            Uri.parse(
+              mediaItem.extras!['audio'],
+            ),
+            tag: MediaItem(
+              id: mediaItem.id,
+              title: mediaItem.title,
+              artUri: mediaItem.artUri,
+              artist: mediaItem.artist,
+              duration: mediaItem.duration,
+            ),
+          ),
+        );
       }
     }
+    _currentMediaItem = mediaItem;
+    notifyListeners();
 
     await play();
-
-    _currentMediaItem = mediaItem;
-
-    notifyListeners();
   }
 
   @override

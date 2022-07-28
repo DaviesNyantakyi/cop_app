@@ -1,5 +1,5 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/sign_in_screen.dart';
 import 'package:cop_belgium_app/screens/auth_screens/signup_page_view.dart';
 
@@ -24,7 +24,7 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  late SignUpNotifier signUpNotifier;
+  late SignUpProvider signUpProvider;
   FireAuth fireAuth = FireAuth();
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -54,8 +54,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       CupertinoPageRoute(
         builder: (context) => MultiProvider(
           providers: [
-            ChangeNotifierProvider<SignUpNotifier>.value(
-              value: signUpNotifier,
+            ChangeNotifierProvider<SignUpProvider>.value(
+              value: signUpProvider,
             ),
           ],
           child: const SignUpPageView(),
@@ -70,8 +70,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       CupertinoPageRoute(
         builder: (context) => MultiProvider(
           providers: [
-            ChangeNotifierProvider<SignUpNotifier>.value(
-              value: signUpNotifier,
+            ChangeNotifierProvider<SignUpProvider>.value(
+              value: signUpProvider,
             ),
           ],
           child: const SignInScreen(),
@@ -80,29 +80,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Future<void> signInAnonymously() async {
-    try {
-      EasyLoading.show();
-
-      await fireAuth.signInAnonymously();
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-
-      showCustomSnackBar(
-        context: context,
-        type: CustomSnackBarType.error,
-        message: e.message ?? '',
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      EasyLoading.dismiss();
-    }
-  }
-
   @override
   void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     super.initState();
   }
 
@@ -111,7 +91,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
         return Scaffold(
-          appBar: _buildAppBar(),
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -134,8 +113,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     _buildEmailButton(context: context),
                     const SizedBox(height: kContentSpacing32),
                     _buildSignInButton(),
-                    const SizedBox(height: kContentSpacing16),
-                    _buildSkipButton(),
                   ],
                 ),
               ),
@@ -146,69 +123,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  dynamic _buildAppBar() {
-    if (firebaseAuth.currentUser?.isAnonymous == false ||
-        firebaseAuth.currentUser == null) {
-      return PreferredSize(child: Container(), preferredSize: const Size(0, 0));
-    }
-    return AppBar(
-      automaticallyImplyLeading: false,
-      elevation: 0,
-      toolbarHeight: 70,
-      actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.close),
-        )
-      ],
-    );
-  }
-
   Widget _buildImage() {
-    return ResponsiveBuilder(
-      builder: (context, screenInfo) {
-        return Column(
-          children: [
-            screenInfo.screenSize.width < kScreenMoible
-                ? Container()
-                : const CopLogo(
-                    width: 100,
-                    height: 100,
-                  ),
-            screenInfo.screenSize.width < kScreenMoible
-                ? Container()
-                : const SizedBox(height: kContentSpacing20),
-            Text(
-              'Church of Pentecost Belgium',
-              style: screenInfo.screenSize.width <= kScreenMoible
-                  ? Theme.of(context).textTheme.bodyText1?.copyWith(
-                        color: kBlue,
-                        fontWeight: FontWeight.w500,
-                      )
-                  : Theme.of(context).textTheme.bodyText1?.copyWith(
-                        color: kBlue,
-                        fontWeight: FontWeight.w500,
-                      ),
-            ),
-            FittedBox(
-              child: Text(
-                'Welcome',
-                style: screenInfo.screenSize.width <= kScreenMoible
-                    ? Theme.of(context).textTheme.bodyText1?.copyWith(
-                          color: kBlue,
-                          fontWeight: FontWeight.w500,
-                        )
-                    : Theme.of(context).textTheme.bodyText1?.copyWith(
-                          color: kBlue,
-                          fontWeight: FontWeight.w500,
-                        ),
+    return Column(
+      children: [
+        const CopLogo(
+          width: 100,
+          height: 100,
+        ),
+        const SizedBox(height: kContentSpacing20),
+        FittedBox(
+          child: Text(
+            'Welcome to ',
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  color: kBlue,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+        ),
+        Text(
+          'The Church of Pentecost Belgium',
+          style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                color: kBlue,
+                fontWeight: FontWeight.w500,
               ),
-            ),
-          ],
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -302,24 +241,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSkipButton() {
-    if (firebaseAuth.currentUser?.isAnonymous == true) {
-      return Container();
-    }
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: CustomElevatedButton(
-        height: null,
-        splashColor: Colors.transparent,
-        onPressed: signInAnonymously,
-        child: Text(
-          'Skip for now',
-          style: Theme.of(context).textTheme.bodyText1?.copyWith(color: kGrey),
         ),
       ),
     );

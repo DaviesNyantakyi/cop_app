@@ -1,4 +1,4 @@
-import 'package:cop_belgium_app/providers/signup_notifier.dart';
+import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/forgot_password_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -28,17 +28,17 @@ class _SignInScreenState extends State<SignInScreen> {
   bool obscureText = true;
 
   final user = FirebaseAuth.instance.currentUser;
-  late SignUpNotifier signUpNotifier;
+  late SignUpProvider signUpProvider;
 
   @override
   void initState() {
-    signUpNotifier = Provider.of<SignUpNotifier>(context, listen: false);
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
     super.initState();
   }
 
   @override
   void dispose() {
-    signUpNotifier.close();
+    signUpProvider.close();
     super.dispose();
   }
 
@@ -49,13 +49,13 @@ class _SignInScreenState extends State<SignInScreen> {
 
       if (emailFormIsValid == true &&
           passwordFormIsValid == true &&
-          signUpNotifier.emailCntlr.text.isNotEmpty &&
-          signUpNotifier.passwordCntlr.text.isNotEmpty) {
+          signUpProvider.emailCntlr.text.isNotEmpty &&
+          signUpProvider.passwordCntlr.text.isNotEmpty) {
         EasyLoading.show();
 
         final user = await FireAuth().signInEmailPassword(
-          email: signUpNotifier.emailCntlr.text.trim(),
-          password: signUpNotifier.passwordCntlr.text,
+          email: signUpProvider.emailCntlr.text.trim(),
+          password: signUpProvider.passwordCntlr.text,
         );
         if (user != null) {
           // Leave the SignInScreen
@@ -82,8 +82,8 @@ class _SignInScreenState extends State<SignInScreen> {
     await Navigator.push(
       context,
       CupertinoPageRoute(
-        builder: (context) => ChangeNotifierProvider<SignUpNotifier>.value(
-          value: signUpNotifier,
+        builder: (context) => ChangeNotifierProvider<SignUpProvider>.value(
+          value: signUpProvider,
           child: const ForgotPasswordScreen(),
         ),
       ),
@@ -93,9 +93,9 @@ class _SignInScreenState extends State<SignInScreen> {
   // Validate if all the form fields are filled in
   void validForm() {
     if (emailFormIsValid == true && passwordFormIsValid == true) {
-      signUpNotifier.validateForm(value: true);
+      signUpProvider.validateForm(value: true);
     } else {
-      signUpNotifier.validateForm(value: false);
+      signUpProvider.validateForm(value: false);
     }
   }
 
@@ -159,12 +159,12 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildEmailField() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return Form(
-          key: signUpNotifier.emailKey,
+          key: signUpProvider.emailKey,
           child: CustomTextFormField(
-            controller: signUpNotifier.emailCntlr,
+            controller: signUpProvider.emailCntlr,
             hintText: 'Email',
             textInputAction: TextInputAction.next,
             maxLines: 1,
@@ -172,7 +172,7 @@ class _SignInScreenState extends State<SignInScreen> {
             validator: Validators.emailValidator,
             onChanged: (value) {
               emailFormIsValid =
-                  signUpNotifier.emailKey.currentState?.validate();
+                  signUpProvider.emailKey.currentState?.validate();
               validForm();
               setState(() {});
             },
@@ -183,11 +183,11 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildPasswordField() {
-    return Consumer<SignUpNotifier>(builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(builder: (context, signUpProvider, _) {
       return Form(
-        key: signUpNotifier.passwordKey,
+        key: signUpProvider.passwordKey,
         child: CustomTextFormField(
-          controller: signUpNotifier.passwordCntlr,
+          controller: signUpProvider.passwordCntlr,
           hintText: 'Password',
           textInputAction: TextInputAction.done,
           validator: Validators.passwordValidator,
@@ -205,7 +205,7 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
           onChanged: (value) {
             passwordFormIsValid =
-                signUpNotifier.passwordKey.currentState?.validate();
+                signUpProvider.passwordKey.currentState?.validate();
             validForm();
             setState(() {});
           },
@@ -216,8 +216,8 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildSignInButton() {
-    return Consumer<SignUpNotifier>(
-      builder: (context, signUpNotifier, _) {
+    return Consumer<SignUpProvider>(
+      builder: (context, signUpProvider, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
           backgroundColor:

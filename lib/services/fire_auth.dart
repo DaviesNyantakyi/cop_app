@@ -15,6 +15,9 @@ class FireAuth {
   final CloudFire _cloudFire = CloudFire();
   final ConnectionNotifier _connectionNotifier = ConnectionNotifier();
 
+  final providerIdEmail = 'password';
+  final providerIdGoogle = 'google.com';
+
   Future<User?> createUserEmailPassword({
     required UserModel userModel,
     required String password,
@@ -41,11 +44,6 @@ class FireAuth {
             password: password,
           );
 
-          await updateDisplayName(
-            displayName: userModel.displayName ??
-                '${userModel.firstName} ${userModel.lastName}',
-          );
-
           // Update the userModel with the uid
           final updatedUser = userModel.copyWith(
             id: _firebaseAuth.currentUser?.uid,
@@ -53,6 +51,10 @@ class FireAuth {
 
           // Create a user document in cloud firstore
           await _cloudFire.createUserDoc(user: updatedUser);
+          await updateDisplayName(
+            firstName: userModel.firstName!,
+            lastName: userModel.lastName!,
+          );
           await _firebaseAuth.currentUser?.reload();
           return _firebaseAuth.currentUser;
         } else {
@@ -90,6 +92,20 @@ class FireAuth {
 
         // return null if authentication fails.
         return null;
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<UserCredential?> signInApple() async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+
+      if (hasConnection) {
       } else {
         throw ConnectionNotifier.connectionException;
       }
@@ -144,22 +160,6 @@ class FireAuth {
     // return null if authentication fails.
   }
 
-  Future<User?> signInAnonymously() async {
-    try {
-      final hasConnection = await _connectionNotifier.checkConnection();
-
-      if (hasConnection) {
-        await _firebaseAuth.signInAnonymously();
-        return _firebaseAuth.currentUser;
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
-
   Future<void> signOut() async {
     try {
       // Delete anon user when signed out
@@ -189,6 +189,14 @@ class FireAuth {
           await _cloudFire.deleteUserInfo();
           await _firebaseAuth.currentUser?.delete();
         }
+      }
+
+      if (_firebaseAuth.currentUser?.providerData[0].providerId ==
+          'google.com') {
+        await _firebaseAuth.currentUser?.reload();
+        await _cloudFire.deleteUserInfo();
+        await _firebaseAuth.currentUser?.delete();
+        await FireStorage().deleteProfileImage();
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -267,13 +275,19 @@ class FireAuth {
   }
 
   // Update the user display name.
-  Future<void> updateDisplayName({required String displayName}) async {
+  Future<void> updateDisplayName({
+    required String firstName,
+    required String lastName,
+  }) async {
     try {
       final hasConnection = await InternetConnectionChecker().hasConnection;
 
       if (hasConnection) {
+        final displayName = '${firstName.trim()} ${lastName.trim()}';
         if (displayName.isNotEmpty && _firebaseAuth.currentUser != null) {
           await _firebaseAuth.currentUser?.updateDisplayName(displayName);
+          await _cloudFire.updateUsername(
+              firstName: firstName, lastName: lastName);
         }
       } else {
         throw ConnectionNotifier.connectionException;
@@ -284,7 +298,7 @@ class FireAuth {
     }
   }
 
-  // Send email verifcation before changing the email.
+  // Update the user email
   Future<bool> updateEmail({
     required String email,
     required String password,
@@ -304,6 +318,8 @@ class FireAuth {
           await _firebaseAuth.currentUser?.reauthenticateWithCredential(cred);
           await _firebaseAuth.currentUser?.reload();
 
+          await FirebaseAuth.instance.currentUser?.linkWithCredential(cred);
+
           // Send email verifaction to the new email.
           await _firebaseAuth.currentUser?.updateEmail(email.trim());
           await _firebaseAuth.currentUser?.reload();
@@ -316,10 +332,10 @@ class FireAuth {
       } else {
         throw ConnectionNotifier.connectionException;
       }
-      return false;
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
     }
+    return false;
   }
 }
