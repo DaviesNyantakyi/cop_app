@@ -110,7 +110,6 @@ class _EditDateScreenState extends State<EditDateScreen> {
 
   Future<void> showDatePicker() async {
     await showCustomDatePicker(
-      height: MediaQuery.of(context).size.height * 0.33,
       initialDateTime: signUpProvider.dateOfBirth ?? DateTime.now(),
       maxDate: DateTime.now(),
       mode: CupertinoDatePickerMode.date,

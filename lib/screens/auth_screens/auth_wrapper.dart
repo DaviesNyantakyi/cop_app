@@ -1,3 +1,4 @@
+import 'package:cop_belgium_app/providers/audio_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/missing_info_wrapper.dart';
 import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/bottom_nav_screen.dart';
@@ -7,6 +8,7 @@ import 'package:cop_belgium_app/widgets/circular_progress_indicator.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthWrapper extends StatefulWidget {
   static String authScreenSwitcher = 'authScreenSwitcher';
@@ -60,7 +62,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
         debugPrint('AppLifecycleState Paused');
         break;
       case AppLifecycleState.detached:
-        //TODO: Stop the audio when the app is closed and Singout
+        await Provider.of<AudioProvider>(context, listen: false).close();
         debugPrint('AppLifecycleState Detached');
         break;
     }

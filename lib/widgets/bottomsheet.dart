@@ -56,12 +56,12 @@ Future<dynamic> showCustomBottomSheet({
   Color? backgroundColor,
   required Widget child,
 }) async {
-  SizedBox _buildHeader() {
+  Widget _buildHeader() {
     return SizedBox(height: header == null ? 0 : 64, child: header);
   }
 
-  Expanded _buildBody() {
-    return Expanded(
+  Widget _buildBody() {
+    return Flexible(
       child: SingleChildScrollView(
         child: child,
       ),
@@ -93,6 +93,7 @@ Future<dynamic> showCustomBottomSheet({
               ),
               color: backgroundColor,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildHeader(),
                   _buildBody(),

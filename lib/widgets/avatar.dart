@@ -1,4 +1,6 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -27,26 +29,35 @@ class _CustomAvatarState extends State<CustomAvatar> {
     return StreamBuilder<UserModel?>(
       stream: userStream,
       builder: (context, snapshot) {
-        Widget child = Icon(
+        final placeHolder = Icon(
           Icons.person_outline_outlined,
           color: kBlack,
           size: widget.iconSize,
         );
-        ImageProvider<Object>? backgroundImage;
+
+        String? backgroundImage;
 
         if (snapshot.hasData &&
             snapshot.data?.photoURL != null &&
             snapshot.data?.photoURL?.isEmpty == false) {
           backgroundImage = CachedNetworkImageProvider(
             snapshot.data!.photoURL!,
-          );
-          child = Container();
+          ).url;
         }
         return CircleAvatar(
           radius: widget.radius,
           backgroundColor: kGreyLight,
-          child: child,
-          backgroundImage: backgroundImage,
+          child: backgroundImage != null
+              ? ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(1000)),
+                  child: FancyShimmerImage(
+                    boxFit: BoxFit.cover,
+                    imageUrl: backgroundImage,
+                    errorWidget:
+                        const Center(child: Icon(BootstrapIcons.person)),
+                  ),
+                )
+              : placeHolder,
         );
       },
     );

@@ -10,14 +10,13 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <queries> <intent> <action android:name="android.intent.action.SENDTO" /> <data android:scheme="mailto" /> </intent> </queries>
 
-
-
-
     <application
         android:usesCleartextTraffic="true"
         android:label="COP Belgium"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!--AudioService-->
         <activity
             android:name="com.ryanheise.audioservice.AudioServiceActivity"
             android:launchMode="singleTop"
@@ -31,7 +30,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <service
             android:name="com.ryanheise.audioservice.AudioService"
             android:foregroundServiceType="mediaPlayback"
@@ -40,7 +38,6 @@
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
-
         <receiver
             android:name="com.ryanheise.audioservice.MediaButtonReceiver"
             android:exported="true">
@@ -48,7 +45,11 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver> 
-
+        <!--ImageCropper-->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

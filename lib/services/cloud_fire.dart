@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cop_belgium_app/models/podcast_info_model.dart';
 import 'package:cop_belgium_app/models/user_model.dart';
-import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -268,11 +267,11 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
       if (hasConnection) {
         if (_firebaseAuth.currentUser?.uid != null) {
+          await deletePodcastSubscriptions();
           await _firebaseFirestore
               .collection('users')
               .doc(_firebaseAuth.currentUser?.uid)
               .delete();
-          await FireStorage().deleteUser();
         }
       } else {
         throw ConnectionNotifier.connectionException;
@@ -357,5 +356,39 @@ class CloudFire {
       debugPrint(e.toString());
     }
     return null;
+  }
+
+  Future<void> deletePodcastSubscriptions() async {
+    try {
+      final hasConnection = await _connectionChecker.checkConnection();
+      if (hasConnection) {
+        if (_firebaseAuth.currentUser?.uid != null) {
+          final qSnap = await _firebaseFirestore
+              .collection('users')
+              .doc(_firebaseAuth.currentUser?.uid)
+              .collection('subscriptions')
+              .get();
+
+          for (var doc in qSnap.docs) {
+            final docId = doc.id;
+
+            await _firebaseFirestore
+                .collection('users')
+                .doc(_firebaseAuth.currentUser?.uid)
+                .collection('subscriptions')
+                .doc(docId)
+                .delete();
+          }
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
   }
 }

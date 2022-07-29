@@ -5,7 +5,9 @@ import 'package:cop_belgium_app/screens/profile_screen/edit_date_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_email_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_gender_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_name_screen.dart';
+import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/formal_dates.dart';
+import 'package:cop_belgium_app/utilities/image_picker.dart';
 import 'package:cop_belgium_app/widgets/avatar.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -19,7 +21,6 @@ import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/cloud_fire.dart';
 import '../../services/fire_auth.dart';
-import '../../services/fire_storage.dart';
 import '../../utilities/constant.dart';
 import '../../utilities/validators.dart';
 import '../../widgets/back_button.dart';
@@ -35,6 +36,10 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final firebaseAuth = FirebaseAuth.instance;
   final fireAuth = FireAuth();
+  final cloduFire = CloudFire();
+  final fireStorage = FireStorage();
+
+  final customImagePicker = CustomImagePicker();
   final providerId =
       FirebaseAuth.instance.currentUser?.providerData[0].providerId;
 
@@ -88,31 +93,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       Navigator.pop(context);
       EasyLoading.show();
-
       final validPassword = passwordKey.currentState?.validate();
+      bool success = false;
 
-      if (validPassword == true && passwordCntrl.text.isNotEmpty) {
-        await FireAuth().deleteAccount(password: passwordCntrl.text);
-
-        // Pop dialog and and current screen.
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
+      if (validPassword == true &&
+          passwordCntrl.text.isNotEmpty &&
+          providerId != fireAuth.providerIdGoogle) {
+        success = await fireAuth.deleteAccount(password: passwordCntrl.text);
+      } else {
+        success = await fireAuth.deleteAccount();
       }
 
-      if (providerId == 'google.com') {
-        await FireAuth().deleteAccount(password: passwordCntrl.text);
+      if (success) {
         // Pop dialog and and current screen.
         if (mounted) {
           Navigator.of(context).pop();
         }
       }
     } on FirebaseException catch (e) {
-      showCustomSnackBar(
-        context: context,
-        message: e.message ?? '',
-        type: CustomSnackBarType.error,
-      );
+      if (e.code == 'object-not-found' &&
+          FirebaseAuth.instance.currentUser == null) {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } else {
+        showCustomSnackBar(
+          context: context,
+          message: e.message ?? '',
+          type: CustomSnackBarType.error,
+        );
+      }
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -158,6 +168,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> uploadImage() async {
+    try {
+      EasyLoading.show();
+
+      await fireStorage.uploadProfileImage(
+        image: customImagePicker.selectedImage,
+      );
+      await firebaseAuth.currentUser?.reload();
+    } on FirebaseException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        message: e.message ?? '',
+        type: CustomSnackBarType.error,
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      setState(() {});
+    }
+  }
+
+  Future<void> deleteImage() async {
+    try {
+      EasyLoading.show();
+      await fireStorage.deleteProfileImage();
+      await firebaseAuth.currentUser?.reload();
+    } on FirebaseException catch (e) {
+      if (e.code == 'object-not-found') {
+        await cloduFire.updatePhotoURL(photoURL: null);
+        await firebaseAuth.currentUser?.updatePhotoURL(null);
+        return;
+      }
+      showCustomSnackBar(
+        context: context,
+        message: e.message ?? '',
+        type: CustomSnackBarType.error,
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+      setState(() {});
+    }
+  }
+
+  Future<void> pickImage() async {
+    final delete = await customImagePicker.showBottomSheet(context: context);
+    if (customImagePicker.selectedImage != null && delete == false) {
+      await uploadImage();
+      customImagePicker.selectedImage = null;
+      setState(() {});
+    }
+    if (delete == true) {
+      deleteImage();
+    }
   }
 
   @override
@@ -302,6 +370,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildAvatar() {
     return Center(
       child: GestureDetector(
+        onTap: pickImage,
         child: Stack(
           children: [
             const CustomAvatar(radius: 80, iconSize: 42),
@@ -313,10 +382,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 height: 48,
                 child: FloatingActionButton(
                   elevation: 0,
-                  onPressed: () {},
+                  onPressed: pickImage,
                   child: IconButton(
                     iconSize: 24,
-                    onPressed: () {},
+                    onPressed: pickImage,
                     icon: const Icon(BootstrapIcons.camera_fill),
                   ),
                 ),
@@ -324,7 +393,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           ],
         ),
-        onTap: () {},
       ),
     );
   }
@@ -368,7 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPasswordField() {
-    if (providerId == 'google.com') {
+    if (providerId == fireAuth.providerIdGoogle) {
       return Container();
     }
     return Form(

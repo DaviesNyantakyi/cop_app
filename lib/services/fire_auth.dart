@@ -2,6 +2,7 @@ import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
+import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -13,6 +14,7 @@ class FireAuth {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   final CloudFire _cloudFire = CloudFire();
+  final FireStorage _fireStorage = FireStorage();
   final ConnectionNotifier _connectionNotifier = ConnectionNotifier();
 
   final providerIdEmail = 'password';
@@ -174,7 +176,7 @@ class FireAuth {
     }
   }
 
-  Future<void> deleteAccount({String? password}) async {
+  Future<bool> deleteAccount({String? password}) async {
     try {
       if (password != null && password.isNotEmpty) {
         final email = _firebaseAuth.currentUser?.email;
@@ -185,24 +187,43 @@ class FireAuth {
             credential,
           );
           await _firebaseAuth.currentUser?.reload();
-          await FireStorage().deleteProfileImage();
+          await _fireStorage.deleteProfileImage();
           await _cloudFire.deleteUserInfo();
           await _firebaseAuth.currentUser?.delete();
+          return true;
         }
       }
 
       if (_firebaseAuth.currentUser?.providerData[0].providerId ==
-          'google.com') {
+          providerIdGoogle) {
         await _firebaseAuth.currentUser?.reload();
+        await FireStorage().deleteProfileImage();
         await _cloudFire.deleteUserInfo();
         await _firebaseAuth.currentUser?.delete();
-        await FireStorage().deleteProfileImage();
+        return true;
       }
+    } on FirebaseException catch (e) {
+      if (e.code == 'object-not-found') {
+        await _cloudFire.deleteUserInfo();
+        await _firebaseAuth.currentUser?.delete();
+      }
+      rethrow;
     } catch (e) {
       debugPrint(e.toString());
 
       rethrow;
+    } finally {
+      final subbOX = HiveBoxes().getSubScriptions();
+      final downBox = HiveBoxes().getDownloads();
+      final podBox = HiveBoxes().getPodcasts();
+      final subBoxKeys = subbOX.keys;
+      final downBoxKeys = downBox.keys;
+      final podBoxKeys = podBox.keys;
+      await subbOX.deleteAll(subBoxKeys);
+      await subbOX.deleteAll(downBoxKeys);
+      await subbOX.deleteAll(podBoxKeys);
     }
+    return false;
   }
 
   Future<UserCredential?> signInWithGoogle() async {
@@ -317,8 +338,6 @@ class FireAuth {
 
           await _firebaseAuth.currentUser?.reauthenticateWithCredential(cred);
           await _firebaseAuth.currentUser?.reload();
-
-          await FirebaseAuth.instance.currentUser?.linkWithCredential(cred);
 
           // Send email verifaction to the new email.
           await _firebaseAuth.currentUser?.updateEmail(email.trim());

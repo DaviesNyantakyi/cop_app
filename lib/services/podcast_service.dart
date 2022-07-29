@@ -116,8 +116,8 @@ class PodcastService {
 
         // Check if podcast is stored in the subscription box
         final storedPodcasts = subBox.values.cast<PodcastModel>();
-        for (var podcast in storedPodcasts) {
-          if (podcast.id == podcast.id) {
+        for (var pod in storedPodcasts) {
+          if (podcast.id == pod.id) {
             subScribed = true;
           }
         }

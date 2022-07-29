@@ -11,7 +11,7 @@ const userProfilePath = 'images/profile_images';
 
 class FireStorage {
   final _firebaseAuth = FirebaseAuth.instance;
-  final _fireStore = FirebaseStorage.instance;
+  final _fireStorage = FirebaseStorage.instance;
   final _cloudFire = CloudFire();
 
   // User
@@ -27,15 +27,8 @@ class FireStorage {
       final result = await InternetConnectionChecker().hasConnection;
 
       if (result) {
-        // if (image == null && delete) {
-        //   await deleteProfileImage();
-        //   await _cloudFire.updatePhotoURL(photoUrl: null);
-        //   await _user?.updatePhotoURL(null);
-        //   return;
-        // }
-
         if (image != null && _userId != null) {
-          final ref = await _fireStore
+          final ref = await _fireStorage
               .ref()
               .child('users/$_userId/images/$_userId')
               .putFile(image);
@@ -53,14 +46,17 @@ class FireStorage {
   }
 
   Future<String> getPhotoUrl({required String fileRef}) async {
-    return await _fireStore.ref(fileRef).getDownloadURL();
+    return await _fireStorage.ref(fileRef).getDownloadURL();
   }
 
   Future<void> deleteProfileImage() async {
     try {
       final userId = _firebaseAuth.currentUser?.uid;
+
       if (userId != null) {
-        await _fireStore.ref('users/$userId/images/$userId').delete();
+        final url = await getPhotoUrl(fileRef: 'users/$userId/images/$userId');
+        await FirebaseStorage.instance.refFromURL(url).delete();
+
         await _cloudFire.updatePhotoURL(photoURL: null);
         await _firebaseAuth.currentUser?.updatePhotoURL(null);
       }
@@ -74,7 +70,7 @@ class FireStorage {
     final _userId = _firebaseAuth.currentUser?.uid;
     try {
       if (_userId != null) {
-        await _fireStore.ref('users/$_userId').delete();
+        await _fireStorage.ref('users/$_userId').delete();
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -89,7 +85,7 @@ class FireStorage {
   }) async {
     try {
       if (file != null) {
-        final ref = await _fireStore.ref('$storagePath/$id').putFile(file);
+        final ref = await _fireStorage.ref('$storagePath/$id').putFile(file);
         return await getPhotoUrl(fileRef: ref.ref.fullPath);
       }
     } catch (e) {

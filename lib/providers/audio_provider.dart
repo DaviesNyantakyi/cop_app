@@ -23,13 +23,6 @@ Future<void> initAudioSerivce() async {
     fastForwardInterval: seekDuration,
     rewindInterval: seekDuration,
   );
-  // await AudioService.init(
-  //   builder: () => AudioProvider(),
-  //   config: const AudioServiceConfig(
-  //     androidNotificationChannelId: 'com.copBelgium.app.channel.audio',
-  //     androidNotificationChannelName: 'COP Belgium',
-  //   ),
-  // );
 }
 
 class AudioProvider extends BaseAudioHandler with ChangeNotifier {
@@ -56,6 +49,8 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
   Future<void> initPlayer({required MediaItem mediaItem}) async {
     if (mediaItem.extras?['downloadPath'] != null) {
       final file = File(mediaItem.extras?['downloadPath']);
+
+      print('offline');
       await _justAudio.setAudioSource(
         AudioSource.uri(
           file.uri,
@@ -70,6 +65,7 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
       );
     } else {
       if (mediaItem.extras?['audio'] != null) {
+        print('online');
         await _justAudio.setAudioSource(
           AudioSource.uri(
             Uri.parse(
@@ -182,6 +178,15 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
 
       notifyListeners();
     });
+  }
+
+  Future<void> close() async {
+    await stop();
+    _playerState = null;
+    _currentMediaItem = null;
+    _currentPostion = Duration.zero;
+    _totalDuration = Duration.zero;
+    _repeatMode = AudioServiceRepeatMode.none;
   }
 }
 

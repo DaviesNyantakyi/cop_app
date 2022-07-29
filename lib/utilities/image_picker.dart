@@ -13,7 +13,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class MyImagePicker {
+class CustomImagePicker {
   File? selectedImage;
   bool _delete = false;
 
@@ -130,49 +130,47 @@ class MyImagePicker {
       context: context,
       child: Material(
         child: SizedBox(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _selectionTile(
-                  context: context,
-                  icon: Icons.photo_camera_outlined,
-                  text: 'Camera',
-                  onPressed: () async {
-                    final pickedFile = await _pickImage(
-                      context: context,
-                      source: ImageSource.camera,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _selectionTile(
+                context: context,
+                icon: Icons.photo_camera_outlined,
+                text: 'Camera',
+                onPressed: () async {
+                  final pickedFile = await _pickImage(
+                    context: context,
+                    source: ImageSource.camera,
+                  );
+                  if (pickedFile?.path != null) {
+                    selectedImage = await _imageCropper(
+                      file: File(pickedFile!.path),
                     );
-                    if (pickedFile?.path != null) {
-                      selectedImage = await _imageCropper(
-                        file: File(pickedFile!.path),
-                      );
-                    }
-                    _delete = false;
-                    Navigator.pop(context, _delete);
-                  },
-                ),
-                _selectionTile(
-                  context: context,
-                  icon: Icons.collections_outlined,
-                  text: 'Gallery',
-                  onPressed: () async {
-                    final pickedFile = await _pickImage(
-                      context: context,
-                      source: ImageSource.gallery,
+                  }
+                  _delete = false;
+                  Navigator.pop(context, _delete);
+                },
+              ),
+              _selectionTile(
+                context: context,
+                icon: Icons.collections_outlined,
+                text: 'Gallery',
+                onPressed: () async {
+                  final pickedFile = await _pickImage(
+                    context: context,
+                    source: ImageSource.gallery,
+                  );
+                  if (pickedFile?.path != null) {
+                    selectedImage = await _imageCropper(
+                      file: File(pickedFile!.path),
                     );
-                    if (pickedFile?.path != null) {
-                      selectedImage = await _imageCropper(
-                        file: File(pickedFile!.path),
-                      );
-                    }
-                    _delete = false;
-                    Navigator.pop(context, _delete);
-                  },
-                ),
-                showDeleteButton(context: context)
-              ],
-            ),
+                  }
+                  _delete = false;
+                  Navigator.pop(context, _delete);
+                },
+              ),
+              showDeleteButton(context: context)
+            ],
           ),
         ),
       ),
