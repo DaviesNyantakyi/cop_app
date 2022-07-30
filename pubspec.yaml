@@ -80,7 +80,7 @@ dependencies:
   firebase_storage: ^10.2.4 # Store files in storeage
   cloud_firestore: ^3.1.5 # Store date in firestore
   google_sign_in: ^5.2.4 # Google signin flow 
-  the_apple_sign_in: ^1.1.1
+  sign_in_with_apple: ^4.1.0
 
   crypto: ^3.0.2
   convert: ^3.0.2
