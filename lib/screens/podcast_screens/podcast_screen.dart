@@ -1,9 +1,11 @@
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_detail_screen.dart';
+import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../../models/podcast_model.dart';
 import '../../providers/audio_provider.dart';
@@ -75,56 +77,58 @@ class _PodcastScreenState extends State<PodcastScreen> {
   }
 
   Widget _buildPodcasts(BuildContext context) {
-    return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
-      return ValueListenableBuilder<Box<PodcastModel>?>(
-        valueListenable: Hive.box<PodcastModel>('podcasts').listenable(),
-        builder: (context, podcastBox, _) {
-          final podcasts = podcastBox?.values.toList() ?? [];
-          if (podcasts.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ScrollConfiguration(
-            behavior: CustomScrollBehavior(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(kContentSpacing16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                itemCount: podcasts.length,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: kContentSpacing8,
-                  mainAxisExtent: 250,
-                ),
-                itemBuilder: (context, index) {
-                  return PodcastCard(
-                    width: double.infinity,
-                    height: 180,
-                    podcast: podcasts[index],
-                    onTap: () async {
-                      Navigator.push(context, CupertinoPageRoute(
-                        builder: (context) {
-                          return MultiProvider(
-                            providers: [
-                              ChangeNotifierProvider<AudioProvider>.value(
-                                value: audioProvider,
+    return ResponsiveBuilder(builder: (context, screenInfo) {
+      return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
+        return ValueListenableBuilder<Box<PodcastModel>?>(
+          valueListenable: Hive.box<PodcastModel>('podcasts').listenable(),
+          builder: (context, podcastBox, _) {
+            final podcasts = podcastBox?.values.toList() ?? [];
+            if (podcasts.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return ScrollConfiguration(
+              behavior: CustomScrollBehavior(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(kContentSpacing16),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  itemCount: podcasts.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount(screenInfo),
+                    crossAxisSpacing: crossAxisSpacing(screenInfo),
+                    mainAxisExtent: 250,
+                  ),
+                  itemBuilder: (context, index) {
+                    return PodcastCard(
+                      width: double.infinity,
+                      height: 180,
+                      podcast: podcasts[index],
+                      onTap: () async {
+                        Navigator.push(context, CupertinoPageRoute(
+                          builder: (context) {
+                            return MultiProvider(
+                              providers: [
+                                ChangeNotifierProvider<AudioProvider>.value(
+                                  value: audioProvider,
+                                ),
+                              ],
+                              child: PodcastDetailScreen(
+                                podcast: podcasts[index],
                               ),
-                            ],
-                            child: PodcastDetailScreen(
-                              podcast: podcasts[index],
-                            ),
-                          );
-                        },
-                      ));
-                    },
-                  );
-                },
+                            );
+                          },
+                        ));
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          );
-        },
-      );
+            );
+          },
+        );
+      });
     });
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
@@ -25,7 +24,7 @@ Future<void> initAudioSerivce() async {
   );
 }
 
-class AudioProvider extends BaseAudioHandler with ChangeNotifier {
+class AudioProvider with ChangeNotifier {
   final AudioPlayer _justAudio = AudioPlayer();
 
   PlayerState? _playerState;
@@ -52,7 +51,7 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
     if (mediaItem.extras?['downloadPath'] != null) {
       // Offline
       final file = File(mediaItem.extras?['downloadPath']);
-
+      await _playlist.clear();
       await _playlist.add(AudioSource.uri(
         file.uri,
         tag: MediaItem(
@@ -92,56 +91,41 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
     await play();
   }
 
-  @override
   Future<void> play() async {
     if (_justAudio.processingState == ProcessingState.completed) {
       await seek(Duration.zero);
     }
     await _justAudio.play();
-    await super.play();
   }
 
-  @override
   Future<void> stop() async {
     await _justAudio.stop();
-    return super.stop();
   }
 
-  @override
   Future<void> pause() async {
     await _justAudio.pause();
-    return super.pause();
   }
 
-  @override
   Future<void> seek(Duration position) async {
     await _justAudio.seek(position);
-
-    return super.seek(position);
   }
 
-  @override
   Future<void> rewind() async {
     Duration newPostion = _currentPostion - seekDuration;
     if (newPostion < Duration.zero) {
       newPostion = Duration.zero;
     }
     await seek(newPostion);
-
-    return super.rewind();
   }
 
-  @override
   Future<void> fastForward() async {
     Duration newPostion = _currentPostion + seekDuration;
     if (newPostion > totalDuration) {
       newPostion = totalDuration;
     }
     await seek(newPostion);
-    return super.fastForward();
   }
 
-  @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     _repeatMode = repeatMode;
 
@@ -152,8 +136,6 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
     }
 
     notifyListeners();
-
-    return super.setRepeatMode(repeatMode);
   }
 
   void playingStateStream() {
@@ -204,6 +186,7 @@ Future<void> showPlayer({
     context: context,
     height: MediaQuery.of(context).size.height * 0.90,
     header: AppBar(
+      elevation: 0,
       automaticallyImplyLeading: false,
       title: Text(
         'Now Playing',
@@ -284,22 +267,4 @@ Future<void> showDescription(
       ),
     ),
   );
-}
-
-class MyJABytesSource extends StreamAudioSource {
-  final Uint8List _buffer;
-
-  MyJABytesSource(this._buffer) : super(tag: 'MyAudioSource');
-
-  @override
-  Future<StreamAudioResponse> request([int? start, int? end]) async {
-    // Returning the stream audio response with the parameters
-    return StreamAudioResponse(
-      sourceLength: _buffer.length,
-      contentLength: (start ?? 0) - (end ?? _buffer.length),
-      offset: start ?? 0,
-      stream: Stream.fromIterable([_buffer.sublist(start ?? 0, end)]),
-      contentType: 'audio/wav',
-    );
-  }
 }

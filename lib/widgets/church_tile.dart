@@ -7,7 +7,7 @@ import '../utilities/constant.dart';
 
 const _cardHeight = 140.0;
 
-class ChurchTile extends StatelessWidget {
+class ChurchTile extends StatefulWidget {
   final VoidCallback onTap;
   final ChurchModel church;
 
@@ -18,37 +18,32 @@ class ChurchTile extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ChurchTile> createState() => _ChurchTileState();
+}
+
+class _ChurchTileState extends State<ChurchTile> {
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: _cardHeight,
       child: Card(
         child: CustomElevatedButton(
           padding: EdgeInsets.zero,
-          onPressed: onTap,
+          onPressed: widget.onTap,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _BuildImage(church: church),
-              _BuildAddress(church: church),
+              _buildImage(),
+              _buildAddress(),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-class _BuildImage extends StatelessWidget {
-  const _BuildImage({
-    Key? key,
-    required this.church,
-  }) : super(key: key);
-
-  final ChurchModel church;
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
+  Widget _buildImage() {
+    return Expanded(
       flex: 2,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: kContentSpacing8).copyWith(
@@ -56,15 +51,14 @@ class _BuildImage extends StatelessWidget {
           right: kContentSpacing12,
         ),
         height: _cardHeight,
-        width: 140,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(kRadius)),
           color: kGreyLight,
-          image: church.imageURL != null
+          image: widget.church.imageURL != null
               ? DecorationImage(
                   fit: BoxFit.cover,
                   image: CachedNetworkImageProvider(
-                    church.imageURL!,
+                    widget.church.imageURL!,
                   ),
                 )
               : null,
@@ -72,18 +66,8 @@ class _BuildImage extends StatelessWidget {
       ),
     );
   }
-}
 
-class _BuildAddress extends StatelessWidget {
-  const _BuildAddress({
-    Key? key,
-    required this.church,
-  }) : super(key: key);
-
-  final ChurchModel church;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAddress() {
     return Expanded(
       flex: 3,
       child: Padding(
@@ -95,19 +79,21 @@ class _BuildAddress extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              church.churchName,
+              widget.church.churchName,
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
                   ?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: kContentSpacing4),
-            Text(
-              church.address,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2
-                  ?.copyWith(fontWeight: FontWeight.normal),
+            Flexible(
+              child: Text(
+                widget.church.address,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(fontWeight: FontWeight.normal),
+              ),
             ),
           ],
         ),

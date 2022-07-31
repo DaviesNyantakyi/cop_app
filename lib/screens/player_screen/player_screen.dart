@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import '../../models/episode_model.dart';
 import '../../providers/audio_provider.dart';
@@ -206,28 +207,32 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   Widget _buildImageTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        PodcastImage(
-          height: 350,
-          width: 300,
-          imageURL: widget.mediaItem.artUri.toString(),
-        ),
-        const SizedBox(height: kContentSpacing24),
-        Column(
+    return ResponsiveBuilder(
+      builder: (context, screenInfo) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              widget.mediaItem.title,
-              style: Theme.of(context).textTheme.headline6,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            PodcastImage(
+              height: 350,
+              width: 300,
+              imageURL: widget.mediaItem.artUri.toString(),
             ),
-            _buildAuthor(),
+            const SizedBox(height: kContentSpacing24),
+            Column(
+              children: [
+                Text(
+                  widget.mediaItem.title,
+                  style: Theme.of(context).textTheme.bodyText1,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                _buildAuthor(),
+              ],
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 

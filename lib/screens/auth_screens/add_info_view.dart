@@ -270,16 +270,20 @@ class _AddInfoViewState extends State<AddInfoView> {
   Widget _buildPolicyText() {
     return Column(
       children: [
-        const Text(
+        Text(
           'By continuing, you agree to the ',
+          style: Theme.of(context).textTheme.bodyText2,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             InkWell(
-              child: const Text(
+              child: Text(
                 'Privacy Policy',
-                style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(fontWeight: FontWeight.w500, color: kBlue),
               ),
               onTap: () {
                 loadMarkdownFile(
@@ -288,20 +292,26 @@ class _AddInfoViewState extends State<AddInfoView> {
                 );
               },
             ),
-            const Text(
-              ' and',
+            Text(
+              ' and ',
+              style: Theme.of(context).textTheme.bodyText2,
             ),
-            InkWell(
-              child: const Text(
-                ' Terms of Conditions.',
-                style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
+            Flexible(
+              child: InkWell(
+                child: Text(
+                  'Terms of Conditions.',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(fontWeight: FontWeight.w500, color: kBlue),
+                ),
+                onTap: () {
+                  loadMarkdownFile(
+                    context: context,
+                    mdFile: 'assets/privacy/terms_of_service.md',
+                  );
+                },
               ),
-              onTap: () {
-                loadMarkdownFile(
-                  context: context,
-                  mdFile: 'assets/privacy/terms_of_service.md',
-                );
-              },
             ),
           ],
         )

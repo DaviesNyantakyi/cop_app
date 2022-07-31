@@ -115,6 +115,7 @@ class FireAuth {
       debugPrint(e.toString());
       rethrow;
     }
+    return null;
   }
 
   // Returns true if succesfull

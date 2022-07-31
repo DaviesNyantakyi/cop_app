@@ -8,6 +8,7 @@ import 'package:cop_belgium_app/widgets/track_shape.dart';
 import 'package:cop_belgium_app/widgets/circular_progress_indicator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -20,13 +21,18 @@ Future<void> main() async {
 
 Future<void> _init() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // To turn off landscape mode
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp,
+  ]);
+
   await Firebase.initializeApp();
 
   await Hive.initFlutter();
-
   Hive.registerAdapter(PodcastModelAdapter());
   Hive.registerAdapter(EpisodeModelAdapter());
-
   await Hive.openBox<PodcastModel>('podcasts');
   await Hive.openBox<PodcastModel>('subscriptions');
   await Hive.openBox<EpisodeModel>('downloads');
@@ -40,6 +46,7 @@ Future<void> _init() async {
       watch: 320, //small
     ),
   );
+
   EasyLoading.instance
     ..indicatorType = EasyLoadingIndicatorType.fadingCircle
     ..loadingStyle = EasyLoadingStyle.light

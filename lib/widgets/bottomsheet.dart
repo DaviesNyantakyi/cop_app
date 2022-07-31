@@ -2,49 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../utilities/constant.dart';
 
-// Future<dynamic> showCustomBottomSheet({
-//   required BuildContext context,
-//   bool isDismissible = true,
-//   double? height,
-//   double? width,
-//   bool enableDrag = true,
-//   bool isScrollControlled = true,
-//   Color backgroundColor = kWhite,
-//   required Widget child,
-// }) async {
-//   return showModalBottomSheet(
-//     isDismissible: isDismissible,
-//     enableDrag: enableDrag,
-//     backgroundColor: backgroundColor,
-//     isScrollControlled: isScrollControlled,
-//     shape: const RoundedRectangleBorder(
-//       borderRadius: BorderRadius.all(
-//         Radius.circular(kRadius),
-//       ),
-//     ),
-//     context: context,
-//     builder: (context) {
-//       return SafeArea(
-//         child: SizedBox(
-//           height: height,
-//           width: width,
-//           child: Padding(
-//             padding: const EdgeInsets.all(kContentSpacing16),
-//             child: Material(
-//               borderRadius: const BorderRadius.only(
-//                 topLeft: Radius.circular(kRadius),
-//                 topRight: Radius.circular(kRadius),
-//               ),
-//               color: backgroundColor,
-//               child: SingleChildScrollView(child: child),
-//             ),
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
-
 Future<dynamic> showCustomBottomSheet({
   required BuildContext context,
   bool isDismissible = true,

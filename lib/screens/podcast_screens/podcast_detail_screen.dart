@@ -42,7 +42,9 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
-                const SizedBox(height: kContentSpacing16),
+                const SizedBox(height: kContentSpacing8),
+                _buildIcons(),
+                const SizedBox(height: kContentSpacing8),
                 _buildDescription(),
                 const SizedBox(height: kContentSpacing4),
                 const Divider(),
@@ -68,8 +70,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
       children: [
         PodcastImage(
           imageURL: widget.podcast.image ?? '',
-          width: 140,
-          height: 140,
+          width: 120,
         ),
         const SizedBox(width: kContentSpacing16),
         Expanded(
@@ -81,7 +82,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                 '${widget.podcast.episodes?.length ?? 0} Episodes',
                 style: Theme.of(context)
                     .textTheme
-                    .caption
+                    .bodyText2
                     ?.copyWith(fontWeight: FontWeight.w500, color: kGrey),
               ),
               const SizedBox(height: kContentSpacing4),
@@ -91,17 +92,17 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
                     .textTheme
                     .headline6
                     ?.copyWith(fontWeight: FontWeight.bold),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: kContentSpacing4),
               Text(
                 '${widget.podcast.author}',
-                style: Theme.of(context).textTheme.caption,
+                style: Theme.of(context).textTheme.bodyText2,
               ),
-              const SizedBox(height: kContentSpacing16),
-              _buildIcons(),
             ],
           ),
-        )
+        ),
       ],
     );
   }

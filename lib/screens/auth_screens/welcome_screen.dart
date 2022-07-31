@@ -98,14 +98,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   horizontal: screenInfo.screenSize.width >= kScreenTablet
                       ? kContentSpacing64
                       : kContentSpacing16,
+                  vertical: kContentSpacing16,
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: kContentSpacing32),
+                    screenInfo.screenSize.height <= kScreenMoible ||
+                            screenInfo.screenSize.height < kScreenTablet
+                        ? Container()
+                        : const SizedBox(height: kContentSpacing32),
                     _buildImage(),
-                    const SizedBox(height: kContentSpacing32),
+                    screenInfo.screenSize.height <= kScreenMoible ||
+                            screenInfo.screenSize.height < kScreenTablet
+                        ? Container()
+                        : const SizedBox(height: kContentSpacing32),
                     _buildGoogleButton(),
                     const SizedBox(height: kContentSpacing8),
                     _buildAppleButton(),
@@ -124,31 +131,56 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildImage() {
-    return Column(
-      children: [
-        const CopLogo(
-          width: 100,
-          height: 100,
-        ),
-        const SizedBox(height: kContentSpacing20),
-        FittedBox(
-          child: Text(
+    return ResponsiveBuilder(builder: (context, screenInfo) {
+      if (screenInfo.screenSize.height <= kScreenMoible ||
+          screenInfo.screenSize.height <= kScreenTablet) {
+        return Container();
+      }
+
+      if (screenInfo.screenSize.width <= kScreenSmall) {
+        return Column(
+          children: [
+            Text(
+              'Church of Pentecost',
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: kBlue,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            Text(
+              'Belgium',
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: kBlue,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+          ],
+        );
+      }
+      return Column(
+        children: [
+          const CopLogo(
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: kContentSpacing20),
+          Text(
             'Welcome to ',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   color: kBlue,
                   fontWeight: FontWeight.w500,
                 ),
           ),
-        ),
-        Text(
-          'The Church of Pentecost Belgium',
-          style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                color: kBlue,
-                fontWeight: FontWeight.w500,
-              ),
-        ),
-      ],
-    );
+          Text(
+            'The Church of Pentecost Belgium',
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  color: kBlue,
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildGoogleButton() {
@@ -156,7 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       builder: (context, screenInfo) {
         return CustomIconButton(
           height: kButtonHeight,
-          leading: screenInfo.screenSize.width <= kScreenMoible
+          leading: screenInfo.screenSize.width <= kScreenSmall
               ? Container()
               : const Icon(
                   BootstrapIcons.google,
@@ -179,24 +211,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildAppleButton() {
-    return CustomIconButton(
-      height: kButtonHeight,
-      backgroundColor: kBlack,
-      leading: const Icon(
-        BootstrapIcons.apple,
-        size: 32,
-        color: kWhite,
-      ),
-      label: FittedBox(
-        child: Text(
-          'Continue with Apple',
-          style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: kWhite,
-              ),
-        ),
-      ),
-      onPressed: continueWithApple,
+    return ResponsiveBuilder(
+      builder: (context, screenInfo) {
+        return CustomIconButton(
+          height: kButtonHeight,
+          backgroundColor: kBlack,
+          leading: screenInfo.screenSize.width <= kScreenSmall
+              ? Container()
+              : const Icon(
+                  BootstrapIcons.apple,
+                  size: 32,
+                  color: kWhite,
+                ),
+          label: FittedBox(
+            child: Text(
+              'Continue with Apple',
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: kWhite,
+                  ),
+            ),
+          ),
+          onPressed: continueWithApple,
+        );
+      },
     );
   }
 
