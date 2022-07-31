@@ -44,6 +44,8 @@ class _MoreScreenState extends State<MoreScreen> {
 
   Future<void> logout() async {
     try {
+      await Provider.of<AudioProvider>(context, listen: false).stop();
+
       await FireAuth().signOut();
     } on FirebaseAuthException catch (e) {
       showCustomSnackBar(

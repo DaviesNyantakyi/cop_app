@@ -46,27 +46,30 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
     playingStateStream();
   }
 
+  final _playlist = ConcatenatingAudioSource(children: []);
+
   Future<void> initPlayer({required MediaItem mediaItem}) async {
     if (mediaItem.extras?['downloadPath'] != null) {
+      // Offline
       final file = File(mediaItem.extras?['downloadPath']);
 
-      print('offline');
-      await _justAudio.setAudioSource(
-        AudioSource.uri(
-          file.uri,
-          tag: MediaItem(
-            id: mediaItem.id,
-            title: mediaItem.title,
-            artUri: mediaItem.artUri,
-            artist: mediaItem.artist,
-            duration: mediaItem.duration,
-          ),
+      await _playlist.add(AudioSource.uri(
+        file.uri,
+        tag: MediaItem(
+          id: mediaItem.id,
+          title: mediaItem.title,
+          artUri: mediaItem.artUri,
+          artist: mediaItem.artist,
+          duration: mediaItem.duration,
         ),
-      );
+      ));
+
+      await _justAudio.setAudioSource(_playlist);
     } else {
+      // Online
       if (mediaItem.extras?['audio'] != null) {
-        print('online');
-        await _justAudio.setAudioSource(
+        await _playlist.clear();
+        await _playlist.add(
           AudioSource.uri(
             Uri.parse(
               mediaItem.extras!['audio'],
@@ -80,6 +83,7 @@ class AudioProvider extends BaseAudioHandler with ChangeNotifier {
             ),
           ),
         );
+        await _justAudio.setAudioSource(_playlist);
       }
     }
     _currentMediaItem = mediaItem;
