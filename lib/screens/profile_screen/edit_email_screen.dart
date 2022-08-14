@@ -20,25 +20,45 @@ class EditEmailScreen extends StatefulWidget {
 }
 
 class _EditEmailScreenState extends State<EditEmailScreen> {
-  TextEditingController newEmailCntlr = TextEditingController();
+  TextEditingController emailCntlr = TextEditingController();
   TextEditingController passwordCntlr = TextEditingController();
   final emailKey = GlobalKey<FormState>();
   final passwordKey = GlobalKey<FormState>();
+
+  bool validForm = false;
+  bool? validEmail = false;
+  bool? validPassword = false;
 
   final fireAuth = FireAuth();
   final firebaseAuth = FirebaseAuth.instance;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
-    newEmailCntlr.dispose();
+    emailCntlr.dispose();
     emailKey.currentState?.dispose();
     super.dispose();
+  }
+
+  void validateForm() {
+    if (validEmail == true && validPassword == true) {
+      validForm = true;
+    } else {
+      validForm = false;
+    }
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void>? showEmailDialog() {
     FocusScope.of(context).unfocus();
 
-    if (newEmailCntlr.text.trim() == firebaseAuth.currentUser?.email) {
+    if (emailCntlr.text.trim() == firebaseAuth.currentUser?.email) {
       Navigator.pop(context);
       return null;
     }
@@ -48,21 +68,19 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
     if (validNewEmail == true && validPassword == true) {
       return showCustomDialog(
         context: context,
-        title: const Text('PLEASE BE AWARE!'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Column(
           children: [
+            const Text('PLEASE BE AWARE!'),
             const Text(
               'You will now be logged out of your account and asked to log in again with your new e-mail address:',
             ),
             Text(
-              newEmailCntlr.text,
+              emailCntlr.text,
               style: const TextStyle(fontWeight: FontWeight.bold),
             )
           ],
         ),
-        actions: <Widget>[
+        actions: Row(children: <Widget>[
           TextButton(
             child: const Text(
               'Cancel',
@@ -79,7 +97,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
               style: TextStyle(color: Colors.black),
             ),
           )
-        ],
+        ]),
       );
     }
     return null;
@@ -87,8 +105,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
 
   Future<void> update() async {
     try {
-      if (newEmailCntlr.text.trim() ==
-          firebaseAuth.currentUser?.email?.trim()) {
+      if (emailCntlr.text.trim() == firebaseAuth.currentUser?.email?.trim()) {
         Navigator.pop(context);
         return;
       }
@@ -100,11 +117,11 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
 
       if (validNewEmail == true &&
           validPassword == true &&
-          newEmailCntlr.text.isNotEmpty) {
+          emailCntlr.text.isNotEmpty) {
         EasyLoading.show();
 
         success = await fireAuth.updateEmail(
-          email: newEmailCntlr.text,
+          email: emailCntlr.text,
           password: passwordCntlr.text,
         );
 
@@ -187,11 +204,18 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
       key: emailKey,
       child: CustomTextFormField(
         hintText: 'New email',
-        controller: newEmailCntlr,
+        controller: emailCntlr,
         maxLines: 1,
         validator: Validators.emailValidator,
         textInputAction: TextInputAction.next,
         keyboardType: TextInputType.emailAddress,
+        onChanged: (value) {
+          validEmail = emailKey.currentState?.validate();
+          if (mounted) {
+            setState(() {});
+          }
+          validateForm();
+        },
       ),
     );
   }
@@ -200,12 +224,19 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
     return Form(
       key: passwordKey,
       child: CustomTextFormField(
-        hintText: 'Password',
+        hintText: 'Confirm with your password',
         controller: passwordCntlr,
         maxLines: 1,
         obscureText: true,
         validator: Validators.passwordValidator,
         textInputAction: TextInputAction.done,
+        onChanged: (value) {
+          validPassword = passwordKey.currentState?.validate();
+          if (mounted) {
+            setState(() {});
+          }
+          validateForm();
+        },
       ),
     );
   }
@@ -213,7 +244,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
   Widget _buildUpdateButton() {
     return CustomElevatedButton(
       height: kButtonHeight,
-      backgroundColor: kBlue,
+      backgroundColor: validForm ? kBlue : kGrey,
       width: double.infinity,
       child: Text(
         'Update',
@@ -222,7 +253,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
             .bodyText1
             ?.copyWith(fontWeight: FontWeight.bold, color: kWhite),
       ),
-      onPressed: update,
+      onPressed: validForm ? update : null,
     );
   }
 }

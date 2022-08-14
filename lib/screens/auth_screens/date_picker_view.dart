@@ -233,14 +233,11 @@ class _DatePickerViewState extends State<DatePickerView> {
           backgroundColor: signUpProvider.dateOfBirth != null &&
                   signUpProvider.dateOfBirthIsValid == true
               ? kBlue
-              : kGreyLight,
+              : kGrey,
           child: Text(
             'Continue',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  color: signUpProvider.dateOfBirth != null &&
-                          signUpProvider.dateOfBirthIsValid == true
-                      ? kWhite
-                      : kGrey,
+                  color: kWhite,
                 ),
           ),
           onPressed: signUpProvider.dateOfBirth != null &&

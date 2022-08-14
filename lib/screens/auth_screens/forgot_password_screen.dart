@@ -124,15 +124,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Widget _buildSendButton() {
     return CustomElevatedButton(
-      backgroundColor: formIsValid == true ? kBlue : kGreyLight,
+      backgroundColor: formIsValid == true ? kBlue : kGrey,
       height: kButtonHeight,
       width: double.infinity,
       child: Text(
         'Send',
-        style: Theme.of(context).textTheme.bodyText1?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: formIsValid == true ? kWhite : kGrey,
-            ),
+        style: Theme.of(context)
+            .textTheme
+            .bodyText1
+            ?.copyWith(fontWeight: FontWeight.bold, color: kWhite),
       ),
       onPressed: formIsValid == true ? onSubmit : null,
     );

@@ -6,10 +6,10 @@ import 'package:cop_belgium_app/screens/profile_screen/edit_email_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_gender_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_name_screen.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
+import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/formal_dates.dart';
 import 'package:cop_belgium_app/utilities/image_picker.dart';
 import 'package:cop_belgium_app/widgets/avatar.dart';
-import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:cop_belgium_app/widgets/text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,9 +22,7 @@ import '../../models/user_model.dart';
 import '../../services/cloud_fire.dart';
 import '../../services/fire_auth.dart';
 import '../../utilities/constant.dart';
-import '../../utilities/validators.dart';
 import '../../widgets/back_button.dart';
-import '../../widgets/dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -52,12 +50,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> navigateToScreen({required Widget screen}) async {
     // Go to the welcome screen if the user is anonymous
-    await Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => screen,
-      ),
-    );
+
+    try {
+      bool hasConnection = await ConnectionNotifier().checkConnection();
+
+      if (hasConnection == true) {
+        await Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => screen,
+          ),
+        );
+      }
+    } on FirebaseException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? ' ',
+      );
+
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
     setState(() {});
   }
 
@@ -87,87 +103,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       EasyLoading.dismiss();
       setState(() {});
     }
-  }
-
-  Future<void> deleteAccount() async {
-    try {
-      Navigator.pop(context);
-      EasyLoading.show();
-      final validPassword = passwordKey.currentState?.validate();
-      bool success = false;
-
-      if (validPassword == true &&
-          passwordCntrl.text.isNotEmpty &&
-          providerId != fireAuth.providerIdGoogle) {
-        success = await fireAuth.deleteAccount(password: passwordCntrl.text);
-      } else {
-        success = await fireAuth.deleteAccount();
-      }
-
-      if (success) {
-        // Pop dialog and and current screen.
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      }
-    } on FirebaseException catch (e) {
-      if (e.code == 'object-not-found' &&
-          FirebaseAuth.instance.currentUser == null) {
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
-      } else {
-        showCustomSnackBar(
-          context: context,
-          message: e.message ?? '',
-          type: CustomSnackBarType.error,
-        );
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-    } finally {
-      EasyLoading.dismiss();
-      setState(() {});
-    }
-  }
-
-  Future<void> showDeleteDialog() async {
-    passwordCntrl.clear();
-    passwordKey.currentState?.reset();
-    showCustomDialog(
-      context: context,
-      title: const Text(
-        'Delete account?',
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'This action cannot be undone and all content will be lost.',
-          ),
-          const SizedBox(height: kContentSpacing8),
-          _buildPasswordField(),
-        ],
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: Colors.black),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        TextButton(
-          onPressed: deleteAccount,
-          child: const Text(
-            'Delete',
-            style: TextStyle(color: Colors.red),
-          ),
-        ),
-      ],
-    );
   }
 
   Future<void> uploadImage() async {
@@ -230,7 +165,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final providerId = firebaseAuth.currentUser?.providerData[0].providerId;
     const editIcon = Icon(
       BootstrapIcons.pencil_square,
       color: kGrey,
@@ -340,11 +274,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: resetPassword,
                       ),
                       const SizedBox(height: kContentSpacing8),
-                      _buildButton(
-                        text: 'Delete account',
-                        textColor: kRed,
-                        onPressed: showDeleteDialog,
-                      ),
                     ],
                   );
                 }),
@@ -373,18 +302,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onTap: pickImage,
         child: Stack(
           children: [
-            const CustomAvatar(radius: 80, iconSize: 42),
+            const CustomAvatar(radius: 72, iconSize: 42),
             Positioned(
               bottom: 10,
               right: 2,
               child: SizedBox(
-                width: 48,
-                height: 48,
+                width: 42,
+                height: 42,
                 child: FloatingActionButton(
                   elevation: 0,
                   onPressed: pickImage,
                   child: IconButton(
-                    iconSize: 24,
+                    iconSize: 20,
                     onPressed: pickImage,
                     icon: const Icon(BootstrapIcons.camera_fill),
                   ),
@@ -423,31 +352,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Color? textColor,
     VoidCallback? onPressed,
   }) {
-    return CustomElevatedButton(
-      padding: EdgeInsets.zero,
+    return GestureDetector(
       child: Text(
         text,
         style: Theme.of(context).textTheme.bodyText1?.copyWith(
               color: textColor,
             ),
       ),
-      onPressed: onPressed,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    if (providerId == fireAuth.providerIdGoogle) {
-      return Container();
-    }
-    return Form(
-      key: passwordKey,
-      child: CustomTextFormField(
-        controller: passwordCntrl,
-        maxLines: 1,
-        hintText: 'Password',
-        obscureText: true,
-        validator: Validators.passwordValidator,
-      ),
+      onTap: onPressed,
     );
   }
 }

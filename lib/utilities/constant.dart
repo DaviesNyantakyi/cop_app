@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // Other
-const double kRadius = 10.0;
+const double kRadius = 7.0;
 const double kBoderWidth = 1.5;
 const double kButtonHeight = 58.0;
 const double kIconSize = 24;
@@ -45,5 +45,6 @@ const double kContentSpacing16 = 16;
 const double kContentSpacing20 = 20;
 const double kContentSpacing24 = 24;
 const double kContentSpacing32 = 32;
+const double kContentSpacing40 = 40;
 const double kContentSpacing64 = 64;
 const double kContentSpacing128 = 128;

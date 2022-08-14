@@ -38,8 +38,6 @@ class _EditDateScreenState extends State<EditDateScreen> {
 
   @override
   void initState() {
-    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
-
     init();
 
     super.initState();
@@ -52,10 +50,14 @@ class _EditDateScreenState extends State<EditDateScreen> {
   }
 
   Future<void> init() async {
+    signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
+
     user = await CloudFire().getUser(id: firebaseAuth.currentUser?.uid);
     if (user?.dateOfBirth?.toDate() != null) {
       signUpProvider.setDateOfBirth(value: user!.dateOfBirth!.toDate());
     }
+
+    validDateBirthDate();
 
     setState(() {});
   }
@@ -93,7 +95,7 @@ class _EditDateScreenState extends State<EditDateScreen> {
     }
   }
 
-  void validDate() {
+  void validDateBirthDate() {
     if (signUpProvider.dateOfBirth == null) {
       signUpProvider.validateDateOfBirth(value: false);
     }
@@ -120,10 +122,10 @@ class _EditDateScreenState extends State<EditDateScreen> {
         dateOfBirthErrorText = Validators.birthdayValidator(
           date: date,
         );
-        validDate();
+        validDateBirthDate();
       },
     );
-    validDate();
+    validDateBirthDate();
     dateOfBirthErrorText = Validators.birthdayValidator(
       date: signUpProvider.dateOfBirth,
     );
@@ -255,14 +257,11 @@ class _EditDateScreenState extends State<EditDateScreen> {
           backgroundColor: signUpProvider.dateOfBirth != null &&
                   signUpProvider.dateOfBirthIsValid == true
               ? kBlue
-              : kGreyLight,
+              : kGrey,
           child: Text(
             'Update',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  color: signUpProvider.dateOfBirth != null &&
-                          signUpProvider.dateOfBirthIsValid == true
-                      ? kWhite
-                      : kGrey,
+                  color: kWhite,
                 ),
           ),
           onPressed: signUpProvider.dateOfBirth != null &&

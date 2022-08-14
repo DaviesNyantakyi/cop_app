@@ -291,13 +291,13 @@ class _AddInfoViewState extends State<_AddInfoView> {
       builder: (context, signUpProvider, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
-          backgroundColor: signUpProvider.formIsValid ? kBlue : kGreyLight,
+          backgroundColor: signUpProvider.formIsValid ? kBlue : kGrey,
           width: double.infinity,
           child: Text(
             'Continue',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: signUpProvider.formIsValid ? kWhite : kGrey,
+                  color: kWhite,
                 ),
           ),
           onPressed: signUpProvider.formIsValid ? onSubmit : null,
@@ -315,7 +315,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               child: const Text(
                 'Privacy Policy',
                 style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),
@@ -330,7 +330,7 @@ class _AddInfoViewState extends State<_AddInfoView> {
             const Text(
               ' and',
             ),
-            InkWell(
+            GestureDetector(
               child: const Text(
                 ' Terms of Conditions.',
                 style: TextStyle(fontWeight: FontWeight.w500, color: kBlue),

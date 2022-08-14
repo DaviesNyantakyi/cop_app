@@ -78,18 +78,7 @@ class AboutChruchScreen extends StatelessWidget {
                   await Navigator.push(
                     context,
                     CupertinoPageRoute(
-                      builder: (context) => ChurchSelectionScreen(
-                        appBar: AppBar(
-                          leading: const CustomBackButton(),
-                          title: Text(
-                            'Churches',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline6
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
+                      builder: (context) => const _ChurchesScreen(),
                     ),
                   );
                 },
@@ -115,6 +104,27 @@ class AboutChruchScreen extends StatelessWidget {
             .headline6
             ?.copyWith(fontWeight: FontWeight.bold),
       ),
+    );
+  }
+}
+
+class _ChurchesScreen extends StatelessWidget {
+  const _ChurchesScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ChurchSelectionScreen(
+      appBar: AppBar(
+        leading: const CustomBackButton(),
+        title: Text(
+          'Churches',
+          style: Theme.of(context)
+              .textTheme
+              .headline6
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+      ),
+      onTap: (church) {},
     );
   }
 }

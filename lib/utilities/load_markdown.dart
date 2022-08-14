@@ -5,10 +5,13 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../widgets/bottomsheet.dart';
 
-void loadMarkdownFile({required BuildContext context, required String mdFile}) {
+void loadMarkdownFile({
+  required BuildContext context,
+  required String mdFile,
+}) async {
   FocusScope.of(context).unfocus();
 
-  showCustomBottomSheet(
+  await showCustomBottomSheet(
     height: MediaQuery.of(context).size.height * kBottomsheetHeight,
     context: context,
     child: FutureBuilder(

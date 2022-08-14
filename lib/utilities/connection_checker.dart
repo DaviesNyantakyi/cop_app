@@ -20,6 +20,7 @@ class ConnectionNotifier extends ChangeNotifier {
     if (result == false) {
       throw connectionException;
     }
+
     hasConnection = result;
     notifyListeners();
     return result;

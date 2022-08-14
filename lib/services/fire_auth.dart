@@ -7,8 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'package:internet_connection_checker/internet_connection_checker.dart';
-
 class FireAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -19,6 +17,7 @@ class FireAuth {
 
   final providerIdEmail = 'password';
   final providerIdGoogle = 'google.com';
+  final providerIdApple = 'apple.com';
 
   Future<User?> createUserEmailPassword({
     required UserModel userModel,
@@ -103,21 +102,6 @@ class FireAuth {
     }
   }
 
-  Future<UserCredential?> signInApple() async {
-    try {
-      final hasConnection = await _connectionNotifier.checkConnection();
-
-      if (hasConnection) {
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-    return null;
-  }
-
   // Returns true if succesfull
   Future<bool> sendPasswordResetEmail({required String? email}) async {
     try {
@@ -140,7 +124,7 @@ class FireAuth {
   // Send email verifaction.
   Future<void> sendEmailVerfication() async {
     try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         // Reload the current user info.
@@ -177,71 +161,21 @@ class FireAuth {
     }
   }
 
-  Future<bool> deleteAccount({String? password}) async {
+  Future<OAuthCredential?> signInWithGoogle() async {
     try {
-      if (password != null && password.isNotEmpty) {
-        final email = _firebaseAuth.currentUser?.email;
-        if (email != null) {
-          final credential =
-              EmailAuthProvider.credential(email: email, password: password);
-          await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
-            credential,
-          );
-          await _firebaseAuth.currentUser?.reload();
-          await _fireStorage.deleteProfileImage();
-          await _cloudFire.deleteUserInfo();
-          await _firebaseAuth.currentUser?.delete();
-          return true;
-        }
-      }
-
-      if (_firebaseAuth.currentUser?.providerData[0].providerId ==
-          providerIdGoogle) {
-        await _firebaseAuth.currentUser?.reload();
-        await FireStorage().deleteProfileImage();
-        await _cloudFire.deleteUserInfo();
-        await _firebaseAuth.currentUser?.delete();
-        return true;
-      }
-    } on FirebaseException catch (e) {
-      if (e.code == 'object-not-found') {
-        await _cloudFire.deleteUserInfo();
-        await _firebaseAuth.currentUser?.delete();
-      }
-      rethrow;
-    } catch (e) {
-      debugPrint(e.toString());
-
-      rethrow;
-    } finally {
-      final subbOX = HiveBoxes().getSubScriptions();
-      final downBox = HiveBoxes().getDownloads();
-      final podBox = HiveBoxes().getPodcasts();
-      final subBoxKeys = subbOX.keys;
-      final downBoxKeys = downBox.keys;
-      final podBoxKeys = podBox.keys;
-      await subbOX.deleteAll(subBoxKeys);
-      await subbOX.deleteAll(downBoxKeys);
-      await subbOX.deleteAll(podBoxKeys);
-    }
-    return false;
-  }
-
-  Future<UserCredential?> signInWithGoogle() async {
-    try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         // Show the authentication flow (dialog).
-        final googleUser = await _googleSignIn.signIn();
+        final googleSignInAccount = await _googleSignIn.signIn();
 
-        if (googleUser != null) {
-          final googelUser = await googleUser.authentication;
-          final cred = GoogleAuthProvider.credential(
+        if (googleSignInAccount != null) {
+          final googelUser = await googleSignInAccount.authentication;
+          final authCredentiel = GoogleAuthProvider.credential(
             idToken: googelUser.idToken,
             accessToken: googelUser.accessToken,
           );
-          final userCred = await _firebaseAuth.signInWithCredential(cred);
+          await _firebaseAuth.signInWithCredential(authCredentiel);
 
           // Create create user document if it does not exist.
           // Try to get the user
@@ -261,7 +195,7 @@ class FireAuth {
             await _cloudFire.createUserDoc(user: user);
             await _firebaseAuth.currentUser?.updatePhotoURL(null);
           }
-          return userCred;
+          return authCredentiel;
         }
       } else {
         throw ConnectionNotifier.connectionException;
@@ -278,7 +212,7 @@ class FireAuth {
 
   Future<User?> signInWithApple() async {
     try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         // TODO: Implement sing in with Apple:
@@ -296,13 +230,112 @@ class FireAuth {
     // return null if authentication fails.
   }
 
+  Future<bool> deleteEmailAccount({
+    String? email,
+    String? password,
+  }) async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+
+      if (hasConnection) {
+        if (email != null &&
+            email.isNotEmpty &&
+            password != null &&
+            password.isNotEmpty) {
+          final credential =
+              EmailAuthProvider.credential(email: email, password: password);
+          await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
+            credential,
+          );
+          await _firebaseAuth.currentUser?.reload();
+          await _fireStorage.deleteProfileImage();
+          await _cloudFire.deleteUserInfo();
+          await _firebaseAuth.currentUser?.delete();
+          await HiveBoxes().deleteBoxes();
+          return true;
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+
+      rethrow;
+    } finally {}
+    return false;
+  }
+
+  Future<bool> deleteGoogleAccount() async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+
+      if (hasConnection) {
+        final signInCred = await signInWithGoogle();
+        if (signInCred != null) {
+          final cred = GoogleAuthProvider.credential(
+            idToken: signInCred.idToken,
+            accessToken: signInCred.accessToken,
+          );
+          final userCred = await _firebaseAuth.currentUser
+              ?.reauthenticateWithCredential(cred);
+
+          if (userCred != null && userCred.credential != null) {
+            await _firebaseAuth.currentUser?.reload();
+            await FireStorage().deleteProfileImage();
+            await _cloudFire.deleteUserInfo();
+            await _firebaseAuth.currentUser?.delete();
+            await HiveBoxes().deleteBoxes();
+            return true;
+          }
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'object-not-found') {
+        await _cloudFire.deleteUserInfo();
+        await _firebaseAuth.currentUser?.delete();
+      }
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+    return false;
+  }
+
+  Future<bool> deleteAppleAccount() async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+
+      if (hasConnection) {
+        //TODO: implement delete apple account
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'object-not-found') {
+        await _cloudFire.deleteUserInfo();
+        await _firebaseAuth.currentUser?.delete();
+      }
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+    return false;
+  }
+
   // Update the user display name.
   Future<void> updateDisplayName({
     required String firstName,
     required String lastName,
   }) async {
     try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
         final displayName = '${firstName.trim()} ${lastName.trim()}';
@@ -326,7 +359,7 @@ class FireAuth {
     required String password,
   }) async {
     try {
-      final hasConnection = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
       if (hasConnection) {
         if (_firebaseAuth.currentUser?.email != null &&
             email.isNotEmpty &&

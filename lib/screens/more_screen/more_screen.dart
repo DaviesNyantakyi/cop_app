@@ -1,7 +1,6 @@
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/audio_provider.dart';
 import 'package:cop_belgium_app/providers/signup_provider.dart';
-import 'package:cop_belgium_app/screens/auth_screens/welcome_screen.dart';
 import 'package:cop_belgium_app/screens/library_screen/library_screen.dart';
 import 'package:cop_belgium_app/screens/more_screen/about_church_screen.dart';
 import 'package:cop_belgium_app/screens/more_screen/settings_screen.dart';
@@ -55,36 +54,6 @@ class _MoreScreenState extends State<MoreScreen> {
       debugPrint(e.toString());
     } catch (e) {
       debugPrint(e.toString());
-    }
-  }
-
-  Future<void> navigateToScreen() async {
-    // Go to the welcome screen if the user is anonymous
-    final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
-    if (firebaseAuth.currentUser?.isAnonymous == true) {
-      await Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => ChangeNotifierProvider<SignUpProvider>.value(
-            value: signUpProvider,
-            child: const WelcomeScreen(),
-          ),
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => MultiProvider(
-            providers: [
-              ChangeNotifierProvider<SignUpProvider>.value(
-                value: signUpProvider,
-              ),
-            ],
-            child: const ProfileScreen(),
-          ),
-        ),
-      );
     }
   }
 
@@ -202,7 +171,28 @@ class _MoreScreenState extends State<MoreScreen> {
           ],
         ),
       ),
-      onPressed: () => navigateToScreen(),
+      onPressed: () {
+        final signUpProvider =
+            Provider.of<SignUpProvider>(context, listen: false);
+        final audioProvider =
+            Provider.of<AudioProvider>(context, listen: false);
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider<SignUpProvider>.value(
+                  value: signUpProvider,
+                ),
+                ChangeNotifierProvider<AudioProvider>.value(
+                  value: audioProvider,
+                ),
+              ],
+              child: const ProfileScreen(),
+            ),
+          ),
+        );
+      },
     );
   }
 

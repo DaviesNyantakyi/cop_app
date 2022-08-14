@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:cop_belgium_app/screens/more_screen/account_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/load_markdown.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/cop_logo.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -114,8 +116,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kContentSpacing12),
                 _buildPackageVersion(),
                 const SizedBox(height: 39),
+                _buildAccounrTile(),
                 _buildFeedBackTiles(),
-                const SizedBox(height: 5),
                 _buildPrivacyTiles(),
               ],
             ),
@@ -134,19 +136,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         ListTile(
           onTap: () async {
-            await sendFeedBack(type: 'feedBack');
+            await sendFeedBack(type: 'bug');
           },
           title: Text(
-            'Send Feedback',
+            'Report a Bug',
             style: Theme.of(context).textTheme.bodyText1,
           ),
         ),
         ListTile(
           onTap: () async {
-            await sendFeedBack(type: 'bug');
+            await sendFeedBack(type: 'feedBack');
           },
           title: Text(
-            'Report a Bug',
+            'Send Feedback',
             style: Theme.of(context).textTheme.bodyText1,
           ),
         ),
@@ -192,6 +194,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildAccounrTile() {
+    return Column(
+      children: [
+        ListTile(
+          title: Text(
+            'Account',
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+          onTap: () {
+            Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) => const AccountScreen()));
+          },
+        ),
+      ],
+    );
+  }
+
   dynamic _buildAppbar({required BuildContext context}) {
     return AppBar(
       leading: const CustomBackButton(),
@@ -199,7 +220,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Settings',
         style: Theme.of(context)
             .textTheme
-            .bodyText1
+            .headline6
             ?.copyWith(fontWeight: FontWeight.bold),
       ),
     );

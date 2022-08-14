@@ -23,17 +23,23 @@ class EditNameScreen extends StatefulWidget {
 class _EditNameScreenState extends State<EditNameScreen> {
   TextEditingController? firstNameCntlr;
   final firstNameKey = GlobalKey<FormState>();
+
   TextEditingController? lastNameCntlr;
   final lastNameKey = GlobalKey<FormState>();
 
   final fireAuth = FireAuth();
   final firebaseAuth = FirebaseAuth.instance;
 
+  bool validForm = false;
+  bool? validFirstName = false;
+  bool? validLastName = false;
+
   UserModel? user;
 
   @override
   void initState() {
     init();
+
     super.initState();
   }
 
@@ -50,7 +56,15 @@ class _EditNameScreenState extends State<EditNameScreen> {
     user = await CloudFire().getUser(id: firebaseAuth.currentUser?.uid);
     firstNameCntlr = TextEditingController(text: user?.firstName);
     lastNameCntlr = TextEditingController(text: user?.lastName);
-    setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      validFirstName = firstNameKey.currentState?.validate();
+      validLastName = lastNameKey.currentState?.validate();
+      validateForm();
+    });
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> update() async {
@@ -80,6 +94,17 @@ class _EditNameScreenState extends State<EditNameScreen> {
       debugPrint(e.toString());
     } finally {
       EasyLoading.dismiss();
+    }
+  }
+
+  void validateForm() {
+    if (validFirstName == true && validLastName == true) {
+      validForm = true;
+    } else {
+      validForm = false;
+    }
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -127,8 +152,13 @@ class _EditNameScreenState extends State<EditNameScreen> {
         maxLines: 1,
         validator: Validators.nameValidator,
         textInputAction: TextInputAction.next,
-        // validateMode: AutovalidateMode.onUserInteraction,
-        onSubmitted: (value) {},
+        onChanged: (value) {
+          validFirstName = firstNameKey.currentState?.validate();
+          if (mounted) {
+            setState(() {});
+          }
+          validateForm();
+        },
       ),
     );
   }
@@ -141,9 +171,15 @@ class _EditNameScreenState extends State<EditNameScreen> {
         maxLines: 1,
         validator: Validators.nameValidator,
         textInputAction: TextInputAction.done,
-        // validateMode: AutovalidateMode.onUserInteraction,
         onSubmitted: (value) async {
           await update();
+        },
+        onChanged: (value) {
+          validLastName = lastNameKey.currentState?.validate();
+          if (mounted) {
+            setState(() {});
+          }
+          validateForm();
         },
       ),
     );
@@ -152,16 +188,16 @@ class _EditNameScreenState extends State<EditNameScreen> {
   Widget _buildUpdateButton() {
     return CustomElevatedButton(
       height: kButtonHeight,
-      backgroundColor: kBlue,
+      backgroundColor: validForm ? kBlue : kGrey,
       width: double.infinity,
       child: Text(
         'Update',
-        style: Theme.of(context)
-            .textTheme
-            .bodyText1
-            ?.copyWith(fontWeight: FontWeight.bold, color: kWhite),
+        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: kWhite,
+            ),
       ),
-      onPressed: update,
+      onPressed: validForm ? update : null,
     );
   }
 }

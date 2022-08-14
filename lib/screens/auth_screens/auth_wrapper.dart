@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AuthWrapper extends StatefulWidget {
-  static String authScreenSwitcher = 'authScreenSwitcher';
+  static String authWrapper = 'authScreenSwitcher';
   const AuthWrapper({Key? key}) : super(key: key);
 
   @override

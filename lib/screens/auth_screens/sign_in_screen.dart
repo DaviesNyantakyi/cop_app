@@ -1,3 +1,4 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/providers/signup_provider.dart';
 import 'package:cop_belgium_app/screens/auth_screens/forgot_password_screen.dart';
 import 'package:cop_belgium_app/services/fire_auth.dart';
@@ -193,15 +194,23 @@ class _SignInScreenState extends State<SignInScreen> {
           validator: Validators.passwordValidator,
           obscureText: obscureText,
           maxLines: 1,
-          suffixIcon: GestureDetector(
-            child: Icon(
-              obscureText ? Icons.visibility_off : Icons.visibility,
-              color: kBlack,
+          suffixIcon: Material(
+            color: Colors.transparent,
+            clipBehavior: Clip.hardEdge,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(100)),
             ),
-            onTap: () {
-              obscureText = !obscureText;
-              setState(() {});
-            },
+            child: IconButton(
+              tooltip: obscureText ? 'show password' : 'hide password',
+              icon: Icon(
+                obscureText ? BootstrapIcons.eye_slash : BootstrapIcons.eye,
+                color: kBlack,
+              ),
+              onPressed: () {
+                obscureText = !obscureText;
+                setState(() {});
+              },
+            ),
           ),
           onChanged: (value) {
             passwordFormIsValid =
@@ -223,15 +232,13 @@ class _SignInScreenState extends State<SignInScreen> {
           backgroundColor:
               emailFormIsValid == true && passwordFormIsValid == true
                   ? kBlue
-                  : kGreyLight,
+                  : kGrey,
           width: double.infinity,
           child: Text(
             'Sign in',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: emailFormIsValid == true && passwordFormIsValid == true
-                      ? kWhite
-                      : kGrey,
+                  color: kWhite,
                 ),
           ),
           onPressed: emailFormIsValid == true && passwordFormIsValid == true
@@ -244,13 +251,12 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildForgotPasswordButton() {
     return Center(
-      child: CustomElevatedButton(
-        height: null,
+      child: GestureDetector(
         child: Text(
           'Forgot password?',
           style: Theme.of(context).textTheme.bodyText1,
         ),
-        onPressed: forgotPassword,
+        onTap: forgotPassword,
       ),
     );
   }

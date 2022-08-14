@@ -5,7 +5,6 @@ import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 const userProfilePath = 'images/profile_images';
 
@@ -14,19 +13,27 @@ class FireStorage {
   final _fireStorage = FirebaseStorage.instance;
   final _cloudFire = CloudFire();
 
-  // User
+  final ConnectionNotifier _connectionNotifier = ConnectionNotifier();
 
-  Future<void> uploadProfileImage({
-    required File? image,
-    // required bool delete,
-  }) async {
+  Future<String> getPhotoUrl({required String fileRef}) async {
     try {
-      // Delete profile image if the user has not seletecd a image and delete is true.
+      return await _fireStorage.ref(fileRef).getDownloadURL();
+    } on FirebaseStorage catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> uploadProfileImage({required File? image}) async {
+    try {
       final _userId = _firebaseAuth.currentUser?.uid;
 
-      final result = await InternetConnectionChecker().hasConnection;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
-      if (result) {
+      if (hasConnection) {
         if (image != null && _userId != null) {
           final ref = await _fireStorage
               .ref()
@@ -42,56 +49,67 @@ class FireStorage {
     } on FirebaseStorage catch (e) {
       debugPrint(e.toString());
       rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     }
-  }
-
-  Future<String> getPhotoUrl({required String fileRef}) async {
-    return await _fireStorage.ref(fileRef).getDownloadURL();
   }
 
   Future<void> deleteProfileImage() async {
     try {
-      final userId = _firebaseAuth.currentUser?.uid;
+      final hasConnection = await _connectionNotifier.checkConnection();
 
-      if (userId != null) {
-        final url = await getPhotoUrl(fileRef: 'users/$userId/images/$userId');
-        await FirebaseStorage.instance.refFromURL(url).delete();
+      if (hasConnection) {
+        final userId = _firebaseAuth.currentUser?.uid;
+        final user = await _cloudFire.getUser(id: userId);
 
-        await _cloudFire.updatePhotoURL(photoURL: null);
-        await _firebaseAuth.currentUser?.updatePhotoURL(null);
+        // A photo has been uploaded to the storage
+        if (user?.photoURL != null && userId != null) {
+          final url =
+              await getPhotoUrl(fileRef: 'users/$userId/images/$userId');
+          await FirebaseStorage.instance.refFromURL(url).delete();
+
+          await _cloudFire.updatePhotoURL(photoURL: null);
+          await _firebaseAuth.currentUser?.updatePhotoURL(null);
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
       }
+    } on FirebaseStorage catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
     }
   }
 
-  Future<void> deleteUser() async {
-    final _userId = _firebaseAuth.currentUser?.uid;
-    try {
-      if (_userId != null) {
-        await _fireStorage.ref('users/$_userId').delete();
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-  }
+  // Future<void> deleteUser() async {
+  //   final _userId = _firebaseAuth.currentUser?.uid;
+  //   try {
+  //     if (_userId != null) {
+  //       await _fireStorage.ref('users/$_userId').delete();
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //     rethrow;
+  //   }
+  // }
 
-  Future<String?> uploadFile({
-    required String? id,
-    required String storagePath,
-    File? file,
-  }) async {
-    try {
-      if (file != null) {
-        final ref = await _fireStorage.ref('$storagePath/$id').putFile(file);
-        return await getPhotoUrl(fileRef: ref.ref.fullPath);
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
-    return null;
-  }
+  // Future<String?> uploadFile({
+  //   required String? id,
+  //   required String storagePath,
+  //   File? file,
+  // }) async {
+  //   try {
+  //     if (file != null) {
+  //       final ref = await _fireStorage.ref('$storagePath/$id').putFile(file);
+  //       return await getPhotoUrl(fileRef: ref.ref.fullPath);
+  //     }
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //     rethrow;
+  //   }
+  //   return null;
+  // }
 }

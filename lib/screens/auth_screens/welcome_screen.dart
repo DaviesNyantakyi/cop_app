@@ -259,10 +259,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildSignInButton() {
     return FittedBox(
       fit: BoxFit.scaleDown,
-      child: CustomElevatedButton(
-        height: null,
-        splashColor: Colors.transparent,
-        onPressed: signIn,
+      child: GestureDetector(
+        onTap: signIn,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,

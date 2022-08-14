@@ -9,4 +9,18 @@ class HiveBoxes {
   Box<PodcastModel> getSubScriptions() => Hive.box<PodcastModel>(
         'subscriptions',
       );
+
+  Future<void> deleteBoxes() async {
+    final subbOX = HiveBoxes().getSubScriptions();
+    final subBoxKeys = subbOX.keys;
+    await subbOX.deleteAll(subBoxKeys);
+
+    final downBox = HiveBoxes().getDownloads();
+    final downBoxKeys = downBox.keys;
+    await downBox.deleteAll(downBoxKeys);
+
+    final podBox = HiveBoxes().getPodcasts();
+    final podBoxKeys = podBox.keys;
+    await podBox.deleteAll(podBoxKeys);
+  }
 }

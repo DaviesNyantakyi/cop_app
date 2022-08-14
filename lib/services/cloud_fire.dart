@@ -108,7 +108,6 @@ class CloudFire {
       final hasConnection = await _connectionChecker.checkConnection();
 
       if (hasConnection) {
-        // print(_firebaseUser?.uid);
         if (_firebaseAuth.currentUser?.uid != null &&
             firstName.isNotEmpty &&
             lastName.isNotEmpty) {

@@ -156,13 +156,11 @@ class _GenderViewState extends State<GenderView> {
         return CustomElevatedButton(
           height: kButtonHeight,
           width: double.infinity,
-          backgroundColor: gender != null ? kBlue : kGreyLight,
+          backgroundColor: gender != null ? kBlue : kGrey,
           child: Text(
             'Continue',
-            style: Theme.of(context)
-                .textTheme
-                .bodyText1
-                ?.copyWith(color: gender != null ? kWhite : kGrey),
+            style:
+                Theme.of(context).textTheme.bodyText1?.copyWith(color: kWhite),
           ),
           onPressed: gender != null ? onSubmit : null,
         );

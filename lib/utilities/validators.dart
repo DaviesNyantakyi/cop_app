@@ -11,7 +11,7 @@ class Validators {
   }
 
   static String? nameValidator(String? name) {
-    if (name == null || name.isEmpty) {
+    if (name == null || name.isEmpty || !name.isAlphabet()) {
       return 'Enter your name';
     }
     return null;

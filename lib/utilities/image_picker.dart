@@ -208,21 +208,19 @@ class CustomImagePicker {
     return showCustomDialog(
       barrierDismissible: true,
       context: context,
-      title: Container(
-        height: 100,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: kBlue,
-          borderRadius: BorderRadius.all(
-            Radius.circular(kRadius),
-          ),
-        ),
-        child: headerWidget,
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Column(
         children: [
+          Container(
+            height: 100,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: kBlue,
+              borderRadius: BorderRadius.all(
+                Radius.circular(kRadius),
+              ),
+            ),
+            child: headerWidget,
+          ),
           Text(
             'Give COP Belgium access to your device\'s camera and media files.',
             style: Theme.of(context).textTheme.bodyText1,
@@ -233,7 +231,7 @@ class CustomImagePicker {
           )
         ],
       ),
-      actions: <Widget>[
+      actions: Row(children: <Widget>[
         CustomElevatedButton(
           onPressed: () {
             Navigator.pop(context);
@@ -247,7 +245,7 @@ class CustomImagePicker {
           },
           child: Text('Settings', style: Theme.of(context).textTheme.bodyText1),
         ),
-      ],
+      ]),
     );
   }
 

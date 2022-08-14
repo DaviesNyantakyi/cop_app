@@ -20,7 +20,7 @@ Future<void> precacheChurchImages({required BuildContext context}) async {
 }
 
 class ChurchSelectionScreen extends StatefulWidget {
-  final Function(ChurchModel?)? onTap;
+  final Function(ChurchModel?) onTap;
 
   final String? title;
 
@@ -29,7 +29,7 @@ class ChurchSelectionScreen extends StatefulWidget {
   final Future<bool> Function()? onWillPop;
   const ChurchSelectionScreen({
     Key? key,
-    this.onTap,
+    required this.onTap,
     this.appBar,
     this.title,
     this.onWillPop,
@@ -103,7 +103,7 @@ class _ChurchSelectionScreenState extends State<ChurchSelectionScreen> {
                                 onTap: () async {
                                   selectedChurch = churches[index];
 
-                                  widget.onTap!(selectedChurch);
+                                  widget.onTap(selectedChurch);
                                 },
                               );
                             },

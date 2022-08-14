@@ -225,15 +225,23 @@ class _AddInfoViewState extends State<AddInfoView> {
           validator: Validators.passwordValidator,
           obscureText: obscureText,
           maxLines: 1,
-          suffixIcon: GestureDetector(
-            child: Icon(
-              obscureText ? BootstrapIcons.eye_slash : BootstrapIcons.eye,
-              color: kBlack,
+          suffixIcon: Material(
+            color: Colors.transparent,
+            clipBehavior: Clip.hardEdge,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(100)),
             ),
-            onTap: () {
-              obscureText = !obscureText;
-              setState(() {});
-            },
+            child: IconButton(
+              tooltip: obscureText ? 'show password' : 'hide password',
+              icon: Icon(
+                obscureText ? BootstrapIcons.eye_slash : BootstrapIcons.eye,
+                color: kBlack,
+              ),
+              onPressed: () {
+                obscureText = !obscureText;
+                setState(() {});
+              },
+            ),
           ),
           onChanged: (value) {
             passwordFormIsValid =
@@ -241,7 +249,7 @@ class _AddInfoViewState extends State<AddInfoView> {
             validForm();
             setState(() {});
           },
-          onSubmitted: (value) => onSubmit(),
+          onSubmitted: (value) {},
         ),
       );
     });
@@ -252,13 +260,13 @@ class _AddInfoViewState extends State<AddInfoView> {
       builder: (context, signUpProvider, _) {
         return CustomElevatedButton(
           height: kButtonHeight,
-          backgroundColor: signUpProvider.formIsValid ? kBlue : kGreyLight,
+          backgroundColor: signUpProvider.formIsValid ? kBlue : kGrey,
           width: double.infinity,
           child: Text(
             'Continue',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: signUpProvider.formIsValid ? kWhite : kGrey,
+                  color: kWhite,
                 ),
           ),
           onPressed: signUpProvider.formIsValid ? onSubmit : null,
@@ -277,7 +285,7 @@ class _AddInfoViewState extends State<AddInfoView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               child: Text(
                 'Privacy Policy',
                 style: Theme.of(context)
@@ -297,7 +305,7 @@ class _AddInfoViewState extends State<AddInfoView> {
               style: Theme.of(context).textTheme.bodyText2,
             ),
             Flexible(
-              child: InkWell(
+              child: GestureDetector(
                 child: Text(
                   'Terms of Conditions.',
                   style: Theme.of(context)
