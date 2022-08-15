@@ -15,15 +15,20 @@ class ConnectionNotifier extends ChangeNotifier {
   }
 
   Future<bool> checkConnection() async {
-    bool result = await InternetConnectionChecker().hasConnection;
+    try {
+      bool result = await InternetConnectionChecker().hasConnection;
 
-    if (result == false) {
-      throw connectionException;
+      if (result == false) {
+        throw connectionException;
+      }
+
+      hasConnection = result;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     }
-
-    hasConnection = result;
-    notifyListeners();
-    return result;
   }
 
   static FirebaseException connectionException = FirebaseException(

@@ -12,6 +12,7 @@ void loadMarkdownFile({
   FocusScope.of(context).unfocus();
 
   await showCustomBottomSheet(
+    backgroundColor: kWhite,
     height: MediaQuery.of(context).size.height * kBottomsheetHeight,
     context: context,
     child: FutureBuilder(

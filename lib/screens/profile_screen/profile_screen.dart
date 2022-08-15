@@ -34,7 +34,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final firebaseAuth = FirebaseAuth.instance;
   final fireAuth = FireAuth();
-  final cloduFire = CloudFire();
+  final cloudFire = CloudFire();
   final fireStorage = FireStorage();
 
   final customImagePicker = CustomImagePicker();
@@ -49,8 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   );
 
   Future<void> navigateToScreen({required Widget screen}) async {
-    // Go to the welcome screen if the user is anonymous
-
     try {
       bool hasConnection = await ConnectionNotifier().checkConnection();
 
@@ -134,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await firebaseAuth.currentUser?.reload();
     } on FirebaseException catch (e) {
       if (e.code == 'object-not-found') {
-        await cloduFire.updatePhotoURL(photoURL: null);
+        await cloudFire.updatePhotoURL(photoURL: null);
         await firebaseAuth.currentUser?.updatePhotoURL(null);
         return;
       }
@@ -160,6 +158,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     if (delete == true) {
       deleteImage();
+    }
+  }
+
+  @override
+  void initState() {
+    initUser();
+    super.initState();
+  }
+
+  Future<void> initUser() async {
+    // When the user resets the email via link it's only updated in firebaseAuth.
+    // Update the firestore email if it's not the same as the firebaseAuth email
+    try {
+      final email = firebaseAuth.currentUser?.email;
+      final user = await cloudFire.getUser(id: firebaseAuth.currentUser?.uid);
+
+      if (user?.email != email) {
+        await cloudFire.updateUserEmail(email: email);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
@@ -199,9 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         suffixIcon: providerId == fireAuth.providerIdGoogle
                             ? null
                             : editIcon,
-                        hintText: snapshot.data?.email ??
-                            firebaseAuth.currentUser?.email ??
-                            '',
+                        hintText: firebaseAuth.currentUser?.email ?? '',
                         onTap: () async {
                           if (providerId == fireAuth.providerIdGoogle) {
                             return;

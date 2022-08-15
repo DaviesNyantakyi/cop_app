@@ -288,6 +288,7 @@ class FireAuth {
             await _cloudFire.deleteUserInfo();
             await _firebaseAuth.currentUser?.delete();
             await HiveBoxes().deleteBoxes();
+            await signOut();
             return true;
           }
         }

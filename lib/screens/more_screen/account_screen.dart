@@ -80,6 +80,19 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  dynamic _buildAppbar({required BuildContext context}) {
+    return AppBar(
+      leading: const CustomBackButton(),
+      title: Text(
+        'Account',
+        style: Theme.of(context)
+            .textTheme
+            .headline6
+            ?.copyWith(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
   Widget _buildDeleteTile() {
     return Column(
       children: [
@@ -98,19 +111,6 @@ class _AccountScreenState extends State<AccountScreen> {
           },
         ),
       ],
-    );
-  }
-
-  dynamic _buildAppbar({required BuildContext context}) {
-    return AppBar(
-      leading: const CustomBackButton(),
-      title: Text(
-        'Account',
-        style: Theme.of(context)
-            .textTheme
-            .headline6
-            ?.copyWith(fontWeight: FontWeight.bold),
-      ),
     );
   }
 }

@@ -26,7 +26,16 @@ Future<String?> showCustomDialog({
             child: title,
           ),
           actions != null ? const Divider() : Container(),
-          actions ?? Container()
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16)
+                .copyWith(
+              bottom: kContentSpacing8,
+            ),
+            child: SizedBox(
+              height: 42,
+              child: actions ?? Container(),
+            ),
+          )
         ],
       ),
     ),

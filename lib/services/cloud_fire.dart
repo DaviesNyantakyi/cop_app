@@ -133,7 +133,7 @@ class CloudFire {
     }
   }
 
-  Future<void> updateUserEmail({required String email}) async {
+  Future<void> updateUserEmail({String? email}) async {
     try {
       final hasConnection = await _connectionChecker.checkConnection();
 

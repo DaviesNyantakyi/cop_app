@@ -38,18 +38,24 @@ class _PodcastScreenState extends State<PodcastScreen> {
     }
   }
 
+  Future<void> refreshPodcasts() async {
+    try {
+      await PodcastService().getPodcast(reload: true, context: context);
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
       return RefreshIndicator(
         color: kBlue,
         backgroundColor: kWhite,
-        onRefresh: () async {
-          await PodcastService().getPodcast(reload: true, context: context);
-          if (mounted) {
-            setState(() {});
-          }
-        },
+        onRefresh: refreshPodcasts,
         child: Scaffold(
           appBar: _buildAppBar(),
           body: SafeArea(

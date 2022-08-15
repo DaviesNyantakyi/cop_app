@@ -47,6 +47,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
 
   Future<void> deleteAccount() async {
     try {
+      Navigator.of(context).pop(); // pop dialog
       EasyLoading.show();
       bool success = false;
 
@@ -77,7 +78,6 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
       if (success) {
         if (mounted) {
           Navigator.of(context)
-            ..pop() // pop dialog
             ..pop() // pop VerifyAccountScreen
             ..pop() // pop AccountScreen
             ..pop(); // pop SettingsScreen
@@ -122,35 +122,40 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
         ),
         textAlign: TextAlign.center,
       ),
-      actions: IntrinsicHeight(
-        child: Padding(
-          padding: const EdgeInsets.all(kContentSpacing12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              InkWell(
-                child: Text(
-                  'Cancel',
-                  style: Theme.of(context).textTheme.bodyText1,
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const VerticalDivider(),
-              InkWell(
-                onTap: deleteAccount,
-                child: Text(
-                  'Delete',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      ?.copyWith(color: kRed),
+      actions: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: SizedBox(
+                height: double.infinity,
+                child: Center(
+                  child: Text(
+                    'Cancel',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          Expanded(
+            child: InkWell(
+              onTap: deleteAccount,
+              child: SizedBox(
+                height: double.infinity,
+                child: Center(
+                  child: Text(
+                    'Delete',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: kRed),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

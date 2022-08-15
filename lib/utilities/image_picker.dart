@@ -4,7 +4,6 @@ import 'package:app_settings/app_settings.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';
-import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -57,16 +56,7 @@ class CustomImagePicker {
         }
         // If the permission permanlty denied showdialog
         if (status == PermissionStatus.permanentlyDenied) {
-          await _showPermissionDialog(
-            headerWidget: const Icon(
-              Icons.folder,
-              color: Colors.white,
-              size: 32,
-            ),
-            context: context,
-            instructions:
-                'Tap Settings > Permissions and turn on Media Permissions.',
-          );
+          await _showPermissionDialog(context: context);
         }
         return image;
       }
@@ -88,31 +78,7 @@ class CustomImagePicker {
         // Ask to enable permission if permanlty denied.
         if (statusStorage == PermissionStatus.permanentlyDenied ||
             statusCamera == PermissionStatus.permanentlyDenied) {
-          await _showPermissionDialog(
-            headerWidget: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(
-                  Icons.photo_camera_outlined,
-                  color: Colors.white,
-                  size: 32,
-                ),
-                Icon(
-                  Icons.add_outlined,
-                  color: Colors.white,
-                  size: 32,
-                ),
-                Icon(
-                  Icons.folder_outlined,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ],
-            ),
-            context: context,
-            instructions:
-                'Tap Settings > Permissions and turn on Camera and Media Permissions.',
-          );
+          await _showPermissionDialog(context: context);
         }
         return image;
       }
@@ -127,8 +93,10 @@ class CustomImagePicker {
     required BuildContext context,
   }) async {
     bool? deleteImage = await showCustomBottomSheet(
+      backgroundColor: kWhite,
       context: context,
       child: Material(
+        color: kWhite,
         child: SizedBox(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -181,12 +149,13 @@ class CustomImagePicker {
   // If image url is not null, show delete button.
   // if the delete button is clicked
 
-  Widget _selectionTile(
-      {required VoidCallback onPressed,
-      required BuildContext context,
-      required IconData icon,
-      required String text,
-      Color? color}) {
+  Widget _selectionTile({
+    required VoidCallback onPressed,
+    required BuildContext context,
+    required IconData icon,
+    required String text,
+    Color? color,
+  }) {
     return ListTile(
       onTap: onPressed,
       leading: Icon(
@@ -202,8 +171,6 @@ class CustomImagePicker {
 
   Future<String?> _showPermissionDialog({
     required BuildContext context,
-    required String instructions,
-    required Widget headerWidget,
   }) async {
     return showCustomDialog(
       barrierDismissible: true,
@@ -219,33 +186,71 @@ class CustomImagePicker {
                 Radius.circular(kRadius),
               ),
             ),
-            child: headerWidget,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(
+                  Icons.photo_camera_outlined,
+                  color: Colors.white,
+                  size: 32,
+                ),
+                Icon(
+                  Icons.add_outlined,
+                  color: Colors.white,
+                  size: 32,
+                ),
+                Icon(
+                  Icons.folder_outlined,
+                  color: Colors.white,
+                  size: 32,
+                ),
+              ],
+            ),
           ),
+          const SizedBox(height: kContentSpacing12),
           Text(
-            'Give COP Belgium access to your device\'s camera and media files.',
+            'Give COP Belgium access to your device\'s Camera and Media files.',
             style: Theme.of(context).textTheme.bodyText1,
           ),
-          Text(
-            instructions,
-            style: Theme.of(context).textTheme.bodyText1,
-          )
         ],
       ),
-      actions: Row(children: <Widget>[
-        CustomElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Not now', style: Theme.of(context).textTheme.bodyText1),
-        ),
-        CustomElevatedButton(
-          onPressed: () async {
-            Navigator.pop(context);
-            await AppSettings.openAppSettings();
-          },
-          child: Text('Settings', style: Theme.of(context).textTheme.bodyText1),
-        ),
-      ]),
+      actions: Row(
+        children: <Widget>[
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: SizedBox(
+                height: double.infinity,
+                child: Center(
+                  child: Text(
+                    'Not now',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () async {
+                Navigator.pop(context);
+                await AppSettings.openAppSettings();
+              },
+              child: SizedBox(
+                height: double.infinity,
+                child: Center(
+                  child: Text(
+                    'Settings',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
