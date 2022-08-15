@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:28966762484:android:2fb30dbcaea64b86c5eba1",
+        "mobilesdk_app_id": "1:28966762484:android:ec91119536794b2cc5eba1",
         "android_client_info": {
-          "package_name": "com.copbelgium.app"
+          "package_name": "com.thecopbelgium.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "28966762484-q4q2t70j5581jd8k0obf7mg7ltqdf9f3.apps.googleusercontent.com",
+          "client_id": "28966762484-lg1u0tqh1gg3mcvsd74n2om3h645j3em.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.copbelgium.app",
+            "package_name": "com.thecopbelgium.app",
             "certificate_hash": "1cdb65d9741595ff9d19725fc7ef45171af17304"
           }
         },

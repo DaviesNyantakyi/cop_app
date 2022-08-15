@@ -1,4 +1,4 @@
-package com.copbelgium.app
+package com.thecopbelgium.app
 
 import io.flutter.embedding.android.FlutterActivity
 
