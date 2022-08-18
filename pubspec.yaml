@@ -34,9 +34,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  provider: ^6.0.1 # State management
-  regexpattern: ^2.0.1 # Email passsword validator
-
   dart_date: ^1.1.0 # Formating dates
   timeago: ^3.2.2 # Date in time ago
 
@@ -80,6 +77,9 @@ dependencies:
 
   crypto: ^3.0.2
   convert: ^3.0.2
+  provider: ^6.0.1 # State management
+  regexpattern: ^2.0.1 # Email passsword validator
+  fzregex: ^2.0.0
 
 
 

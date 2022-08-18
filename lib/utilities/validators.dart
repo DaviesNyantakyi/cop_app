@@ -1,5 +1,7 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:fzregex/utils/fzregex.dart';
+import 'package:fzregex/utils/pattern.dart';
 import 'package:regexpattern/regexpattern.dart';
 
 class Validators {
@@ -11,7 +13,7 @@ class Validators {
   }
 
   static String? nameValidator(String? name) {
-    if (name == null || name.isEmpty || !name.isAlphabet()) {
+    if (name == null || name.isEmpty || name.isNumeric()) {
       return 'Enter your name';
     }
     return null;
@@ -20,8 +22,7 @@ class Validators {
   static String? emailValidator(String? email) {
     if (email == null ||
         email.isEmpty ||
-        !email.contains('@') ||
-        !email.contains('.')) {
+        !email.contains('@') && !email.contains('.')) {
       return 'Email not valid';
     }
 

@@ -201,7 +201,7 @@ class _SignInScreenState extends State<SignInScreen> {
               borderRadius: BorderRadius.all(Radius.circular(100)),
             ),
             child: IconButton(
-              tooltip: obscureText ? 'show password' : 'hide password',
+              tooltip: obscureText ? 'Show password' : 'Hide password',
               icon: Icon(
                 obscureText ? BootstrapIcons.eye_slash : BootstrapIcons.eye,
                 color: kBlack,

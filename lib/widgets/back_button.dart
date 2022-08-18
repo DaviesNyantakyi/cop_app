@@ -9,7 +9,7 @@ class CustomBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      tooltip: 'back',
+      tooltip: 'Back',
       icon: const Icon(
         BootstrapIcons.chevron_left,
         color: kBlack,
