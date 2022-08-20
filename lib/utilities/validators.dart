@@ -1,7 +1,5 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
-import 'package:fzregex/utils/fzregex.dart';
-import 'package:fzregex/utils/pattern.dart';
 import 'package:regexpattern/regexpattern.dart';
 
 class Validators {

@@ -58,6 +58,7 @@ dependencies:
   image_picker: ^0.8.4+4 # Pick image from camera or gallery
   image_cropper: ^1.5.0 # Crop selected images
   image_downloader: ^0.31.0 # Download images
+  flutter_native_splash: any
   app_settings: ^4.1.1 # Go to the device app settings
   package_info_plus: ^1.4.3 # Get app info
   device_info_plus: ^4.0.1 # Get device info
@@ -98,9 +99,18 @@ dev_dependencies:
   build_runner: ^2.2.0
   change_app_package_name: ^1.1.0
 
+flutter_native_splash:  
+  color: "#ffffff"
+  image: assets/images/cop_logo_transparent.png
+  branding: assets/images/apkeroo.png
+  # branding_mode: center
+  # center_horizontal: bottom
 
-
-
+  android_12:
+    color: "#ffffff"
+    image: assets/images/cop_logo_transparent.png
+    # branding: assets/images/apkeroo.png
+    # branding_mode: bottom
 
 
 # For information on the generic Dart part of this file, see the
