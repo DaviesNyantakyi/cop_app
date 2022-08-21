@@ -80,7 +80,6 @@ dependencies:
   convert: ^3.0.2
   provider: ^6.0.1 # State management
   regexpattern: ^2.0.1 # Email passsword validator
-  fzregex: ^2.0.0
 
 
 
