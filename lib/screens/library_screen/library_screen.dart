@@ -1,7 +1,7 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/screens/library_screen/downloads_screen.dart';
 import 'package:cop_belgium_app/screens/library_screen/subscriptions_screen.dart';
-import 'package:cop_belgium_app/widgets/back_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -26,8 +26,6 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   void initState() {
-    tabController = TabController(vsync: this, length: 2);
-
     super.initState();
   }
 
@@ -37,44 +35,81 @@ class _LibraryScreenState extends State<LibraryScreen>
       return Scaffold(
         appBar: _buildAppBar(),
         body: SafeArea(
-          child: TabBarView(
-            controller: tabController,
-            children: const [
-              SubScriptionsScreen(),
-              DownloadsScreen(),
-            ],
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(kContentSpacing16),
+            child: Column(children: [
+              _buildTile(
+                leadingIcon: BootstrapIcons.folder,
+                title: 'Subscriptions',
+                trailingIcon: BootstrapIcons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) =>
+                          ChangeNotifierProvider<AudioProvider>.value(
+                        value: audioProvider,
+                        child: const SubScriptionsScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildTile(
+                leadingIcon: BootstrapIcons.arrow_down_circle,
+                title: 'Downloaded',
+                trailingIcon: BootstrapIcons.chevron_right,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) =>
+                          ChangeNotifierProvider<AudioProvider>.value(
+                        value: audioProvider,
+                        child: const DownloadsScreen(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ]),
           ),
         ),
       );
     });
   }
 
+  ListTile _buildTile({
+    required IconData leadingIcon,
+    required String title,
+    required IconData trailingIcon,
+    VoidCallback? onTap,
+  }) {
+    return ListTile(
+        horizontalTitleGap: 0,
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          leadingIcon,
+          color: kBlue,
+        ),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.bodyText1,
+        ),
+        trailing: Icon(
+          trailingIcon,
+          color: kGrey,
+        ),
+        onTap: onTap);
+  }
+
   dynamic _buildAppBar() {
     return AppBar(
-      leading: const CustomBackButton(),
       title: Text(
         'Library',
         style: Theme.of(context).textTheme.headline6?.copyWith(
               fontWeight: FontWeight.bold,
             ),
-      ),
-      bottom: TabBar(
-        controller: tabController,
-        indicatorColor: kBlue,
-        tabs: const [
-          Tab(
-            icon: Icon(
-              BootstrapIcons.folder,
-            ),
-            text: 'Subscriptions',
-          ),
-          Tab(
-            icon: Icon(
-              BootstrapIcons.arrow_down_circle,
-            ),
-            text: 'Downloads',
-          ),
-        ],
       ),
     );
   }

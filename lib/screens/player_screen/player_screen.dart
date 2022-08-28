@@ -1,18 +1,18 @@
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 
 import 'package:just_audio/just_audio.dart';
+import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import '../../models/episode_model.dart';
 import '../../providers/audio_provider.dart';
 import '../../utilities/constant.dart';
 import '../../utilities/formal_dates.dart';
-import '../../widgets/download_button.dart';
 import '../../widgets/podcast_image.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -43,7 +43,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildImageTitle(),
         const SizedBox(height: kContentSpacing8),
@@ -60,20 +59,22 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Slider(
-              value: min(
-                // the min returns the lesser numnber.
-                // If the currentPostion is greater then the totalDuration, the totalDuration will be returned.
-                audioProvider.currentPostion.inSeconds.toDouble(),
-                audioProvider.totalDuration.inSeconds.toDouble(),
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(),
+              child: Slider(
+                value: min(
+                  // the min returns the lesser numnber.
+                  // If the currentPostion is greater then the totalDuration, the totalDuration will be returned.
+                  audioProvider.currentPostion.inSeconds.toDouble(),
+                  audioProvider.totalDuration.inSeconds.toDouble(),
+                ),
+                max: audioProvider.totalDuration.inSeconds.toDouble(),
+                // This is called when slider value is changed.
+                onChanged: (double value) {
+                  audioProvider.seek(Duration(seconds: value.toInt()));
+                },
               ),
-              max: audioProvider.totalDuration.inSeconds.toDouble(),
-              // This is called when slider value is changed.
-              onChanged: (double value) {
-                audioProvider.seek(Duration(seconds: value.toInt()));
-              },
             ),
-            const SizedBox(height: kContentSpacing8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -100,104 +101,44 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Consumer<AudioProvider>(
       builder: (context, audioProvider, _) {
         return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: SizedBox(
-                height: 70,
-                child: DownloadButton(
-                  iconSize: 28,
-                  episode: EpisodeModel(
-                    id: widget.mediaItem.id,
-                    image: widget.mediaItem.artUri.toString(),
-                    title: widget.mediaItem.title,
-                    description: widget.mediaItem.displayDescription,
-                    pageLink: widget.mediaItem.extras?['pageLink'],
-                    audio: widget.mediaItem.extras?['audio'],
-                    author: widget.mediaItem.artist,
-                    duration: widget.mediaItem.duration?.inSeconds,
-                    pubDate: widget.mediaItem.extras?['punDate'],
-                    downloadPath: widget.mediaItem.extras?['downloadPath'],
-                  ),
-                ),
+            IconButton(
+              tooltip: 'Fast rewind',
+              iconSize: 42,
+              onPressed: () => audioProvider.rewind(),
+              icon: const Icon(
+                Icons.replay_30_outlined,
+                color: kBlack,
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: SizedBox(
-                height: 70,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: IconButton(
-                        tooltip: 'Fast rewind',
-                        iconSize: 40,
-                        onPressed: () => audioProvider.rewind(),
-                        icon: const Icon(
-                          Icons.replay_30_outlined,
-                          color: kBlack,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Play & Pause',
-                      iconSize: 52,
-                      onPressed: () async {
-                        if (audioProvider.playerState?.playing == true) {
-                          await audioProvider.pause();
-                        } else {
-                          await audioProvider.play();
-                        }
-                      },
-                      //
-                      icon: Icon(
-                        audioProvider.playerState?.playing == false ||
-                                audioProvider.playerState?.processingState ==
-                                    ProcessingState.completed
-                            ? BootstrapIcons.play_circle_fill
-                            : BootstrapIcons.pause_circle_fill,
-                      ),
-                    ),
-                    Flexible(
-                      child: IconButton(
-                        tooltip: 'Fast foward',
-                        iconSize: 40,
-                        onPressed: () => audioProvider.fastForward(),
-                        icon: const Icon(
-                          Icons.forward_30_outlined,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            const SizedBox(width: 18),
+            IconButton(
+              tooltip: 'Play & Pause',
+              iconSize: 68,
+              onPressed: () async {
+                if (audioProvider.playerState?.playing == true) {
+                  await audioProvider.pause();
+                } else {
+                  await audioProvider.play();
+                }
+              },
+              //
+              icon: Icon(
+                audioProvider.playerState?.playing == false ||
+                        audioProvider.playerState?.processingState ==
+                            ProcessingState.completed
+                    ? BootstrapIcons.play_circle_fill
+                    : BootstrapIcons.pause_circle_fill,
               ),
             ),
-            Expanded(
-              child: SizedBox(
-                height: 70,
-                child: IconButton(
-                  tooltip: 'Replay',
-                  iconSize: 28,
-                  icon: Icon(
-                    BootstrapIcons.arrow_repeat,
-                    color:
-                        audioProvider.repeatMode == AudioServiceRepeatMode.one
-                            ? kBlue
-                            : kBlack,
-                  ),
-                  onPressed: () async {
-                    AudioServiceRepeatMode mode = audioProvider.repeatMode;
-                    if (mode == AudioServiceRepeatMode.none) {
-                      mode = AudioServiceRepeatMode.one;
-                    } else {
-                      mode = AudioServiceRepeatMode.none;
-                    }
-                    await audioProvider.setRepeatMode(
-                      mode,
-                    );
-                  },
-                ),
+            const SizedBox(width: 18),
+            IconButton(
+              tooltip: 'Fast foward',
+              iconSize: 42,
+              onPressed: () => audioProvider.fastForward(),
+              icon: const Icon(
+                Icons.forward_30_outlined,
               ),
             ),
           ],
@@ -210,26 +151,31 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PodcastImage(
               height: 350,
-              width: 300,
+              width: double.infinity,
               imageURL: widget.mediaItem.artUri.toString(),
             ),
             const SizedBox(height: kContentSpacing24),
-            Column(
-              children: [
-                Text(
-                  widget.mediaItem.title,
-                  style: Theme.of(context).textTheme.bodyText1,
-                  maxLines: 1,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                _buildAuthor(),
-              ],
+            SizedBox(
+              height: 40,
+              child: Marquee(
+                text: widget.mediaItem.title,
+                style: Theme.of(context).textTheme.headline6?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                blankSpace: 8,
+                velocity: 20,
+                accelerationDuration: const Duration(seconds: 1),
+                accelerationCurve: Curves.linear,
+                decelerationDuration: const Duration(milliseconds: 500),
+                decelerationCurve: Curves.easeOut,
+                pauseAfterRound: const Duration(seconds: 2),
+              ),
             ),
+            _buildAuthor(),
           ],
         );
       },

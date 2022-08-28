@@ -1,4 +1,5 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,7 @@ class _SubScriptionsScreenState extends State<SubScriptionsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _buildAppBar(),
       body: ValueListenableBuilder<Box<PodcastModel>>(
         valueListenable: Hive.box<PodcastModel>('subscriptions').listenable(),
         builder: (context, box, _) {
@@ -65,6 +67,18 @@ class _SubScriptionsScreenState extends State<SubScriptionsScreen> {
             },
           );
         },
+      ),
+    );
+  }
+
+  dynamic _buildAppBar() {
+    return AppBar(
+      leading: const CustomBackButton(),
+      title: Text(
+        'Subscriptions',
+        style: Theme.of(context).textTheme.headline6?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
       ),
     );
   }

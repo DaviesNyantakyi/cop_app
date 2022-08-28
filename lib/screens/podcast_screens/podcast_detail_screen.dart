@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
+import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +13,6 @@ import '../../providers/audio_provider.dart';
 import '../../services/podcast_service.dart';
 import '../../utilities/constant.dart';
 import '../../utilities/custom_scroll_behavior.dart';
-import '../../utilities/url_launcher.dart';
 import '../../widgets/episode_tile.dart';
 import '../../widgets/podcast_image.dart';
 
@@ -37,16 +36,23 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
         child: ScrollConfiguration(
           behavior: CustomScrollBehavior(),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(kContentSpacing16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(),
                 const SizedBox(height: kContentSpacing8),
-                _buildIcons(),
-                const SizedBox(height: kContentSpacing8),
                 _buildDescription(),
-                const SizedBox(height: kContentSpacing4),
+                const SizedBox(height: kContentSpacing24),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+                  child: Text(
+                    'Episodes',
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
                 const Divider(),
                 _buildEpisodes()
               ],
@@ -65,49 +71,62 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
   }
 
   Widget _buildHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        PodcastImage(
-          imageURL: widget.podcast.image ?? '',
-          width: 120,
-        ),
-        const SizedBox(width: kContentSpacing16),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding:
+          const EdgeInsets.symmetric(horizontal: kContentSpacing16).copyWith(
+        top: kContentSpacing16,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
             children: [
-              Text(
-                '${widget.podcast.episodes?.length ?? 0} Episodes',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    ?.copyWith(fontWeight: FontWeight.w500, color: kGrey),
+              PodcastImage(
+                imageURL: widget.podcast.image ?? '',
+                width: 120,
               ),
-              const SizedBox(height: kContentSpacing4),
-              Text(
-                '${widget.podcast.title}',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    ?.copyWith(fontWeight: FontWeight.bold),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: kContentSpacing4),
-              Text(
-                '${widget.podcast.author}',
-                style: Theme.of(context).textTheme.bodyText2,
-              ),
+              const SizedBox(height: kContentSpacing8),
+              _buildSubscribeButton(),
             ],
           ),
-        ),
-      ],
+          const SizedBox(width: kContentSpacing8),
+          Expanded(
+            flex: 8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${widget.podcast.episodes?.length ?? 0} Episodes',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      ?.copyWith(fontWeight: FontWeight.w500, color: kGrey),
+                ),
+                const SizedBox(height: kContentSpacing4),
+                Text(
+                  '${widget.podcast.title}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline6
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: kContentSpacing4),
+                Text(
+                  '${widget.podcast.author}',
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildIcons() {
+  Widget _buildSubscribeButton() {
     return ValueListenableBuilder<Box<PodcastModel>>(
       valueListenable: Hive.box<PodcastModel>('subscriptions').listenable(),
       builder: (context, subBox, _) {
@@ -120,69 +139,50 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
           }
         }
 
-        return Row(
-          children: [
-            IconButton(
-              tooltip: subScribed ? 'Subscribed' : 'Subscribe',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                subScribed
-                    ? BootstrapIcons.check_circle_fill
-                    : BootstrapIcons.folder_plus,
-                color: subScribed ? kBlue : kBlack,
-              ),
-              onPressed: () async {
-                try {
-                  await PodcastService()
-                      .savePodcast(podcast: widget.podcast, context: context);
-                } on FirebaseException catch (e) {
-                  debugPrint(e.toString());
+        return CustomElevatedButton(
+          backgroundColor: subScribed ? kBlue.withOpacity(0.9) : kWhite,
+          side: BorderSide(
+            color: subScribed ? Colors.transparent : kGrey,
+          ),
+          height: 38,
+          width: 120,
+          child: Text(
+            subScribed ? 'Subscribed' : 'Subscribe',
+            style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                  color: subScribed ? kWhite : kBlack,
+                ),
+          ),
+          onPressed: () async {
+            try {
+              await PodcastService()
+                  .savePodcast(podcast: widget.podcast, context: context);
+            } on FirebaseException catch (e) {
+              debugPrint(e.toString());
 
-                  showCustomSnackBar(
-                      context: context,
-                      type: CustomSnackBarType.error,
-                      message: e.message ?? '');
-                } catch (e) {
-                  debugPrint(e.toString());
-                }
-              },
-            ),
-            const SizedBox(width: kContentSpacing16),
-            IconButton(
-              tooltip: 'Website',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(
-                BootstrapIcons.globe,
-              ),
-              onPressed: () async {
-                await launchLink(url: widget.podcast.pageLink ?? '');
-              },
-            ),
-            const SizedBox(width: kContentSpacing4),
-            IconButton(
-              padding: EdgeInsets.zero,
-              tooltip: 'RSS Feed',
-              icon: const Icon(
-                BootstrapIcons.rss,
-              ),
-              onPressed: () => launchLink(url: widget.podcast.rss ?? ''),
-            ),
-          ],
+              showCustomSnackBar(
+                  context: context,
+                  type: CustomSnackBarType.error,
+                  message: e.message ?? '');
+            } catch (e) {
+              debugPrint(e.toString());
+            }
+          },
         );
       },
     );
   }
 
   Widget _buildDescription() {
-    return ExpandableText(
-      widget.podcast.description ?? '',
-      expandText: 'show more',
-      collapseText: 'show less',
-      maxLines: 3,
-      linkColor: kBlue,
-      style: Theme.of(context).textTheme.bodyText1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+      child: ExpandableText(
+        widget.podcast.description ?? '',
+        expandText: 'show more',
+        collapseText: 'show less',
+        maxLines: 3,
+        linkColor: kBlue,
+        style: Theme.of(context).textTheme.bodyText1,
+      ),
     );
   }
 
@@ -192,7 +192,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
       shrinkWrap: true,
       itemCount: widget.podcast.episodes?.length ?? 0,
       separatorBuilder: (conext, index) {
-        return const SizedBox(height: kContentSpacing8);
+        return const Divider();
       },
       itemBuilder: (conext, index) {
         if (widget.podcast.episodes?[index] == null) {

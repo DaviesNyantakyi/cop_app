@@ -55,7 +55,14 @@ class _DownloadButtonState extends State<DownloadButton> {
           iconSize: widget.iconSize,
           tooltip: 'Download',
           icon: downloading
-              ? const CircularProgressIndicator()
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    value: percentage,
+                    strokeWidth: 3,
+                  ),
+                )
               : Icon(
                   BootstrapIcons.arrow_down_circle,
                   color: downloaded ? kBlue : kBlack,

@@ -163,9 +163,9 @@ ThemeData _theme({required BuildContext context}) {
     sliderTheme: SliderThemeData(
       activeTrackColor: kBlue,
       thumbColor: kBlue,
+      overlayColor: kBlue.withOpacity(0.1),
       inactiveTrackColor: kGreyLight,
       trackHeight: 4,
-      overlayColor: kBlue.withOpacity(0.1),
       trackShape: CustomSliderTrackShape(),
     ),
   );

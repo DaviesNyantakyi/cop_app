@@ -7,6 +7,7 @@ import 'package:hive_flutter/adapters.dart';
 import '../../models/episode_model.dart';
 import '../../providers/audio_provider.dart';
 import '../../utilities/constant.dart';
+import '../../widgets/back_button.dart';
 import '../../widgets/episode_tile.dart';
 
 class DownloadsScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _buildAppBar(),
       body: ValueListenableBuilder<Box<EpisodeModel>>(
         valueListenable: Hive.box<EpisodeModel>('downloads').listenable(),
         builder: (context, box, _) {
@@ -30,11 +32,11 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(kContentSpacing16),
+            padding: const EdgeInsets.symmetric(vertical: kContentSpacing16),
             shrinkWrap: true,
             itemCount: downloadBox.length,
             separatorBuilder: (conext, index) {
-              return const SizedBox(height: kContentSpacing8);
+              return const Divider();
             },
             itemBuilder: (conext, index) {
               if (downloadBox.isEmpty) {
@@ -67,6 +69,18 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             },
           );
         },
+      ),
+    );
+  }
+
+  dynamic _buildAppBar() {
+    return AppBar(
+      leading: const CustomBackButton(),
+      title: Text(
+        'Downloads',
+        style: Theme.of(context).textTheme.headline6?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:cop_belgium_app/models/user_model.dart';
 import 'package:cop_belgium_app/providers/audio_provider.dart';
 import 'package:cop_belgium_app/providers/signup_provider.dart';
-import 'package:cop_belgium_app/screens/library_screen/library_screen.dart';
 import 'package:cop_belgium_app/screens/more_screen/about_church_screen.dart';
 import 'package:cop_belgium_app/screens/more_screen/settings_screen.dart';
 import 'package:cop_belgium_app/services/cloud_fire.dart';
@@ -72,24 +71,6 @@ class _MoreScreenState extends State<MoreScreen> {
               const Divider(),
               Column(
                 children: [
-                  _buildTile(
-                    title: 'Library',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => MultiProvider(
-                            providers: [
-                              ChangeNotifierProvider<AudioProvider>.value(
-                                value: audioProvider,
-                              )
-                            ],
-                            child: const LibraryScreen(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                   _buildTile(
                     title: 'About Church',
                     onTap: () {

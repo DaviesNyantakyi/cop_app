@@ -43,6 +43,10 @@ dependencies:
   responsive_builder: ^0.4.2 # For screen sizes
   expandable_text: ^2.3.0 # Show more text button
   enum_to_string: ^2.0.1 # For turning enums into String
+  marquee: ^2.2.3 # Scrollable text
+  auto_size_text: ^3.0.0
+
+
 
   dio: ^4.0.6 # Make http request
   url_launcher: ^6.1.5 

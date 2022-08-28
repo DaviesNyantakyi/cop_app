@@ -1,4 +1,5 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cop_belgium_app/screens/library_screen/library_screen.dart';
 import 'package:cop_belgium_app/screens/more_screen/more_screen.dart';
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
@@ -17,6 +18,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen>
 
   final List<Widget> screens = [
     const PodcastScreen(),
+    const LibraryScreen(),
     const MoreScreen(),
   ];
 
@@ -64,6 +66,10 @@ Widget _buildBottomNavBar({
       _buildBottomNavItem(
         label: 'Podcasts',
         icon: BootstrapIcons.headphones,
+      ),
+      _buildBottomNavItem(
+        label: 'Library',
+        icon: BootstrapIcons.collection,
       ),
       _buildBottomNavItem(
         label: 'More',

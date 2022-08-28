@@ -181,6 +181,7 @@ Future<void> showPlayer({
   required MediaItem mediaItem,
 }) async {
   final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+
   showCustomBottomSheet(
     backgroundColor: kWhite,
     context: context,

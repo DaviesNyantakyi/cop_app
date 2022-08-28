@@ -24,7 +24,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
       child: Container(
         height: 68,
         decoration: const BoxDecoration(
-          color: kGreyLight,
+          color: kWhite,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(kRadius),
             topRight: Radius.circular(kRadius),
@@ -109,10 +109,22 @@ class _MiniPlayerState extends State<MiniPlayer> {
             break;
           default:
         }
-        return Text(
-          text,
-          style: Theme.of(context).textTheme.bodyText1,
-          overflow: TextOverflow.ellipsis,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: Theme.of(context).textTheme.bodyText1,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            Text(
+              audioProvider.currentMediaItem?.artist ?? '',
+              style: Theme.of(context).textTheme.bodyText2,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ],
         );
       },
     );
