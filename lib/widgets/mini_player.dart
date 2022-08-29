@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cop_belgium_app/widgets/custom_marquee.dart';
 import 'package:cop_belgium_app/widgets/podcast_image.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -98,25 +99,26 @@ class _MiniPlayerState extends State<MiniPlayer> {
   Widget _buildTitle() {
     return Consumer<AudioProvider>(
       builder: (context, audioProvider, _) {
-        String text = audioProvider.currentMediaItem?.title ?? '...';
+        String title = audioProvider.currentMediaItem?.title ?? '...';
 
         switch (audioProvider.playerState?.processingState) {
           case ProcessingState.loading:
-            text = 'Loading...';
+            title = 'Loading...';
             break;
           case ProcessingState.buffering:
-            text = 'Buffering...';
+            title = 'Buffering...';
             break;
           default:
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              text,
-              style: Theme.of(context).textTheme.bodyText1,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            SizedBox(
+              height: 24,
+              child: CustomMarquee(
+                text: title,
+                style: Theme.of(context).textTheme.bodyText1,
+              ),
             ),
             Text(
               audioProvider.currentMediaItem?.artist ?? '',

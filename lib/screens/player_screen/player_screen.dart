@@ -1,12 +1,11 @@
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cop_belgium_app/widgets/custom_marquee.dart';
 import 'package:flutter/material.dart';
 
 import 'package:just_audio/just_audio.dart';
-import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
@@ -161,18 +160,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
             const SizedBox(height: kContentSpacing24),
             SizedBox(
               height: 40,
-              child: Marquee(
+              child: CustomMarquee(
                 text: widget.mediaItem.title,
                 style: Theme.of(context).textTheme.headline6?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
-                blankSpace: 8,
-                velocity: 20,
-                accelerationDuration: const Duration(seconds: 1),
-                accelerationCurve: Curves.linear,
-                decelerationDuration: const Duration(milliseconds: 500),
-                decelerationCurve: Curves.easeOut,
-                pauseAfterRound: const Duration(seconds: 2),
               ),
             ),
             _buildAuthor(),
