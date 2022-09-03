@@ -7,20 +7,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:28966762484:android:ec91119536794b2cc5eba1",
+        "mobilesdk_app_id": "1:28966762484:android:ee0f03b711fa74bcc5eba1",
         "android_client_info": {
-          "package_name": "com.thecopbelgium.app"
+          "package_name": "com.thecopbelgium.android"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "28966762484-lg1u0tqh1gg3mcvsd74n2om3h645j3em.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.thecopbelgium.app",
-            "certificate_hash": "1cdb65d9741595ff9d19725fc7ef45171af17304"
-          }
-        },
         {
           "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
           "client_type": 3
@@ -37,6 +29,13 @@
             {
               "client_id": "28966762484-2sr2vanul7a88c07hatenu0350vfnho3.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "28966762484-3f9uq2m1kav079c275bkk3slslb5geri.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.thecopbelgium.app"
+              }
             }
           ]
         }
