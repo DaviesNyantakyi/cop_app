@@ -352,7 +352,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
                   ),
             ),
           ),
-          onPressed: () {},
+          onPressed: showDeleteDialog,
         );
       },
     );

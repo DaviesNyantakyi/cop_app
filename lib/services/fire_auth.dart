@@ -5,7 +5,9 @@ import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 
 class FireAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -210,13 +212,68 @@ class FireAuth {
     // return null if authentication fails.
   }
 
-  Future<User?> signInWithApple() async {
+  Future<OAuthCredential?> signInWithApple() async {
     try {
       final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
-        // TODO: Implement sing in with Apple:
-        // https://firebase.flutter.dev/docs/auth/social/#:~:text=see%20this%20issue.-,apple
+        final isAvailable = await TheAppleSignIn.isAvailable();
+
+        if (isAvailable) {
+          // 1. perform the sign-in request
+
+          final result = await TheAppleSignIn.performRequests([
+            const AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
+          ]);
+
+          if (result.status == AuthorizationStatus.authorized) {
+            final appleIdCredential = result.credential!;
+            final oAuthProvider = OAuthProvider(providerIdApple);
+
+            final credential = oAuthProvider.credential(
+              idToken: String.fromCharCodes(appleIdCredential.identityToken!),
+              accessToken:
+                  String.fromCharCodes(appleIdCredential.authorizationCode!),
+            );
+
+            print(appleIdCredential.fullName?.familyName);
+
+            await _firebaseAuth.signInWithCredential(credential);
+            // Create create user document if it does not exist.
+            // Try to get the user
+            final userDoc =
+                await _cloudFire.getUser(id: _firebaseAuth.currentUser!.uid);
+
+            // Create a user if in firestore if it does not exists.
+            if (userDoc == null) {
+              final user = UserModel(
+                id: _firebaseAuth.currentUser?.uid,
+                firstName: appleIdCredential.fullName?.givenName ?? '',
+                lastName: appleIdCredential.fullName?.familyName ?? '',
+                dateOfBirth: null,
+                displayName: _firebaseAuth.currentUser?.displayName,
+                email: _firebaseAuth.currentUser?.email,
+              );
+              await _cloudFire.createUserDoc(user: user);
+              await _firebaseAuth.currentUser?.updatePhotoURL(null);
+              return credential;
+            }
+          }
+
+          if (result.status == AuthorizationStatus.cancelled) {
+            throw PlatformException(
+              code: 'ERROR_ABORTED_BY_USER',
+              message: 'Sign in aborted by user',
+            );
+          }
+
+          if (result.status == AuthorizationStatus.error) {
+            throw PlatformException(
+              code: 'ERROR_AUTHORIZATION_DENIED',
+              message: result.error.toString(),
+            );
+          }
+        }
       } else {
         throw ConnectionNotifier.connectionException;
       }
@@ -313,7 +370,9 @@ class FireAuth {
       final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
-        //TODO: implement delete apple account
+        final cred = await signInWithApple();
+
+        print(cred);
       } else {
         throw ConnectionNotifier.connectionException;
       }

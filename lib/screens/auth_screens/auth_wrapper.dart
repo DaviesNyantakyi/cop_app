@@ -70,6 +70,7 @@ class _AuthWrapperState extends State<AuthWrapper> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    //FirebaseAuth.instance.signOut();
     return StreamBuilder<User?>(
       stream: authChanges,
       builder: (context, snapshot) {

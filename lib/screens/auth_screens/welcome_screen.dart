@@ -46,7 +46,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     }
   }
 
-  Future<void> continueWithApple() async {}
+  Future<void> continueWithApple() async {
+    try {
+      EasyLoading.show();
+      await fireAuth.signInWithApple();
+      EasyLoading.dismiss();
+    } on FirebaseException catch (e) {
+      showCustomSnackBar(
+        context: context,
+        type: CustomSnackBarType.error,
+        message: e.message ?? '',
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      EasyLoading.dismiss();
+    }
+  }
 
   Future<void> continueWithEmail() async {
     Navigator.push(
