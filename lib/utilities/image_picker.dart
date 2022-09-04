@@ -65,19 +65,17 @@ class CustomImagePicker {
       if (source == ImageSource.camera) {
         //Request camera and storage permission.
         var statusCamera = await Permission.camera.request();
-        var statusStorage = await Permission.storage.request();
+        //var statusStorage = await Permission.storage.request();
 
         //pick image if the permission is granted.
-        if (statusStorage == PermissionStatus.granted &&
-            statusCamera == PermissionStatus.granted) {
+        if (statusCamera == PermissionStatus.granted) {
           image = await _picker.pickImage(
             source: source,
           );
         }
 
         // Ask to enable permission if permanlty denied.
-        if (statusStorage == PermissionStatus.permanentlyDenied ||
-            statusCamera == PermissionStatus.permanentlyDenied) {
+        if (statusCamera == PermissionStatus.permanentlyDenied) {
           await _showPermissionDialog(context: context);
         }
         return image;
