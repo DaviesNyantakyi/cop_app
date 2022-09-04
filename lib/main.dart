@@ -87,7 +87,10 @@ ThemeData _theme({required BuildContext context}) {
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: kBlue,
     ),
-    listTileTheme: const ListTileThemeData(tileColor: kWhite),
+    listTileTheme: const ListTileThemeData(
+      tileColor: kWhite,
+      contentPadding: EdgeInsets.symmetric(horizontal: kContentSpacing16),
+    ),
     dividerTheme: const DividerThemeData(thickness: 1),
     iconTheme: const IconThemeData(
       color: kBlack,

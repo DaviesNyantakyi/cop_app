@@ -101,11 +101,11 @@ class _SubScriptionsScreenState extends State<SubScriptionsScreen> {
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
-            'Tap this button on any podcast to see',
+            'Tap the subscribe button on any podcast',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
           Text(
-            'new episodes at a glance',
+            ' to see new podcasts at a glance',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
         ],

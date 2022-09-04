@@ -77,7 +77,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     return AppBar(
       leading: const CustomBackButton(),
       title: Text(
-        'Downloaded',
+        'Downloads',
         style: Theme.of(context).textTheme.headline6?.copyWith(
               fontWeight: FontWeight.bold,
             ),

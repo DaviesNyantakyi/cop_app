@@ -57,7 +57,7 @@ class _LibraryScreenState extends State<LibraryScreen>
               ),
               _buildTile(
                 leadingIcon: BootstrapIcons.arrow_down_circle,
-                title: 'Downloaded',
+                title: 'Downloads',
                 trailingIcon: BootstrapIcons.chevron_right,
                 onTap: () {
                   Navigator.push(

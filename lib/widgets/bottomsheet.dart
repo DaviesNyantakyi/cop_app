@@ -7,6 +7,7 @@ Future<dynamic> showCustomBottomSheet({
   bool isDismissible = true,
   double? height,
   double? width,
+  EdgeInsetsGeometry? padding,
   bool enableDrag = true,
   bool isScrollControlled = true,
   final Widget? header,
@@ -42,7 +43,7 @@ Future<dynamic> showCustomBottomSheet({
           height: height,
           width: width,
           child: Padding(
-            padding: const EdgeInsets.all(kContentSpacing16),
+            padding: padding ?? const EdgeInsets.all(kContentSpacing16),
             child: Material(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(kRadius),

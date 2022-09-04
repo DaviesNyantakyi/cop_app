@@ -92,6 +92,7 @@ class CustomImagePicker {
   }) async {
     bool? deleteImage = await showCustomBottomSheet(
       backgroundColor: kWhite,
+      padding: EdgeInsets.zero,
       context: context,
       child: Material(
         color: kWhite,

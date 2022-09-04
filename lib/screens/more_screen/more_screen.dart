@@ -121,13 +121,6 @@ class _MoreScreenState extends State<MoreScreen> {
     return SizedBox(
       height: kButtonHeight,
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: kContentSpacing16),
-        // shape: const RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.all(
-        //     Radius.circular(kRadius),
-        //   ),
-        // ),
         title: Text(
           title,
           style: Theme.of(context).textTheme.bodyText1,
