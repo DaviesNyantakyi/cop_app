@@ -1,4 +1,4 @@
-import 'package:cop_belgium_app/screens/profile_screen/verify_account.dart';
+import 'package:cop_belgium_app/screens/more_screen/verify_account.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';

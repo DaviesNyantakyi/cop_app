@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'dart:io' show Platform;
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -130,7 +131,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ? Container()
                         : const SizedBox(height: kContentSpacing32),
                     _buildGoogleButton(),
-                    const SizedBox(height: kContentSpacing8),
+                    Platform.isAndroid
+                        ? Container()
+                        : const SizedBox(height: kContentSpacing8),
                     _buildAppleButton(),
                     const SizedBox(height: kContentSpacing8),
                     _buildEmailButton(context: context),
@@ -229,6 +232,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget _buildAppleButton() {
     return ResponsiveBuilder(
       builder: (context, screenInfo) {
+        if (Platform.isAndroid) {
+          return Container();
+        }
         return CustomIconButton(
           height: kButtonHeight,
           backgroundColor: kBlack,

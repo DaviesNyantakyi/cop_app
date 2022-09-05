@@ -36,7 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         appBar: _buildAppBar(),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(kContentSpacing16),
+            padding: const EdgeInsets.symmetric(vertical: kContentSpacing16),
             child: Column(children: [
               _buildTile(
                 leadingIcon: BootstrapIcons.folder,
@@ -87,7 +87,6 @@ class _LibraryScreenState extends State<LibraryScreen>
   }) {
     return ListTile(
         horizontalTitleGap: 0,
-        contentPadding: EdgeInsets.zero,
         leading: Icon(
           leadingIcon,
           color: kBlue,

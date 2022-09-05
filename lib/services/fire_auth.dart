@@ -212,7 +212,7 @@ class FireAuth {
     // return null if authentication fails.
   }
 
-  Future<OAuthCredential?> signInWithApple() async {
+  Future<AuthorizationResult?> signInWithApple() async {
     try {
       final hasConnection = await _connectionNotifier.checkConnection();
 
@@ -236,8 +236,6 @@ class FireAuth {
                   String.fromCharCodes(appleIdCredential.authorizationCode!),
             );
 
-            print(appleIdCredential.fullName?.familyName);
-
             await _firebaseAuth.signInWithCredential(credential);
             // Create create user document if it does not exist.
             // Try to get the user
@@ -256,8 +254,8 @@ class FireAuth {
               );
               await _cloudFire.createUserDoc(user: user);
               await _firebaseAuth.currentUser?.updatePhotoURL(null);
-              return credential;
             }
+            return result;
           }
 
           if (result.status == AuthorizationStatus.cancelled) {
@@ -370,9 +368,79 @@ class FireAuth {
       final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
-        final cred = await signInWithApple();
+        final results = await signInWithApple();
 
-        print(cred);
+        if (results?.status == AuthorizationStatus.authorized &&
+            results != null) {
+          final appleIdCredential = results.credential!;
+          final oAuthProvider = OAuthProvider(providerIdApple);
+
+          final credential = oAuthProvider.credential(
+            idToken: String.fromCharCodes(appleIdCredential.identityToken!),
+            accessToken:
+                String.fromCharCodes(appleIdCredential.authorizationCode!),
+          );
+
+          final userCred = await _firebaseAuth.currentUser
+              ?.reauthenticateWithCredential(credential);
+
+          if (userCred != null && userCred.credential != null) {
+            await _firebaseAuth.currentUser?.reload();
+            await FireStorage().deleteProfileImage();
+            await _cloudFire.deleteUserInfo();
+            await _firebaseAuth.currentUser?.delete();
+            await HiveBoxes().deleteBoxes();
+            await signOut();
+            return true;
+          }
+        }
+        final isAvailable = await TheAppleSignIn.isAvailable();
+
+        if (isAvailable) {
+          // 1. perform the sign-in request
+
+          final result = await TheAppleSignIn.performRequests([
+            const AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
+          ]);
+
+          if (result.status == AuthorizationStatus.authorized) {
+            final appleIdCredential = result.credential!;
+            final oAuthProvider = OAuthProvider(providerIdApple);
+
+            final credential = oAuthProvider.credential(
+              idToken: String.fromCharCodes(appleIdCredential.identityToken!),
+              accessToken:
+                  String.fromCharCodes(appleIdCredential.authorizationCode!),
+            );
+
+            final userCred = await _firebaseAuth.currentUser
+                ?.reauthenticateWithCredential(credential);
+
+            if (userCred != null && userCred.credential != null) {
+              await _firebaseAuth.currentUser?.reload();
+              await FireStorage().deleteProfileImage();
+              await _cloudFire.deleteUserInfo();
+              await _firebaseAuth.currentUser?.delete();
+              await HiveBoxes().deleteBoxes();
+              await signOut();
+              return true;
+            }
+          }
+
+          if (result.status == AuthorizationStatus.cancelled) {
+            throw PlatformException(
+              code: 'ERROR_ABORTED_BY_USER',
+              message: 'Sign in aborted by user',
+            );
+          }
+
+          if (result.status == AuthorizationStatus.error) {
+            throw PlatformException(
+              code: 'ERROR_AUTHORIZATION_DENIED',
+              message: result.error.toString(),
+            );
+          }
+        }
       } else {
         throw ConnectionNotifier.connectionException;
       }
