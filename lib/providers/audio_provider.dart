@@ -29,12 +29,14 @@ class AudioProvider with ChangeNotifier {
 
   PlayerState? _playerState;
   Duration _currentPostion = Duration.zero;
+  Duration _bufferPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
   AudioServiceRepeatMode _repeatMode = AudioServiceRepeatMode.none;
   MediaItem? _currentMediaItem;
 
   PlayerState? get playerState => _playerState;
   Duration get currentPostion => _currentPostion;
+  Duration get bufferPosition => _bufferPosition;
   Duration get totalDuration => _totalDuration;
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   MediaItem? get currentMediaItem => _currentMediaItem;
@@ -42,6 +44,7 @@ class AudioProvider with ChangeNotifier {
   AudioProvider() {
     _postionStream();
     _totalDurationStream();
+    _bufferStream();
     playingStateStream();
   }
 
@@ -153,6 +156,15 @@ class AudioProvider with ChangeNotifier {
     // Gets the current audio (slider) postion.
     _justAudio.positionStream.listen((position) {
       _currentPostion = position;
+      notifyListeners();
+    });
+  }
+
+  void _bufferStream() {
+    // Gets the current audio (slider) postion.
+    _justAudio.bufferedPositionStream.listen((position) {
+      _bufferPosition = position;
+      print(_bufferPosition);
       notifyListeners();
     });
   }

@@ -1,16 +1,23 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cop_belgium_app/screens/more_screen/account_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:cop_belgium_app/utilities/load_markdown.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/cop_logo.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:feedback/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   static String settingsScreen = 'settingsScreen';
@@ -31,34 +38,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? deviceManufacturer;
   String? packageVersion;
 
-  Future<void> sendFeedBack({required String type}) async {
+  Future<String> writeImageToStorage(Uint8List feedbackScreenshot) async {
+    final Directory output = await getTemporaryDirectory();
+    final String screenshotFilePath = '${output.path}/feedback.png';
+    final File screenshotFile = File(screenshotFilePath);
+    await screenshotFile.writeAsBytes(feedbackScreenshot);
+    return screenshotFilePath;
+  }
+
+  Future<void> sendFeedBack({
+    required String type,
+    required UserFeedback feedback,
+  }) async {
     String? subject;
+    String recipients = 'apkerooo@gmail.com';
     String appVersion = 'App version: $packageVersion';
     String? message;
 
     if (type == 'bug') {
       subject = 'Bug';
-      message = 'Please write about your bug here.';
+      message = 'Please write about your bug here:';
     } else {
       subject = 'App Feedback';
-      message = 'Please write about your feedback here.';
+      message = 'Please write about your feedback here:';
     }
 
-    final Email email = Email(
+    final imagePath = await writeImageToStorage(feedback.screenshot);
+
+    final Email mail = Email(
       subject: subject,
       body: '''
       $message
+      ${feedback.text}
 
 
       Device Information: 
       $deviceManufacturer - $deviceModel
       $appVersion
       ''',
-      recipients: ['apkerooo@gmail.com'],
+      recipients: [recipients],
+      attachmentPaths: [imagePath],
     );
 
     try {
-      await FlutterEmailSender.send(email);
+      await FlutterEmailSender.send(mail);
+    } on PlatformException catch (e) {
+      debugPrint(e.toString());
+
+      if (e.message == 'No email clients found!') {
+        launchUrl(Uri.parse(
+            'mailto:$recipients?subject=${mail.subject}&body=${mail.body}'));
+      }
     } catch (e) {
       debugPrint(e.toString());
       showCustomSnackBar(
@@ -136,7 +166,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         ListTile(
           onTap: () async {
-            await sendFeedBack(type: 'bug');
+            BetterFeedback.of(context).show((UserFeedback feedback) async {
+              await sendFeedBack(type: 'bug', feedback: feedback);
+            });
           },
           title: Text(
             'Report a Bug',
@@ -145,7 +177,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         ListTile(
           onTap: () async {
-            await sendFeedBack(type: 'feedBack');
+            BetterFeedback.of(context).show((UserFeedback feedback) async {
+              await sendFeedBack(type: 'feedback', feedback: feedback);
+            });
           },
           title: Text(
             'Send Feedback',

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/widgets/custom_marquee.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SliderTheme(
+            /*  SliderTheme(
               data: SliderTheme.of(context).copyWith(),
               child: Slider(
                 value: min(
@@ -73,8 +74,23 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   audioProvider.seek(Duration(seconds: value.toInt()));
                 },
               ),
+            ),*/
+
+            ProgressBar(
+              buffered: audioProvider.bufferPosition,
+              thumbColor: kBlue,
+              progressBarColor: kBlue,
+              baseBarColor: kGreyLight,
+              bufferedBarColor: kBlue.withOpacity(0.2),
+              timeLabelTextStyle: Theme.of(context).textTheme.bodyText2,
+              progress: audioProvider.currentPostion,
+              total: audioProvider.totalDuration,
+              // This is called when slider value is changed.
+              onSeek: (Duration value) {
+                audioProvider.seek(value);
+              },
             ),
-            Row(
+            /*  Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -89,7 +105,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   style: Theme.of(context).textTheme.caption,
                 ),
               ],
-            ),
+            ),*/
           ],
         );
       },

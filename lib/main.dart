@@ -13,6 +13,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:feedback/feedback.dart';
 
 Future<void> main() async {
   await _init();
@@ -62,21 +63,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'COP Belgium',
-      theme: _theme(context: context),
-      builder: EasyLoading.init(),
-      debugShowCheckedModeBanner: false,
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SignUpProvider>(
-            create: (conext) => SignUpProvider(),
-          ),
-          ChangeNotifierProvider<AudioProvider>.value(
-            value: AudioProvider(),
-          ),
+    return BetterFeedback(
+      theme: FeedbackThemeData(
+        background: kGrey,
+        feedbackSheetColor: kWhite,
+        bottomSheetDescriptionStyle: Theme.of(context).textTheme.bodyText1!,
+        drawColors: [
+          kRed,
+          kGreen,
+          kBlue,
+          kYellow,
         ],
-        child: const AuthWrapper(),
+      ),
+      child: MaterialApp(
+        title: 'COP Belgium',
+        theme: _theme(context: context),
+        builder: EasyLoading.init(),
+        debugShowCheckedModeBanner: false,
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SignUpProvider>(
+              create: (conext) => SignUpProvider(),
+            ),
+            ChangeNotifierProvider<AudioProvider>.value(
+              value: AudioProvider(),
+            ),
+          ],
+          child: const AuthWrapper(),
+        ),
       ),
     );
   }

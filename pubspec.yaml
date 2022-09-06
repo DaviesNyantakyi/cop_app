@@ -77,6 +77,9 @@ dependencies:
   cloud_firestore: ^3.1.5 # Store date in firestore
   google_sign_in: ^5.2.4 # Google signin flow
   the_apple_sign_in: ^1.1.1
+  feedback: ^2.5.0
+  audio_video_progress_bar: ^0.10.0
+
 
   crypto: ^3.0.2
   convert: ^3.0.2
