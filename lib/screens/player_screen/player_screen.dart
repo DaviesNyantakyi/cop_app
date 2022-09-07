@@ -59,23 +59,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /*  SliderTheme(
-              data: SliderTheme.of(context).copyWith(),
-              child: Slider(
-                value: min(
-                  // the min returns the lesser numnber.
-                  // If the currentPostion is greater then the totalDuration, the totalDuration will be returned.
-                  audioProvider.currentPostion.inSeconds.toDouble(),
-                  audioProvider.totalDuration.inSeconds.toDouble(),
-                ),
-                max: audioProvider.totalDuration.inSeconds.toDouble(),
-                // This is called when slider value is changed.
-                onChanged: (double value) {
-                  audioProvider.seek(Duration(seconds: value.toInt()));
-                },
-              ),
-            ),*/
-
             ProgressBar(
               buffered: audioProvider.bufferPosition,
               thumbColor: kBlue,

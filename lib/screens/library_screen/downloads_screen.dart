@@ -43,6 +43,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                 return _buildNoSubscriptionsText();
               }
               return EpisodeTile(
+                showImage: true,
                 episode: downloadBox[index],
                 onPressed: () => showPlayer(
                   context: conext,

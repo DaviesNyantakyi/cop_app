@@ -79,6 +79,8 @@ dependencies:
   the_apple_sign_in: ^1.1.1
   feedback: ^2.5.0
   audio_video_progress_bar: ^0.10.0
+  ndialog: ^4.1.1+1
+
 
 
   crypto: ^3.0.2

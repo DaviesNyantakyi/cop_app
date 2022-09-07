@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:cop_belgium_app/widgets/download_button.dart';
+import 'package:cop_belgium_app/widgets/podcast_image.dart';
 
 import 'package:flutter/material.dart';
 
@@ -17,11 +18,13 @@ import '../utilities/formal_dates.dart';
 class EpisodeTile extends StatefulWidget {
   final EpisodeModel episode;
   final VoidCallback? onPressed;
+  final bool? showImage;
 
   const EpisodeTile({
     Key? key,
     required this.episode,
     this.onPressed,
+    this.showImage,
   }) : super(key: key);
 
   @override
@@ -31,27 +34,14 @@ class EpisodeTile extends StatefulWidget {
 class _EpisodeTileState extends State<EpisodeTile> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
-      return InkWell(
-        onTap: widget.onPressed,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTitle(),
-              const SizedBox(height: kContentSpacing4),
-              _buildDescription(),
-              const SizedBox(height: kContentSpacing4),
-              _buildActions()
-            ],
-          ),
-        ),
-      );
-    });
+    if (widget.showImage == true) {
+      return _buildTileWithImageLayout();
+    } else {
+      return _buildTileNoImageLayout();
+    }
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle({int? maxLines}) {
     return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
       return Text(
         widget.episode.title ?? '',
@@ -61,17 +51,19 @@ class _EpisodeTileState extends State<EpisodeTile> {
                   ? kBlue
                   : kBlack,
             ),
+        overflow: TextOverflow.ellipsis,
+        maxLines: maxLines ?? 2,
       );
     });
   }
 
-  Widget _buildDescription() {
+  Widget _buildDescription({int? maxLines}) {
     return Text(
       widget.episode.description ?? '',
       style: Theme.of(context).textTheme.bodyText1?.copyWith(
             color: kBlack.withOpacity(0.65),
           ),
-      maxLines: 3,
+      maxLines: maxLines ?? 3,
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -186,5 +178,60 @@ class _EpisodeTileState extends State<EpisodeTile> {
             : Container();
       },
     );
+  }
+
+  Widget _buildTileNoImageLayout() {
+    return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
+      return InkWell(
+        onTap: widget.onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTitle(),
+              const SizedBox(height: kContentSpacing4),
+              _buildDescription(),
+              const SizedBox(height: kContentSpacing4),
+              _buildActions()
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildTileWithImageLayout() {
+    return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
+      return InkWell(
+        onTap: widget.onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              PodcastImage(
+                imageURL: widget.episode.image ?? '',
+                width: 100,
+                height: 100,
+              ),
+              const SizedBox(width: kContentSpacing12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitle(maxLines: 2),
+                    const SizedBox(height: kContentSpacing4),
+                    _buildDescription(maxLines: 2),
+                    const SizedBox(height: kContentSpacing4),
+                    _buildActions()
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

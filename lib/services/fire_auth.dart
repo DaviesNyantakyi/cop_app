@@ -104,6 +104,46 @@ class FireAuth {
     }
   }
 
+  Future<bool> deleteEmailAccount({
+    String? email,
+    String? password,
+  }) async {
+    try {
+      final hasConnection = await _connectionNotifier.checkConnection();
+
+      if (hasConnection) {
+        if (email != null &&
+            email.isNotEmpty &&
+            password != null &&
+            password.isNotEmpty) {
+          final credential =
+              EmailAuthProvider.credential(email: email, password: password);
+
+          await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
+            credential,
+          );
+
+          await _firebaseAuth.currentUser?.reload();
+          await _fireStorage.deleteProfileImage();
+          await _cloudFire.deleteUserInfo();
+          await _firebaseAuth.currentUser?.delete();
+          await HiveBoxes().deleteBoxes();
+          return true;
+        }
+      } else {
+        throw ConnectionNotifier.connectionException;
+      }
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    } catch (e) {
+      debugPrint(e.toString());
+
+      rethrow;
+    }
+    return false;
+  }
+
   // Returns true if succesfull
   Future<bool> sendPasswordResetEmail({required String? email}) async {
     try {
@@ -147,20 +187,6 @@ class FireAuth {
       rethrow;
     }
     // return null if authentication fails.
-  }
-
-  Future<void> signOut() async {
-    try {
-      // Delete anon user when signed out
-      if (_firebaseAuth.currentUser?.isAnonymous == true) {
-        await _firebaseAuth.currentUser?.delete();
-      }
-      await _firebaseAuth.signOut();
-      await _googleSignIn.signOut();
-    } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    }
   }
 
   Future<OAuthCredential?> signInWithGoogle() async {
@@ -285,44 +311,6 @@ class FireAuth {
     // return null if authentication fails.
   }
 
-  Future<bool> deleteEmailAccount({
-    String? email,
-    String? password,
-  }) async {
-    try {
-      final hasConnection = await _connectionNotifier.checkConnection();
-
-      if (hasConnection) {
-        if (email != null &&
-            email.isNotEmpty &&
-            password != null &&
-            password.isNotEmpty) {
-          final credential =
-              EmailAuthProvider.credential(email: email, password: password);
-          await FirebaseAuth.instance.currentUser!.reauthenticateWithCredential(
-            credential,
-          );
-          await _firebaseAuth.currentUser?.reload();
-          await _fireStorage.deleteProfileImage();
-          await _cloudFire.deleteUserInfo();
-          await _firebaseAuth.currentUser?.delete();
-          await HiveBoxes().deleteBoxes();
-          return true;
-        }
-      } else {
-        throw ConnectionNotifier.connectionException;
-      }
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-      rethrow;
-    } catch (e) {
-      debugPrint(e.toString());
-
-      rethrow;
-    } finally {}
-    return false;
-  }
-
   Future<bool> deleteGoogleAccount() async {
     try {
       final hasConnection = await _connectionNotifier.checkConnection();
@@ -368,32 +356,6 @@ class FireAuth {
       final hasConnection = await _connectionNotifier.checkConnection();
 
       if (hasConnection) {
-        final results = await signInWithApple();
-
-        if (results?.status == AuthorizationStatus.authorized &&
-            results != null) {
-          final appleIdCredential = results.credential!;
-          final oAuthProvider = OAuthProvider(providerIdApple);
-
-          final credential = oAuthProvider.credential(
-            idToken: String.fromCharCodes(appleIdCredential.identityToken!),
-            accessToken:
-                String.fromCharCodes(appleIdCredential.authorizationCode!),
-          );
-
-          final userCred = await _firebaseAuth.currentUser
-              ?.reauthenticateWithCredential(credential);
-
-          if (userCred != null && userCred.credential != null) {
-            await _firebaseAuth.currentUser?.reload();
-            await FireStorage().deleteProfileImage();
-            await _cloudFire.deleteUserInfo();
-            await _firebaseAuth.currentUser?.delete();
-            await HiveBoxes().deleteBoxes();
-            await signOut();
-            return true;
-          }
-        }
         final isAvailable = await TheAppleSignIn.isAvailable();
 
         if (isAvailable) {
@@ -425,20 +387,6 @@ class FireAuth {
               await signOut();
               return true;
             }
-          }
-
-          if (result.status == AuthorizationStatus.cancelled) {
-            throw PlatformException(
-              code: 'ERROR_ABORTED_BY_USER',
-              message: 'Sign in aborted by user',
-            );
-          }
-
-          if (result.status == AuthorizationStatus.error) {
-            throw PlatformException(
-              code: 'ERROR_AUTHORIZATION_DENIED',
-              message: result.error.toString(),
-            );
           }
         }
       } else {
@@ -518,5 +466,19 @@ class FireAuth {
       rethrow;
     }
     return false;
+  }
+
+  Future<void> signOut() async {
+    try {
+      // Delete anon user when signed out
+      if (_firebaseAuth.currentUser?.isAnonymous == true) {
+        await _firebaseAuth.currentUser?.delete();
+      }
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
   }
 }

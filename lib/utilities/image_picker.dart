@@ -45,42 +45,39 @@ class CustomImagePicker {
   }) async {
     try {
       XFile? image;
+      PermissionStatus? _status;
 
       if (source == ImageSource.gallery) {
-        // pick image from storage if permission granted.
-        var status = await Permission.storage.request();
-        if (status == PermissionStatus.granted) {
+        //Request access to photos
+        _status = await Permission.photos.request();
+
+        //Pick image
+        if (_status == PermissionStatus.granted) {
           image = await _picker.pickImage(
             source: source,
           );
         }
-        // If the permission permanlty denied showdialog
-        if (status == PermissionStatus.permanentlyDenied) {
-          await _showPermissionDialog(context: context);
-        }
-        return image;
       }
 
-      // pick image from storage and camera if permission granted.
+      // pick image from camera
       if (source == ImageSource.camera) {
-        //Request camera and storage permission.
-        var statusCamera = await Permission.camera.request();
-        //var statusStorage = await Permission.storage.request();
+        //Request access to camera
+        _status = await Permission.camera.request();
 
-        //pick image if the permission is granted.
-        if (statusCamera == PermissionStatus.granted) {
+        //Pick image
+        if (_status == PermissionStatus.granted) {
           image = await _picker.pickImage(
             source: source,
           );
         }
-
-        // Ask to enable permission if permanlty denied.
-        if (statusCamera == PermissionStatus.permanentlyDenied) {
-          await _showPermissionDialog(context: context);
-        }
-        return image;
       }
-      return null;
+
+      // Ask to enable permissions
+      if (_status == PermissionStatus.denied ||
+          _status == PermissionStatus.permanentlyDenied) {
+        await _showPermissionDialog(context: context);
+      }
+      return image;
     } on PlatformException catch (e) {
       debugPrint(e.toString());
       rethrow;
@@ -168,13 +165,12 @@ class CustomImagePicker {
     );
   }
 
-  Future<String?> _showPermissionDialog({
-    required BuildContext context,
-  }) async {
+  Future<void> _showPermissionDialog({required BuildContext context}) async {
     return showCustomDialog(
       barrierDismissible: true,
       context: context,
-      title: Column(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 100,
@@ -213,43 +209,37 @@ class CustomImagePicker {
           ),
         ],
       ),
-      actions: Row(
-        children: <Widget>[
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: SizedBox(
-                height: double.infinity,
-                child: Center(
-                  child: Text(
-                    'Not now',
-                    style: Theme.of(context).textTheme.bodyText1,
-                  ),
-                ),
+      actions: <Widget>[
+        InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: SizedBox(
+            height: double.infinity,
+            child: Center(
+              child: Text(
+                'Not now',
+                style: Theme.of(context).textTheme.bodyText1,
               ),
             ),
           ),
-          Expanded(
-            child: InkWell(
-              onTap: () async {
-                Navigator.pop(context);
-                await AppSettings.openAppSettings();
-              },
-              child: SizedBox(
-                height: double.infinity,
-                child: Center(
-                  child: Text(
-                    'Settings',
-                    style: Theme.of(context).textTheme.bodyText1,
-                  ),
-                ),
+        ),
+        InkWell(
+          onTap: () async {
+            Navigator.pop(context);
+            await AppSettings.openAppSettings();
+          },
+          child: SizedBox(
+            height: double.infinity,
+            child: Center(
+              child: Text(
+                'Settings',
+                style: Theme.of(context).textTheme.bodyText1,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

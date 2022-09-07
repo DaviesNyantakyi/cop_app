@@ -1,43 +1,23 @@
 import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
 
-Future<String?> showCustomDialog({
+Future<void> showCustomDialog({
   required BuildContext context,
-  required Widget title,
-  Widget? actions,
+  Widget? title,
+  Widget? content,
+  List<Widget>? actions,
   bool barrierDismissible = true,
 }) async {
-  return await showDialog<String?>(
-    barrierDismissible: barrierDismissible,
-    context: context,
-    builder: (BuildContext context) => Dialog(
-      elevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(kRadius),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(kContentSpacing16),
-            child: title,
-          ),
-          actions != null ? const Divider() : Container(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kContentSpacing16)
-                .copyWith(
-              bottom: kContentSpacing8,
-            ),
-            child: SizedBox(
-              height: 42,
-              child: actions ?? Container(),
-            ),
-          )
-        ],
-      ),
+  await NDialog(
+    dialogStyle: DialogStyle(
+      titleDivider: true,
+      contentTextStyle: Theme.of(context).textTheme.bodyText1,
+      titleTextStyle: Theme.of(context).textTheme.headline6,
+      contentPadding: const EdgeInsets.all(kContentSpacing16),
     ),
-  );
+    title: title,
+    content: content,
+    actions: actions,
+  ).show(context);
 }

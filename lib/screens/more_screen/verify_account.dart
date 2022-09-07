@@ -103,7 +103,7 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
 
     showCustomDialog(
       context: context,
-      title: RichText(
+      content: RichText(
         text: TextSpan(
           text: 'Are you sure you want to delete account ',
           style: Theme.of(context).textTheme.bodyText1,
@@ -122,41 +122,35 @@ class _VerifyAccountScreenState extends State<VerifyAccountScreen> {
         ),
         textAlign: TextAlign.center,
       ),
-      actions: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () => Navigator.pop(context),
-              child: SizedBox(
-                height: double.infinity,
-                child: Center(
-                  child: Text(
-                    'Cancel',
-                    style: Theme.of(context).textTheme.bodyText1,
-                  ),
-                ),
+      actions: [
+        InkWell(
+          onTap: () => Navigator.pop(context),
+          child: SizedBox(
+            height: double.infinity,
+            child: Center(
+              child: Text(
+                'Cancel',
+                style: Theme.of(context).textTheme.bodyText1,
               ),
             ),
           ),
-          Expanded(
-            child: InkWell(
-              onTap: deleteAccount,
-              child: SizedBox(
-                height: double.infinity,
-                child: Center(
-                  child: Text(
-                    'Delete',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1
-                        ?.copyWith(color: kRed),
-                  ),
-                ),
+        ),
+        InkWell(
+          onTap: deleteAccount,
+          child: SizedBox(
+            height: double.infinity,
+            child: Center(
+              child: Text(
+                'Delete',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.copyWith(color: kRed),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

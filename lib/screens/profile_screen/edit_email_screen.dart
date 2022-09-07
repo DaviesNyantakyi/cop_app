@@ -66,21 +66,26 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
     final validPassword = passwordKey.currentState?.validate();
 
     if (validNewEmail == true && validPassword == true) {
-      return showCustomDialog(
+      showCustomDialog(
         context: context,
-        title: Column(
+        title: const Text('PLEASE BE AWARE!'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('PLEASE BE AWARE!'),
             const Text(
               'You will now be logged out of your account and asked to log in again with your new e-mail address:',
             ),
             Text(
               emailCntlr.text,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1
+                  ?.copyWith(fontWeight: FontWeight.bold),
             )
           ],
         ),
-        actions: Row(children: <Widget>[
+        actions: <Widget>[
           TextButton(
             child: const Text(
               'Cancel',
@@ -97,7 +102,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
               style: TextStyle(color: Colors.black),
             ),
           )
-        ]),
+        ],
       );
     }
     return null;
@@ -128,6 +133,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
         if (success) {
           if (mounted) {
             Navigator.of(context)
+              ..pop()
               ..pop()
               ..pop();
           }
@@ -253,7 +259,7 @@ class _EditEmailScreenState extends State<EditEmailScreen> {
             .bodyText1
             ?.copyWith(fontWeight: FontWeight.bold, color: kWhite),
       ),
-      onPressed: validForm ? update : null,
+      onPressed: validForm ? showEmailDialog : null,
     );
   }
 }
