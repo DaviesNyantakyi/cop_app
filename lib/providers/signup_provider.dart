@@ -119,6 +119,7 @@ class SignUpProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
+      debugPrint(e.toString());
       rethrow;
     }
   }

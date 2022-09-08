@@ -71,10 +71,13 @@ class CustomImagePicker {
           );
         }
       }
+      print(_status);
 
       // Ask to enable permissions
       if (_status == PermissionStatus.denied ||
-          _status == PermissionStatus.permanentlyDenied) {
+          _status == PermissionStatus.permanentlyDenied ||
+          _status == PermissionStatus.limited ||
+          _status == PermissionStatus.restricted) {
         await _showPermissionDialog(context: context);
       }
       return image;

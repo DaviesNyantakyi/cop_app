@@ -7,6 +7,7 @@ import 'package:cop_belgium_app/screens/profile_screen/edit_gender_screen.dart';
 import 'package:cop_belgium_app/screens/profile_screen/edit_name_screen.dart';
 import 'package:cop_belgium_app/services/fire_storage.dart';
 import 'package:cop_belgium_app/utilities/connection_checker.dart';
+import 'package:cop_belgium_app/utilities/firebase_error_codes.dart';
 import 'package:cop_belgium_app/utilities/formal_dates.dart';
 import 'package:cop_belgium_app/utilities/image_picker.dart';
 import 'package:cop_belgium_app/widgets/avatar.dart';
@@ -115,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } on FirebaseException catch (e) {
       showCustomSnackBar(
         context: context,
-        message: e.message ?? '',
+        message: FirebaseErrorCodes().firebaseMessages(e: e),
         type: CustomSnackBarType.error,
       );
     } catch (e) {

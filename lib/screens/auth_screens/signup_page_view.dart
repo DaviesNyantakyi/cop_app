@@ -5,6 +5,7 @@ import 'package:cop_belgium_app/screens/auth_screens/gender_view.dart';
 
 import 'package:cop_belgium_app/screens/church_selection_screen/church_selection_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
+import 'package:cop_belgium_app/utilities/firebase_error_codes.dart';
 import 'package:cop_belgium_app/utilities/page_navigation.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -52,7 +53,7 @@ class _SignUpPageViewState extends State<SignUpPageView> {
       showCustomSnackBar(
         context: context,
         type: CustomSnackBarType.error,
-        message: e.message ?? '',
+        message: FirebaseErrorCodes().firebaseMessages(e: e),
       );
 
       await EasyLoading.dismiss();
