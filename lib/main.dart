@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:feedback/feedback.dart';
@@ -187,53 +186,4 @@ ThemeData _theme({required BuildContext context}) {
       trackShape: CustomSliderTrackShape(),
     ),
   );
-}
-
-class TestingDialog extends StatefulWidget {
-  const TestingDialog({Key? key}) : super(key: key);
-
-  @override
-  State<TestingDialog> createState() => _TestingDialogState();
-}
-
-class _TestingDialogState extends State<TestingDialog> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: InkWell(
-          child: const Text('opendialog'),
-          onTap: () {
-            _showMyDialog(
-              context: context,
-              actions: <Widget>[
-                FlatButton(
-                  child: Text("You"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                FlatButton(
-                  child: Text("Are"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-Future<void> _showMyDialog(
-    {required BuildContext context, required List<Widget> actions}) async {
-  await NDialog(
-    dialogStyle: DialogStyle(titleDivider: true),
-    title: Text("Hi, This is NDialog"),
-    content: Text("And here is your content, hoho... "),
-    actions: actions,
-  ).show(context);
 }

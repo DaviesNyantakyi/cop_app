@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "28966762484-mo4mrv0i8uh50tmfr0fie5tn9e21rake.apps.googleusercontent.com",
+          "client_id": "28966762484-r8j91j407i81pb3ra7g6gq1fcid67sgp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.thecopbelgium.android.app",
-            "certificate_hash": "1cdb65d9741595ff9d19725fc7ef45171af17304"
+            "certificate_hash": "2119efee2265fcd673560fe40060befef9a64f19"
           }
         },
         {

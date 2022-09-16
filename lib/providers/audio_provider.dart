@@ -164,7 +164,6 @@ class AudioProvider with ChangeNotifier {
     // Gets the current audio (slider) postion.
     _justAudio.bufferedPositionStream.listen((position) {
       _bufferPosition = position;
-      print(_bufferPosition);
       notifyListeners();
     });
   }

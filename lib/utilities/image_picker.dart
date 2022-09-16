@@ -8,6 +8,7 @@ import 'package:cop_belgium_app/widgets/dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,15 +23,15 @@ class CustomImagePicker {
 
   // Cropp the image using the file path
   Future<File?> _imageCropper({File? file}) async {
-    String? title = 'EDIT PHOTO';
+    String? title = 'Edit photo';
     return await ImageCropper().cropImage(
       sourcePath: file!.path,
       androidUiSettings: AndroidUiSettings(
         toolbarColor: kGreyLight,
         toolbarTitle: title,
-        initAspectRatio: CropAspectRatioPreset.original,
-        lockAspectRatio: false,
-        hideBottomControls: true,
+        initAspectRatio: CropAspectRatioPreset.square,
+        showCropGrid: true,
+        hideBottomControls: false,
       ),
       iosUiSettings: IOSUiSettings(
         title: title,
@@ -71,7 +72,6 @@ class CustomImagePicker {
           );
         }
       }
-      print(_status);
 
       // Ask to enable permissions
       if (_status == PermissionStatus.denied ||
@@ -110,9 +110,16 @@ class CustomImagePicker {
                     source: ImageSource.camera,
                   );
                   if (pickedFile?.path != null) {
-                    selectedImage = await _imageCropper(
+                    final croppedImage = await _imageCropper(
                       file: File(pickedFile!.path),
                     );
+
+                    if (croppedImage != null) {
+                      selectedImage = await _compresImage(
+                        file: croppedImage,
+                        targetPath: croppedImage.path,
+                      );
+                    }
                   }
                   _delete = false;
                   Navigator.pop(context, _delete);
@@ -128,9 +135,16 @@ class CustomImagePicker {
                     source: ImageSource.gallery,
                   );
                   if (pickedFile?.path != null) {
-                    selectedImage = await _imageCropper(
+                    final croppedImage = await _imageCropper(
                       file: File(pickedFile!.path),
                     );
+
+                    if (croppedImage != null) {
+                      selectedImage = await _compresImage(
+                        file: croppedImage,
+                        targetPath: croppedImage.path,
+                      );
+                    }
                   }
                   _delete = false;
                   Navigator.pop(context, _delete);
@@ -166,6 +180,27 @@ class CustomImagePicker {
         style: TextStyle(color: color),
       ),
     );
+  }
+
+  Future<File?> _compresImage({
+    required File file,
+    required String targetPath,
+  }) async {
+    File? compressedImage;
+    try {
+      debugPrint('original image size:${file.lengthSync()}');
+      compressedImage = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath + 'compressed.jpg',
+        quality: 10,
+      );
+      debugPrint('compressed image size:${compressedImage?.lengthSync()}');
+    } on UnsupportedError catch (e) {
+      debugPrint(e.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return compressedImage;
   }
 
   Future<void> _showPermissionDialog({required BuildContext context}) async {

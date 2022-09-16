@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
@@ -12,7 +10,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../../providers/audio_provider.dart';
 import '../../utilities/constant.dart';
-import '../../utilities/formal_dates.dart';
 import '../../widgets/podcast_image.dart';
 
 class PlayerScreen extends StatefulWidget {
