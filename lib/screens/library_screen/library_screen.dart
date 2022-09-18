@@ -80,26 +80,27 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   ListTile _buildTile({
-    required IconData leadingIcon,
+    IconData? leadingIcon,
     required String title,
-    required IconData trailingIcon,
+    IconData? trailingIcon,
     VoidCallback? onTap,
   }) {
     return ListTile(
-        horizontalTitleGap: 0,
-        leading: Icon(
-          leadingIcon,
-          color: kBlue,
-        ),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-        trailing: Icon(
-          trailingIcon,
-          color: kGrey,
-        ),
-        onTap: onTap);
+      horizontalTitleGap: 0,
+      leading: Icon(
+        leadingIcon,
+        color: kBlue,
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.bodyText1,
+      ),
+      trailing: Icon(
+        trailingIcon,
+        color: kGrey,
+      ),
+      onTap: onTap,
+    );
   }
 
   dynamic _buildAppBar() {

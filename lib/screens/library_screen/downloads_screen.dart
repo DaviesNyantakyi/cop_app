@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/adapters.dart';
@@ -23,7 +24,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: ValueListenableBuilder<Box<EpisodeModel>>(
-        valueListenable: Hive.box<EpisodeModel>('downloads').listenable(),
+        valueListenable: HiveBoxes().getDownloads().listenable(),
         builder: (context, box, _) {
           final downloadBox = box.values.toList();
 

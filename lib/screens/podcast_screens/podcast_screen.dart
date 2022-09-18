@@ -1,4 +1,5 @@
 import 'package:cop_belgium_app/screens/podcast_screens/podcast_detail_screen.dart';
+import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:cop_belgium_app/utilities/responsive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +87,7 @@ class _PodcastScreenState extends State<PodcastScreen> {
     return ResponsiveBuilder(builder: (context, screenInfo) {
       return Consumer<AudioProvider>(builder: (context, audioProvider, _) {
         return ValueListenableBuilder<Box<PodcastModel>?>(
-          valueListenable: Hive.box<PodcastModel>('podcasts').listenable(),
+          valueListenable: HiveBoxes().getPodcasts().listenable(),
           builder: (context, podcastBox, _) {
             final podcasts = podcastBox?.values.toList() ?? [];
             if (podcasts.isEmpty) {

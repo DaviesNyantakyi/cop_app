@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bootstrap_icons/bootstrap_icons.dart';
-import 'package:cop_belgium_app/widgets/download_button.dart';
+import 'package:cop_belgium_app/widgets/episode_download_button.dart';
 import 'package:cop_belgium_app/widgets/podcast_image.dart';
 
 import 'package:flutter/material.dart';
@@ -81,7 +81,7 @@ class _EpisodeTileState extends State<EpisodeTile> {
             _buildDuration(),
           ],
         ),
-        DownloadButton(episode: widget.episode)
+        EpisodeDownloadButton(episode: widget.episode)
       ],
     );
   }

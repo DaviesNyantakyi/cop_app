@@ -32,8 +32,9 @@ Future<dynamic> showCustomBottomSheet({
     backgroundColor: backgroundColor,
     isScrollControlled: isScrollControlled,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(
-        Radius.circular(kRadius),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(kRadius),
+        topRight: Radius.circular(kRadius),
       ),
     ),
     context: context,

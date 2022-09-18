@@ -27,7 +27,7 @@ class _SubScriptionsScreenState extends State<SubScriptionsScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: ValueListenableBuilder<Box<PodcastModel>>(
-        valueListenable: Hive.box<PodcastModel>('subscriptions').listenable(),
+        valueListenable: HiveBoxes().getSubScriptions().listenable(),
         builder: (context, box, _) {
           final subBox = box.values.toList();
 

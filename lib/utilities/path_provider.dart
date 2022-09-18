@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-class CustomPathProvider {
-  Future<Directory> getDownloadsDirectory() async {
+class CustomDeviceDirectory {
+  Future<Directory> getEpisodesDownloadsDirectory() async {
     final appDir = await getApplicationDocumentsDirectory();
-    Directory newDirectory = Directory('${appDir.path}/downloads');
+    Directory newDirectory = Directory('${appDir.path}/episodesDownloads');
 
     if (await newDirectory.exists() == false) {
       return newDirectory.create(recursive: true);

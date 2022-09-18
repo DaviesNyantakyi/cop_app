@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:cop_belgium_app/widgets/back_button.dart';
 import 'package:cop_belgium_app/widgets/buttons.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
@@ -128,7 +129,7 @@ class _PodcastDetailScreenState extends State<PodcastDetailScreen> {
 
   Widget _buildSubscribeButton() {
     return ValueListenableBuilder<Box<PodcastModel>>(
-      valueListenable: Hive.box<PodcastModel>('subscriptions').listenable(),
+      valueListenable: HiveBoxes().getSubScriptions().listenable(),
       builder: (context, subBox, _) {
         bool subScribed = false;
 

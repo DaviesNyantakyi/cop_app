@@ -35,8 +35,8 @@ Future<void> _init() async {
   Hive.registerAdapter(PodcastModelAdapter());
   Hive.registerAdapter(EpisodeModelAdapter());
   await Hive.openBox<PodcastModel>('podcasts');
-  await Hive.openBox<PodcastModel>('subscriptions');
-  await Hive.openBox<EpisodeModel>('downloads');
+  await Hive.openBox<PodcastModel>('podcastSubscriptions');
+  await Hive.openBox<EpisodeModel>('episodeDownloads');
 
   await initAudioSerivce();
 
