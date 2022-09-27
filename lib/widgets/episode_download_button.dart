@@ -56,6 +56,7 @@ class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
   Future<void> showButtomSheet({Box? episodeBox, bool? downloaded}) async {
     // Show the bottomsheet if the epside has been donwloaded.
     if (downloaded == false && downloading == false) {
+      // Don't show the bottomsheet and directly dowload the episode if the episode hase not been downloaded or is not being downloaded.
       await downloadEpisode();
     } else {
       await showCustomBottomSheet(
@@ -63,6 +64,7 @@ class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
         context: context,
         child: Column(
           children: [
+            // Only show the delete button is the episdoe has been dowloaded.
             downloaded == false
                 ? Container()
                 : _buildTile(
@@ -76,14 +78,17 @@ class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
                       Navigator.pop(context);
                     },
                   ),
-            // _buildTile(
-            //   leadingIcon: Icon(
-            //     BootstrapIcons.x_circle,
-            //     color: downloaded == true ? kBlue : kBlack,
-            //   ),
-            //   title: 'Cancel',
-            //   onTap: () {},
-            // ),
+
+            downloading == true
+                ? _buildTile(
+                    leadingIcon: Icon(
+                      BootstrapIcons.x_circle,
+                      color: downloaded == true ? kBlue : kBlack,
+                    ),
+                    title: 'Cancel',
+                    onTap: () {},
+                  )
+                : Container(),
           ],
         ),
       );

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cop_belgium_app/screens/more_screen/account_screen.dart';
 import 'package:cop_belgium_app/utilities/constant.dart';
