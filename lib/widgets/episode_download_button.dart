@@ -3,6 +3,7 @@ import 'package:cop_belgium_app/utilities/constant.dart';
 import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:cop_belgium_app/widgets/bottomsheet.dart';
 import 'package:cop_belgium_app/widgets/snackbar.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -22,16 +23,19 @@ class EpisodeDownloadButton extends StatefulWidget {
 }
 
 class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
-  EpisodeDownloader downloadService = EpisodeDownloader();
+  EpisodeDownloader episodeDowloader = EpisodeDownloader();
   double percentage = 0.0;
   bool downloading = false;
+  bool isCancelled = false;
 
   Future<void> downloadEpisode() async {
     try {
-      await downloadService.downloadEpisode(
+      episodeDowloader.cancelToken = CancelToken();
+      await episodeDowloader.downloadEpisode(
         episode: widget.episode,
         onReceiveProgress: (recieved, total) {
           percentage = recieved / total;
+
           if (percentage < 1) {
             downloading = true;
           } else {
@@ -48,50 +52,62 @@ class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
         type: CustomSnackBarType.error,
         message: e.message ?? '',
       );
-    } catch (e) {
+    } on DioError catch (e) {
       debugPrint(e.toString());
     }
   }
 
   Future<void> showButtomSheet({Box? episodeBox, bool? downloaded}) async {
-    // Show the bottomsheet if the epside has been donwloaded.
-    if (downloaded == false && downloading == false) {
-      // Don't show the bottomsheet and directly dowload the episode if the episode hase not been downloaded or is not being downloaded.
-      await downloadEpisode();
-    } else {
-      await showCustomBottomSheet(
-        padding: const EdgeInsets.symmetric(horizontal: 0),
-        context: context,
-        child: Column(
-          children: [
-            // Only show the delete button is the episdoe has been dowloaded.
-            downloaded == false
-                ? Container()
-                : _buildTile(
-                    leadingIcon: Icon(
-                      BootstrapIcons.trash,
-                      color: downloaded == true ? kBlue : kBlack,
+    try {
+      // Show the bottomsheet if the epside has been donwloaded.
+      if (downloaded == false && downloading == false) {
+        // Don't show the bottomsheet and directly dowload the episode if the episode hase not been downloaded or is not being downloaded.
+        await downloadEpisode();
+      } else {
+        await showCustomBottomSheet(
+          padding: const EdgeInsets.symmetric(horizontal: 0),
+          context: context,
+          child: Column(
+            children: [
+              // Only show the delete button is the episdoe has been dowloaded.
+              downloaded == false
+                  ? Container()
+                  : _buildTile(
+                      leadingIcon: Icon(
+                        BootstrapIcons.trash,
+                        color: downloaded == true ? kBlue : kBlack,
+                      ),
+                      title: 'Delete',
+                      onTap: () async {
+                        await episodeBox?.delete(widget.episode.id);
+                        Navigator.pop(context);
+                      },
                     ),
-                    title: 'Delete',
-                    onTap: () async {
-                      await episodeBox?.delete(widget.episode.id);
-                      Navigator.pop(context);
-                    },
-                  ),
 
-            downloading == true
-                ? _buildTile(
-                    leadingIcon: Icon(
-                      BootstrapIcons.x_circle,
-                      color: downloaded == true ? kBlue : kBlack,
-                    ),
-                    title: 'Cancel',
-                    onTap: () {},
-                  )
-                : Container(),
-          ],
-        ),
-      );
+              downloading == true
+                  ? _buildTile(
+                      leadingIcon: Icon(
+                        BootstrapIcons.x_circle,
+                        color: downloaded == true ? kBlue : kBlack,
+                      ),
+                      title: 'Cancel',
+                      onTap: () {
+                        episodeDowloader.cancelToken.cancel();
+                        downloading = false;
+                        percentage = 0.0;
+                        if (mounted) {
+                          setState(() {});
+                        }
+                        Navigator.pop(context);
+                      },
+                    )
+                  : Container(),
+            ],
+          ),
+        );
+      }
+    } on DioError catch (e) {
+      debugPrint(e.toString());
     }
   }
 
@@ -137,15 +153,34 @@ class _EpisodeDownloadButtonState extends State<EpisodeDownloadButton> {
               ? SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(
-                    value: percentage,
-                    strokeWidth: 3,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: percentage,
+                        strokeWidth: 3,
+                      ),
+                      const Positioned(
+                        top: 2,
+                        bottom: 3,
+                        child: Icon(
+                          BootstrapIcons.stop_fill,
+                          color: kBlue,
+                          size: 12,
+                        ),
+                      )
+                    ],
                   ),
                 )
-              : Icon(
-                  BootstrapIcons.arrow_down_circle,
-                  color: downloaded ? kBlue : kBlack,
-                ),
+              : downloaded
+                  ? const Icon(
+                      BootstrapIcons.check_circle_fill,
+                      color: kGreen,
+                    )
+                  : const Icon(
+                      BootstrapIcons.arrow_down_circle,
+                      color: kBlack,
+                    ),
           onPressed: () => showButtomSheet(
             downloaded: downloaded,
             episodeBox: box,

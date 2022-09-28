@@ -4,6 +4,7 @@ import 'package:cop_belgium_app/utilities/connection_checker.dart';
 import 'package:cop_belgium_app/utilities/hive_boxes.dart';
 import 'package:cop_belgium_app/utilities/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../models/episode_model.dart';
 
@@ -14,6 +15,7 @@ class EpisodeDownloader {
   final connectionChecker = ConnectionNotifier();
 
   final _customDeviceDirectory = CustomDeviceDirectory();
+  CancelToken cancelToken = CancelToken();
 
   Future<void> downloadEpisode({
     required EpisodeModel episode,
@@ -63,8 +65,8 @@ class EpisodeDownloader {
       } else {
         throw ConnectionNotifier.connectionException;
       }
-    } catch (e) {
-      rethrow;
+    } on DioError catch (e) {
+      debugPrint(e.toString());
     }
   }
 
@@ -79,9 +81,13 @@ class EpisodeDownloader {
           responseType: ResponseType.bytes,
         ),
         onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
       );
-    } catch (e) {
-      rethrow;
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.response) {
+        debugPrint(e.toString());
+      }
     }
+    return null;
   }
 }
