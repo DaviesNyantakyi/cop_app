@@ -105,11 +105,11 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
-            'Tap this button on any episode to see',
+            'Tap the download button on any episode ',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
           Text(
-            'new episodes at a glance',
+            'to see new episodes at a glance',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
         ],

@@ -16,7 +16,7 @@ import '../widgets/bottomsheet.dart';
 const seekDuration = Duration(seconds: 30);
 Future<void> initAudioSerivce() async {
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.copbelgium.app.channel.audio',
+    androidNotificationChannelId: 'com.thecopbelgium.android.app',
     androidNotificationChannelName: 'COP Belgium',
     androidNotificationOngoing: true,
     fastForwardInterval: seekDuration,
@@ -40,6 +40,7 @@ class AudioProvider with ChangeNotifier {
   Duration get totalDuration => _totalDuration;
   AudioServiceRepeatMode get repeatMode => _repeatMode;
   MediaItem? get currentMediaItem => _currentMediaItem;
+  final _playlist = ConcatenatingAudioSource(children: []);
 
   AudioProvider() {
     _postionStream();
@@ -47,8 +48,6 @@ class AudioProvider with ChangeNotifier {
     _bufferStream();
     playingStateStream();
   }
-
-  final _playlist = ConcatenatingAudioSource(children: []);
 
   Future<void> initPlayer({required MediaItem mediaItem}) async {
     if (mediaItem.extras?['downloadPath'] != null) {
@@ -85,12 +84,12 @@ class AudioProvider with ChangeNotifier {
             ),
           ),
         );
+
         await _justAudio.setAudioSource(_playlist);
       }
     }
     _currentMediaItem = mediaItem;
     notifyListeners();
-
     await play();
   }
 

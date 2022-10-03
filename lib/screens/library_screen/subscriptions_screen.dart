@@ -105,7 +105,7 @@ class _SubScriptionsScreenState extends State<SubScriptionsScreen> {
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
           Text(
-            ' to see new podcasts at a glance',
+            ' to see new podcasts at a glance.',
             style: Theme.of(context).textTheme.bodyText1?.copyWith(),
           ),
         ],
